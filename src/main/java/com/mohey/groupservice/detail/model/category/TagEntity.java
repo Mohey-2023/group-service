@@ -5,9 +5,9 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Table(name = "tag_tb")
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TagEntity {

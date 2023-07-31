@@ -5,9 +5,9 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Table(name="group_participant_status_tb")
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupParticipantStatusEntity {

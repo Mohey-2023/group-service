@@ -4,10 +4,12 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+@Table(name="group_participant_tb")
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupParticipantEntity {
@@ -24,4 +26,11 @@ public class GroupParticipantEntity {
 
     @Column(name = "created_datetime", nullable = false)
     private LocalDateTime createdDatetime;
+
+    @ManyToOne
+    @JoinColumn(name = "id")
+    private GroupParticipantStatusEntity participantStatusList;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<GroupParticipantPublicStatusEntity> participantPublicStatusList = new ArrayList<>();
 }

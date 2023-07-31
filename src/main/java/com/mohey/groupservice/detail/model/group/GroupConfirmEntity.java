@@ -5,9 +5,9 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Table(name = "group_confirm_tb")
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupConfirmEntity {

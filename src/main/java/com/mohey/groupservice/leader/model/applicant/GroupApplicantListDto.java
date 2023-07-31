@@ -1,4 +1,4 @@
-package com.mohey.groupservice.detail.model.participant;
+package com.mohey.groupservice.leader.model.applicant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupParticipantListDto {
+public class GroupApplicantListDto {
     private Long groupId;
-    private List<GroupParticipantDto> participants;
+    private List<GroupApplicantDto> applicants;
 }

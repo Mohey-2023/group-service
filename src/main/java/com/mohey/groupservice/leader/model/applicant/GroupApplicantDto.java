@@ -1,4 +1,4 @@
-package com.mohey.groupservice.detail.model.participant;
+package com.mohey.groupservice.leader.model.applicant;
 
 import lombok.*;
 
@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupParticipantPublicStatusDto {
+public class GroupApplicantDto {
 
     private Long id;
-    private Long groupParticipantTbId;
-    private Integer status;
+    private Long groupId;
+    private String memberUuid;
     private LocalDateTime createdDatetime;
 }

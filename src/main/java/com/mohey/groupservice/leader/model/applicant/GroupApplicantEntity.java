@@ -1,13 +1,13 @@
-package com.mohey.groupservice.detail.model.applicant;
+package com.mohey.groupservice.leader.model.applicant;
 
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Table(name = "group_applicant_tb")
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupApplicantEntity {
@@ -24,4 +24,8 @@ public class GroupApplicantEntity {
 
     @Column(name = "created_datetime", nullable = false)
     private LocalDateTime createdDatetime;
+
+    @ManyToOne
+    @JoinColumn(name = "id")
+    private GroupApplicantStatusEntity applicantStatus;
 }
