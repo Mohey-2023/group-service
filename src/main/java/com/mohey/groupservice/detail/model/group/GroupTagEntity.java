@@ -6,9 +6,11 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import com.mohey.groupservice.detail.model.category.TagEntity;
+
+@Table(name = "group_tag_tb")
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupTagEntity {
@@ -25,4 +27,8 @@ public class GroupTagEntity {
 
     @Column(name = "created_datetime", nullable = false)
     private LocalDateTime createdDatetime;
+
+    @ManyToOne
+    @JoinColumn(name = "tab_tb_id", nullable = false)
+    private TagEntity tagEntity;
 }

@@ -9,5 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> {
-    Optional<GroupEntity> findByGroupIdAndLatestTrue(Long groupId);
+    GroupEntity findByGroupId(Long groupId);
+
+
 }
