@@ -63,7 +63,7 @@ public class GroupDetailService {
             //     .map(TagEntity::getTagName)
             //     .collect(Collectors.toList());
 
-            group.setGroupUuid(groupEntity.getGroupUuid());
+            group.setGroupId(groupEntity.getId());
             group.setParticipantsNum(groupParticipantEntities.size());
             group.setGroupDescription(groupModifiableEntity.getDescription());
 //            group.setCategory(groupModifiableEntity.getCategory().getCategoryName());
