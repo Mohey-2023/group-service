@@ -19,15 +19,15 @@ public class GroupParticipantController {
         this.groupParticipantService = groupParticipantService;
     }
 
-    @PostMapping("/join")
-    public ResponseEntity<String> joinGroup(@RequestParam Long groupId, @RequestParam String participantId) {
-        groupParticipantService.joinGroup(groupId, participantId);
-        return ResponseEntity.ok("Successfully joined the group.");
-    }
-
-    @PostMapping("/leave")
-    public ResponseEntity<String> leaveGroup(@RequestParam Long groupId, @RequestParam String participantId) {
-        groupParticipantService.leaveGroup(groupId, participantId);
-        return ResponseEntity.ok("Successfully left the group.");
-    }
+    // @PostMapping("/join")
+    // public ResponseEntity<String> joinGroup(@RequestParam Long groupId, @RequestParam String participantId) {
+    //     groupParticipantService.joinGroup(groupId, participantId);
+    //     return ResponseEntity.ok("Successfully joined the group.");
+    // }
+    //
+    // @PostMapping("/leave")
+    // public ResponseEntity<String> leaveGroup(@RequestParam Long groupId, @RequestParam String participantId) {
+    //     groupParticipantService.leaveGroup(groupId, participantId);
+    //     return ResponseEntity.ok("Successfully left the group.");
+    // }
 }
