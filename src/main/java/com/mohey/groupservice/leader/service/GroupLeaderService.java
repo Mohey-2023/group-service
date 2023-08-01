@@ -3,6 +3,7 @@ package com.mohey.groupservice.leader.service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.mohey.groupservice.leader.dto.leader.DelegateDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +53,11 @@ public class GroupLeaderService {
 		groupEntity.setGroupUuid(UUID.randomUUID().toString());
 		groupDetailRepository.save(groupEntity);
 
+		GroupModifiableEntity latest = groupModifiableRepository.findLatestGroupModifiableByGroupId(groupEntity.getId());
+		if(latest != null) {
+			latest.setLatestYn(false);
+		}
+
 		GroupModifiableEntity groupModifiableEntity = new GroupModifiableEntity();
 		groupModifiableEntity.setGroupTbId(groupEntity.getId());
 
@@ -80,6 +86,20 @@ public class GroupLeaderService {
 			groupCoordinatesEntity.setLocationId(groupDto.getLocationId());
 			groupCoordinatesRepository.save(groupCoordinatesEntity);
 		}
+	}
 
+	public void delegateLeadership(DelegateDto delegateDto){
+		GroupModifiableEntity latest = groupModifiableRepository
+				.findLatestGroupModifiableByGroupId(delegateDto.getGroupId());
+		latest.setLatestYn(false);
+
+		GroupModifiableEntity groupModifiableEntity = new GroupModifiableEntity();
+		groupModifiableEntity = latest;
+
+		groupModifiableEntity.setLeaderUuid(delegateDto.getDelegatedUuid());
+		groupModifiableEntity.setLatestYn(true);
+		groupModifiableEntity.setCreatedDatetime(null);
+
+		groupModifiableRepository.save(groupModifiableEntity);
 	}
 }
