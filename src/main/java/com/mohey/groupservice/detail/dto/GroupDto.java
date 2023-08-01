@@ -9,7 +9,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupDto {
-    private String groupUuid;
+    private Long groupId;
     private Integer participantsNum;
     private String groupDescription;
     private String category;
