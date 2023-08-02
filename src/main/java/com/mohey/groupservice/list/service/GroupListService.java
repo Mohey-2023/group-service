@@ -1,6 +1,7 @@
 package com.mohey.groupservice.list.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,26 +59,33 @@ public class GroupListService {
 	}
 
 	public List<CalendarResponseDto> getCalendarGroupList(CalendarRequestDto calendarRequestDto){
-		List<GroupEntity> memberGroupList = getMemberGroupList(calendarRequestDto.getMemberUuid());
+		List<GroupParticipantEntity> memberParticipantList = groupParticipantRepository
+				.findByMemberUuidAndGroupParticipantStatusIsNull(calendarRequestDto.getMemberUuid());
 
-		return memberGroupList.stream()
-			.map(groupEntity -> {
-				CalendarResponseDto calendarResponseDto = new CalendarResponseDto();
-				calendarResponseDto.setGroupUuid(groupEntity.getGroupUuid());
+		return memberParticipantList.stream()
+				.map(GroupParticipantEntity::getGroupId)
+				.map(groupId -> groupDetailRepository.findGroupByYearAndMonthAndGroupId(
+						calendarRequestDto.getYear(),
+						calendarRequestDto.getMonth(),
+						groupId))
+				.filter(Objects::nonNull)
+				.map(groupEntity -> {
+					CalendarResponseDto calendarResponseDto = new CalendarResponseDto();
+					calendarResponseDto.setGroupUuid(groupEntity.getGroupUuid());
+					GroupModifiableEntity groupModifiableEntity = groupEntity.getGroupModifiableList().get(0);
+					calendarResponseDto.setTitle(groupModifiableEntity.getTitle());
+					calendarResponseDto.setGroupStartDatetime(groupModifiableEntity.getGroupStartDatetime());
+					calendarResponseDto.setLocationId(groupModifiableEntity.getLocationId());
+					calendarResponseDto.setLng(groupModifiableEntity.getLng());
+					calendarResponseDto.setLat(groupModifiableEntity.getLat());
+					calendarResponseDto.setCategory(categoryRepository
+							.findById(groupModifiableEntity.getCategoryTbId())
+							.getCategoryName());
 
-				GroupModifiableEntity groupModifiableEntity = groupModifiableRepository
-					.findLatestGroupModifiableByGroupId(groupEntity.getId());
-				calendarResponseDto.setGroupStartDatetime(groupModifiableEntity.getGroupStartDatetime());
-				calendarResponseDto.setTitle(groupModifiableEntity.getTitle());
-				calendarResponseDto.setLat(groupModifiableEntity.getLat());
-				calendarResponseDto.setLng(groupModifiableEntity.getLng());
-				calendarResponseDto.setLocationId(groupModifiableEntity.getLocationId());
-
-				// 카테고리 설정 해야됨
-
-
-				return calendarResponseDto;
-			})
-			.collect(Collectors.toList());
+					return calendarResponseDto;
+				})
+				.collect(Collectors.toList());
 	}
+
+
 }

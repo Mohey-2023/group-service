@@ -7,10 +7,13 @@ import org.springframework.stereotype.Repository;
 
 import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 
+import java.util.List;
+
 @Repository
 public interface GroupModifiableRepository extends JpaRepository<GroupModifiableEntity, Long> {
 
 	@Query("SELECT gm FROM GroupModifiableEntity gm " +
 		"WHERE gm.groupTbId = :groupId AND gm.latestYn = true")
 	GroupModifiableEntity findLatestGroupModifiableByGroupId(@Param("groupId") Long groupId);
+
 }

@@ -11,5 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class CalendarRequestDto {
 	private String memberUuid;
-	private Integer Month;
+	private Integer year;
+	private Integer month;
 }

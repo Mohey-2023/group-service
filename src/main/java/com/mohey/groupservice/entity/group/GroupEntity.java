@@ -3,6 +3,7 @@ package com.mohey.groupservice.entity.group;
 import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.mohey.groupservice.entity.applicant.GroupApplicantEntity;
@@ -31,4 +32,7 @@ public class GroupEntity {
     @OneToOne
     @JoinColumn(name = "id")
     private GroupConfirmEntity groupConfirm;
+
+    @OneToMany(mappedBy = "groupEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<GroupModifiableEntity> groupModifiableList = new ArrayList<>();
 }
