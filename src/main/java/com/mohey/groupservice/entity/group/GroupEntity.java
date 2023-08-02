@@ -3,6 +3,9 @@ package com.mohey.groupservice.entity.group;
 import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
+
+import com.mohey.groupservice.entity.applicant.GroupApplicantEntity;
 
 @Table(name = "group_tb")
 @Entity
@@ -21,6 +24,11 @@ public class GroupEntity {
     @Column(nullable = false)
     private LocalDateTime createdDatetime;
 
+    @OneToOne
+    @JoinColumn(name = "id")
+    private GroupDeleteEntity groupDelete;
 
-
+    @OneToOne
+    @JoinColumn(name = "id")
+    private GroupConfirmEntity groupConfirm;
 }

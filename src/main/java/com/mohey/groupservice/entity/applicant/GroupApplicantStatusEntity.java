@@ -25,11 +25,8 @@ public class GroupApplicantStatusEntity {
 		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		private Long id;
 
-		@Column(name = "group_participant_tb_id", nullable = false)
-		private Long groupParticipantTbId;
-
 		@Column(nullable = false)
-		private Integer status;
+		private Boolean applicantStatus;
 
 		@Column(name = "created_datetime", nullable = false)
 		private LocalDateTime createdDatetime;

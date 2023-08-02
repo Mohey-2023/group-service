@@ -9,8 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DelegateDto {
-    private String groupUuid;
-    private String leaderUuid;
-    private String delegatedUuid;
+public class KickDto {
+	private String leaderUuid;
+	private String kickUuid;
+	private String groupUuid;
 }

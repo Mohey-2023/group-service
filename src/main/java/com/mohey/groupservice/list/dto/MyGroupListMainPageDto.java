@@ -11,12 +11,17 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class YourGroupListDto {
-	private String groupUuid;
+public class MyGroupListMainPageDto {
 	private String title;
 	private String category;
+	private String groupUuid;
 	private LocalDateTime groupStartDatetime;
 	private String locationId;
-	private Double lat;
 	private Double Lng;
+	private Double Lat;
+	private Integer participantNum;
+	private String remainingTime;
+	private String profilePicture1;
+	private String profilePicture2;
+	private String profilePicture3;
 }

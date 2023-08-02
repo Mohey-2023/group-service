@@ -13,4 +13,9 @@ import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 public interface GroupParticipantRepository extends JpaRepository<GroupParticipantEntity, Long> {
 	@Query("SELECT gp FROM GroupParticipantEntity gp LEFT JOIN gp.groupParticipantStatusEntity ps WHERE gp.groupId = :groupId AND (ps.createdDatetime IS NULL OR ps.createdDatetime = '')")
 	List<GroupParticipantEntity> findByGroupIdAndGroupParticipantStatusIsNull(@Param("groupId") Long groupId);
+
+	@Query("SELECT gp FROM GroupParticipantEntity gp LEFT JOIN gp.groupParticipantStatusEntity ps WHERE gp.groupId = :groupId AND gp.memberUuid = :memberUuid AND (ps.createdDatetime IS NULL OR ps.createdDatetime = '')")
+	GroupParticipantEntity findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(@Param("groupId") Long groupId, @Param("memberUuid") String memberUuid);
+
+
 }

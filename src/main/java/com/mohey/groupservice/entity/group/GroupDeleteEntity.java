@@ -19,7 +19,5 @@ public class GroupDeleteEntity {
     @Column(name = "created_datetime", nullable = false)
     private LocalDateTime createdDatetime;
 
-    @OneToOne
-    @JoinColumn(name = "id")
-    private GroupDeleteEntity groupDelete;
+
 }

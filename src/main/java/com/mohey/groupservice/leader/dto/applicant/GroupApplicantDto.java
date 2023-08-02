@@ -10,8 +10,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class GroupApplicantDto {
 
-    private Long id;
-    private Long groupId;
     private String memberUuid;
-    private LocalDateTime createdDatetime;
+    private String profilePicture;
+    private boolean isFavorite;
 }

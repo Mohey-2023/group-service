@@ -11,12 +11,12 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class YourGroupListDto {
+public class CalendarDto {
 	private String groupUuid;
 	private String title;
-	private String category;
-	private LocalDateTime groupStartDatetime;
-	private String locationId;
-	private Double lat;
+	private String Category;
+	private Double Lat;
 	private Double Lng;
+	private String locationId;
+	private LocalDateTime groupStartDatetime;
 }

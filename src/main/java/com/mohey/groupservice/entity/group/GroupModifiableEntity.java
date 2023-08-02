@@ -51,13 +51,13 @@ public class GroupModifiableEntity {
 	private String leaderUuid;
 
 	@Column(nullable = false)
-	private boolean privateYn;
+	private Boolean privateYn;
 
 	@Column(nullable = false)
-	private double lat;
+	private Double lat;
 
 	@Column(nullable = false)
-	private double lng;
+	private Double lng;
 
 	@Column
 	private Integer minAge;
@@ -66,7 +66,7 @@ public class GroupModifiableEntity {
 	private Integer maxAge;
 
 	@Column(nullable = false)
-	private boolean latestYn;
+	private Boolean latestYn;
 
 	@Column(nullable = false, length = 255)
 	private String description;

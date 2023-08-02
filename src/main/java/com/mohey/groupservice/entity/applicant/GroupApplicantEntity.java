@@ -5,6 +5,8 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import com.mohey.groupservice.entity.group.GroupEntity;
+
 @Table(name = "group_applicant_tb")
 @Entity
 @Getter
@@ -16,6 +18,9 @@ public class GroupApplicantEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    private GroupEntity group;
 
     @Column(name = "group_id", nullable = false)
     private Long groupId;

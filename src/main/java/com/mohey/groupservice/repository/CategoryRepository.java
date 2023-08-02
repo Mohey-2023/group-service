@@ -7,4 +7,5 @@ import com.mohey.groupservice.entity.category.CategoryEntity;
 @Repository
 public interface CategoryRepository {
 	CategoryEntity findByCategoryUuid(String categoryUuid);
+	CategoryEntity findById(Long id);
 }

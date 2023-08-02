@@ -7,4 +7,6 @@ import com.mohey.groupservice.entity.group.GenderOptionsEntity;
 @Repository
 public interface GenderOptionsRepository {
 	GenderOptionsEntity findByGenderUuid(String genderUuid);
+
+	GenderOptionsEntity findById(Long id);
 }
