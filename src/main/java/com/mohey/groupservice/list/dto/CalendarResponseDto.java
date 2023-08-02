@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CalendarDto {
+public class CalendarResponseDto {
 	private String groupUuid;
 	private String title;
 	private String Category;

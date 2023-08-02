@@ -71,6 +71,9 @@ public class GroupModifiableEntity {
 	@Column(nullable = false, length = 255)
 	private String description;
 
+	@Column(nullable = false, length = 50)
+	private String locationId;
+
 	@Column(nullable = false)
 	private LocalDateTime createdDatetime;
 

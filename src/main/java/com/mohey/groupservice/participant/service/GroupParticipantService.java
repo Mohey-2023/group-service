@@ -18,7 +18,6 @@ import com.mohey.groupservice.participant.dto.JoinLeaveDto;
 import com.mohey.groupservice.repository.CategoryRepository;
 import com.mohey.groupservice.repository.GenderOptionsRepository;
 import com.mohey.groupservice.repository.GroupApplicantRepository;
-import com.mohey.groupservice.repository.GroupCoordinatesRepository;
 import com.mohey.groupservice.repository.GroupDetailRepository;
 import com.mohey.groupservice.repository.GroupModifiableRepository;
 import com.mohey.groupservice.repository.GroupParticipantRepository;
@@ -29,7 +28,6 @@ public class GroupParticipantService {
     private final GroupDetailRepository groupDetailRepository;
     private final GroupModifiableRepository groupModifiableRepository;
     private final GroupTagRepository groupTagRepository;
-    private final GroupCoordinatesRepository groupCoordinatesRepository;
     private final GroupParticipantRepository groupParticipantRepository;
     private final CategoryRepository categoryRepository;
     private final GenderOptionsRepository genderOptionsRepository;
@@ -41,7 +39,6 @@ public class GroupParticipantService {
     public GroupParticipantService(GroupDetailRepository groupDetailRepository,
         GroupModifiableRepository groupModifiableRepository,
         GroupTagRepository groupTagRepository,
-        GroupCoordinatesRepository groupCoordinatesRepository,
         GroupParticipantRepository groupParticipantRepository,
         CategoryRepository categoryRepository,
         GroupApplicantRepository groupApplicantRepository,
@@ -52,7 +49,6 @@ public class GroupParticipantService {
         this.groupDetailRepository = groupDetailRepository;
         this.groupModifiableRepository = groupModifiableRepository;
         this.groupTagRepository = groupTagRepository;
-        this.groupCoordinatesRepository = groupCoordinatesRepository;
         this.groupParticipantRepository = groupParticipantRepository;
         this.categoryRepository = categoryRepository;
         this.genderOptionsRepository = genderOptionsRepository;

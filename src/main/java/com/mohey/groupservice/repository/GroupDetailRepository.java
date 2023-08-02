@@ -9,5 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> {
     GroupEntity findByGroupUuid(String groupUuid);
 
-
+    GroupEntity findByGroupId(Long groupId);
 }

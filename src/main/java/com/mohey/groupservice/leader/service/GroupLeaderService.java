@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import com.mohey.groupservice.entity.category.CategoryEntity;
 import com.mohey.groupservice.entity.group.GenderOptionsEntity;
-import com.mohey.groupservice.entity.group.GroupCoordinatesEntity;
 import com.mohey.groupservice.entity.group.GroupEntity;
 import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 import com.mohey.groupservice.leader.dto.leader.CreateGroupDto;
@@ -24,7 +23,6 @@ import com.mohey.groupservice.leader.dto.leader.ModifyGroupDto;
 import com.mohey.groupservice.repository.CategoryRepository;
 import com.mohey.groupservice.repository.GenderOptionsRepository;
 import com.mohey.groupservice.repository.GroupApplicantRepository;
-import com.mohey.groupservice.repository.GroupCoordinatesRepository;
 import com.mohey.groupservice.repository.GroupDetailRepository;
 import com.mohey.groupservice.repository.GroupModifiableRepository;
 import com.mohey.groupservice.repository.GroupParticipantRepository;
@@ -34,7 +32,6 @@ public class GroupLeaderService {
 	private final GroupDetailRepository groupDetailRepository;
 	private final GroupModifiableRepository groupModifiableRepository;
 	private final GroupTagRepository groupTagRepository;
-	private final GroupCoordinatesRepository groupCoordinatesRepository;
 	private final GroupParticipantRepository groupParticipantRepository;
 	private final CategoryRepository categoryRepository;
 	private final GenderOptionsRepository genderOptionsRepository;
@@ -44,7 +41,6 @@ public class GroupLeaderService {
 	public GroupLeaderService(GroupDetailRepository groupDetailRepository,
 		GroupModifiableRepository groupModifiableRepository,
 		GroupTagRepository groupTagRepository,
-		GroupCoordinatesRepository groupCoordinatesRepository,
 		GroupParticipantRepository groupParticipantRepository,
 		CategoryRepository categoryRepository,
 		GenderOptionsRepository genderOptionsRepository,
@@ -53,7 +49,6 @@ public class GroupLeaderService {
 		this.groupDetailRepository = groupDetailRepository;
 		this.groupModifiableRepository = groupModifiableRepository;
 		this.groupTagRepository = groupTagRepository;
-		this.groupCoordinatesRepository = groupCoordinatesRepository;
 		this.groupParticipantRepository = groupParticipantRepository;
 		this.categoryRepository = categoryRepository;
 		this.genderOptionsRepository = genderOptionsRepository;
@@ -101,6 +96,7 @@ public class GroupLeaderService {
 		groupModifiableEntity.setDescription(groupDto.getDescription());
 		groupModifiableEntity.setLatestYn(true);
 		groupModifiableEntity.setCreatedDatetime(LocalDateTime.now());
+		groupModifiableEntity.setLocationId(groupDto.getLocationId());
 		groupModifiableRepository.save(groupModifiableEntity);
 
 		GroupParticipantEntity leader = new GroupParticipantEntity();
@@ -109,13 +105,6 @@ public class GroupLeaderService {
 		leader.setCreatedDatetime(LocalDateTime.now());
 
 		groupParticipantRepository.save(leader);
-
-		if(groupDto.getLocationId() != null){
-			GroupCoordinatesEntity groupCoordinatesEntity = new GroupCoordinatesEntity();
-			groupCoordinatesEntity.setGroupTbId(groupEntity.getId());
-			groupCoordinatesEntity.setLocationId(groupDto.getLocationId());
-			groupCoordinatesRepository.save(groupCoordinatesEntity);
-		}
 	}
 
 	public void delegateLeadership(DelegateDto delegateDto){

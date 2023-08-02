@@ -4,18 +4,15 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.mohey.groupservice.detail.service.GroupDetailService;
 import com.mohey.groupservice.entity.category.CategoryEntity;
 import com.mohey.groupservice.entity.group.GenderOptionsEntity;
-import com.mohey.groupservice.entity.group.GroupCoordinatesEntity;
 import com.mohey.groupservice.entity.group.GroupEntity;
 import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.repository.CategoryRepository;
 import com.mohey.groupservice.repository.GenderOptionsRepository;
-import com.mohey.groupservice.repository.GroupCoordinatesRepository;
 import com.mohey.groupservice.repository.GroupDetailRepository;
 import com.mohey.groupservice.repository.GroupModifiableRepository;
 import com.mohey.groupservice.repository.GroupParticipantRepository;
@@ -35,8 +32,6 @@ public class GroupDetailServiceTest {
 	@Mock
 	private GroupModifiableRepository groupModifiableRepository;
 
-	@Mock
-	private GroupCoordinatesRepository groupCoordinatesRepository;
 
 	@Mock
 	private GroupParticipantRepository groupParticipantRepository;
@@ -80,12 +75,7 @@ public class GroupDetailServiceTest {
 		groupModifiableEntity.setMaxAge(30);
 		groupModifiableEntity.setLatestYn(true);
 		groupModifiableEntity.setDescription("맛있는 초밥을 먹으러 가요");
-
-		GroupCoordinatesEntity groupCoordinatesEntity = new GroupCoordinatesEntity();
-		groupCoordinatesEntity.setGroupTbId(1L);
-		groupCoordinatesEntity.setId(1L);
-		groupCoordinatesEntity.setLocationId("강남구 멀티캠퍼스");
-		groupCoordinatesEntity.setCreatedDatetime(LocalDateTime.now());
+		groupModifiableEntity.setLocationId("123");
 
 		List<GroupParticipantEntity> groupParticipantEntities = new ArrayList<>();
 		GroupParticipantEntity participant1 = new GroupParticipantEntity();
@@ -106,7 +96,6 @@ public class GroupDetailServiceTest {
 		// Mock 객체에게 동작을 설정
 		when(groupDetailRepository.findByGroupUuid(groupUuid)).thenReturn(groupEntity);
 		when(groupModifiableRepository.findLatestGroupModifiableByGroupId(groupId)).thenReturn(groupModifiableEntity);
-		when(groupCoordinatesRepository.findByGroupTbIdAndCreatedDatetime(groupId, groupModifiableEntity.getCreatedDatetime())).thenReturn(groupCoordinatesEntity);
 		when(groupParticipantRepository.findByGroupIdAndGroupParticipantStatusIsNull(groupId)).thenReturn(groupParticipantEntities);
 		when(categoryRepository.findById(groupModifiableEntity.getCategoryTbId())).thenReturn(categoryEntity);
 		when(genderOptionsRepository.findById(groupModifiableEntity.getGenderOptionsTbId())).thenReturn(genderOptionsEntity);
