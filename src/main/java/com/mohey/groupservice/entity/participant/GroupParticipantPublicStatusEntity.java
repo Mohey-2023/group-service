@@ -21,7 +21,7 @@ public class GroupParticipantPublicStatusEntity {
     private Long groupParticipantTbId;
 
     @Column(nullable = false)
-    private Integer status;
+    private Boolean status;
 
     @Column(name = "created_datetime", nullable = false)
     private LocalDateTime createdDatetime;

@@ -20,7 +20,7 @@ public class MyGroupListMainPageDto {
 	private Double Lng;
 	private Double Lat;
 	private Integer participantNum;
-	private String remainingTime;
+	private Long remainingSecond;
 	private String profilePicture1;
 	private String profilePicture2;
 	private String profilePicture3;

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mohey.groupservice.entity.applicant.GroupApplicantEntity;
+import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 
 @Table(name = "group_tb")
 @Entity
@@ -35,4 +36,7 @@ public class GroupEntity {
 
     @OneToMany(mappedBy = "groupEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<GroupModifiableEntity> groupModifiableList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "groupEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<GroupParticipantEntity> groupParticipantEntityList = new ArrayList<>();
 }

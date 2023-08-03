@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.mohey.groupservice.entity.applicant.GroupApplicantEntity;
 import com.mohey.groupservice.entity.group.GroupConfirmEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
+import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
 import com.mohey.groupservice.leader.dto.leader.DelegateDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import com.mohey.groupservice.repository.GenderOptionsRepository;
 import com.mohey.groupservice.repository.GroupApplicantRepository;
 import com.mohey.groupservice.repository.GroupDetailRepository;
 import com.mohey.groupservice.repository.GroupModifiableRepository;
+import com.mohey.groupservice.repository.GroupParticipantPublicStatusRepository;
 import com.mohey.groupservice.repository.GroupParticipantRepository;
 import com.mohey.groupservice.repository.GroupTagRepository;
 @Service
@@ -36,6 +38,7 @@ public class GroupLeaderService {
 	private final CategoryRepository categoryRepository;
 	private final GenderOptionsRepository genderOptionsRepository;
 	private final GroupApplicantRepository groupApplicantRepository;
+	private final GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository;
 
 	@Autowired
 	public GroupLeaderService(GroupDetailRepository groupDetailRepository,
@@ -44,7 +47,8 @@ public class GroupLeaderService {
 		GroupParticipantRepository groupParticipantRepository,
 		CategoryRepository categoryRepository,
 		GenderOptionsRepository genderOptionsRepository,
-		GroupApplicantRepository groupApplicantRepository
+		GroupApplicantRepository groupApplicantRepository,
+		GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository
 		){
 		this.groupDetailRepository = groupDetailRepository;
 		this.groupModifiableRepository = groupModifiableRepository;
@@ -53,6 +57,7 @@ public class GroupLeaderService {
 		this.categoryRepository = categoryRepository;
 		this.genderOptionsRepository = genderOptionsRepository;
 		this.groupApplicantRepository = groupApplicantRepository;
+		this.groupParticipantPublicStatusRepository = groupParticipantPublicStatusRepository;
 	}
 
 	public boolean checkLeader(Long groupId, String memberUuid){
@@ -103,8 +108,15 @@ public class GroupLeaderService {
 		leader.setGroupId(groupEntity.getId());
 		leader.setMemberUuid(groupDto.getLeaderUuid());
 		leader.setCreatedDatetime(LocalDateTime.now());
-
 		groupParticipantRepository.save(leader);
+
+		GroupParticipantPublicStatusEntity groupParticipantPublicStatusEntity = new GroupParticipantPublicStatusEntity();
+		groupParticipantPublicStatusEntity.setGroupParticipantTbId(groupParticipantRepository
+			.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), leader.getMemberUuid()).getId());
+		groupParticipantPublicStatusEntity.setStatus(true);
+		groupParticipantPublicStatusEntity.setCreatedDatetime(LocalDateTime.now());
+		groupParticipantPublicStatusRepository.save(groupParticipantPublicStatusEntity);
+
 	}
 
 	public void delegateLeadership(DelegateDto delegateDto){
