@@ -101,7 +101,8 @@ public class GroupLeaderService {
 		groupModifiableEntity.setDescription(groupDto.getDescription());
 		groupModifiableEntity.setLatestYn(true);
 		groupModifiableEntity.setCreatedDatetime(LocalDateTime.now());
-		groupModifiableEntity.setLocationId(groupDto.getLocationId());
+		groupModifiableEntity.setLocationName(groupDto.getLocationName());
+		groupModifiableEntity.setLocationAddress(groupDto.getLocationAddress());
 		groupModifiableRepository.save(groupModifiableEntity);
 
 		GroupParticipantEntity leader = new GroupParticipantEntity();
@@ -176,6 +177,8 @@ public class GroupLeaderService {
 			groupModifiableRepository.save(latest);
 			groupModifiableEntity.setLat(modifyGroupDto.getLat());
 			groupModifiableEntity.setLng(modifyGroupDto.getLng());
+			groupModifiableEntity.setLocationName(modifyGroupDto.getLocationName());
+			groupModifiableEntity.setLocationAddress(modifyGroupDto.getLocationAddress());
 			groupModifiableEntity.setMinAge(modifyGroupDto.getMinAge());
 			groupModifiableEntity.setMaxAge(modifyGroupDto.getMaxAge());
 			groupModifiableEntity.setPrivateYn(modifyGroupDto.isPrivacyYn());

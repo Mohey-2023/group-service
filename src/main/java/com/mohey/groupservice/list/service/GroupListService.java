@@ -10,10 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mohey.groupservice.entity.group.GroupEntity;
-import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.list.dto.CalendarRequestDto;
 import com.mohey.groupservice.list.dto.CalendarResponseDto;
+import com.mohey.groupservice.list.dto.MapGroupListRequestDto;
+import com.mohey.groupservice.list.dto.MapGroupListResponseDto;
 import com.mohey.groupservice.list.dto.MyGroupListMainPageDto;
 import com.mohey.groupservice.list.dto.MyGroupListMyPageDto;
 import com.mohey.groupservice.list.dto.YourGroupListDto;
@@ -79,7 +80,7 @@ public class GroupListService {
 				calendarResponseDto.setTitle(groupEntity.getGroupModifiableList().get(0).getTitle());
 				calendarResponseDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
 				calendarResponseDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
-				calendarResponseDto.setLocationId(groupEntity.getGroupModifiableList().get(0).getLocationId());
+				calendarResponseDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
 				calendarResponseDto.setCategory(categoryRepository.findById(groupEntity.getGroupModifiableList().get(0).getCategoryTbId()).getCategoryName());
 
 				return calendarResponseDto;
@@ -106,7 +107,7 @@ public class GroupListService {
 						.getCategoryName());
 				myGroupListMainPageDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
 				myGroupListMainPageDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
-				myGroupListMainPageDto.setLocationId(groupEntity.getGroupModifiableList().get(0).getLocationId());
+				myGroupListMainPageDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
 				myGroupListMainPageDto.setParticipantNum(groupEntity.getGroupParticipantEntityList().size());
 				myGroupListMainPageDto.setGroupStartDatetime(groupEntity.getGroupModifiableList().get(0).getGroupStartDatetime());
 				Duration duration = Duration.between(groupEntity.getGroupModifiableList().get(0).getGroupStartDatetime(),LocalDateTime.now());
@@ -134,7 +135,7 @@ public class GroupListService {
 				myGroupListMyPageDto.setTitle(groupEntity.getGroupModifiableList().get(0).getTitle());
 				myGroupListMyPageDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
 				myGroupListMyPageDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
-				myGroupListMyPageDto.setLocationId(groupEntity.getGroupModifiableList().get(0).getLocationId());
+				myGroupListMyPageDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
 				myGroupListMyPageDto
 					.setCategory(categoryRepository
 						.findById(groupEntity
@@ -171,7 +172,7 @@ public class GroupListService {
 				yourGroupListDto.setTitle(groupEntity.getGroupModifiableList().get(0).getTitle());
 				yourGroupListDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
 				yourGroupListDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
-				yourGroupListDto.setLocationId(groupEntity.getGroupModifiableList().get(0).getLocationId());
+				yourGroupListDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
 				yourGroupListDto.setGroupStartDatetime(groupEntity.getGroupModifiableList().get(0).getGroupStartDatetime());
 				yourGroupListDto
 					.setCategory(categoryRepository
@@ -182,6 +183,37 @@ public class GroupListService {
 				return yourGroupListDto;
 			})
 			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+	}
+
+	public List<MapGroupListResponseDto> getMapGroupList(MapGroupListRequestDto mapGroupListRequestDto){
+		List<GroupEntity> mapGroupList = groupDetailRepository.findGroupsInMap(LocalDateTime.now(),
+			mapGroupListRequestDto.getSwlng(), mapGroupListRequestDto.getSwlat(), mapGroupListRequestDto.getNeLng(),
+			mapGroupListRequestDto.getNeLat());
+
+		return mapGroupList.stream()
+			.map(groupEntity -> {
+				MapGroupListResponseDto mapGroupListResponseDto = new MapGroupListResponseDto();
+
+				mapGroupListResponseDto.setGroupUuid(groupEntity.getGroupUuid());
+				mapGroupListResponseDto.setMaxParticipantNum(groupEntity.getGroupModifiableList().get(0).getMaxParticipant());
+				mapGroupListResponseDto.setTitle(groupEntity.getGroupModifiableList().get(0).getTitle());
+				mapGroupListResponseDto.setParticipantNum(groupEntity.getGroupParticipantEntityList().size());
+				mapGroupListResponseDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
+				mapGroupListResponseDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
+				mapGroupListResponseDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
+				mapGroupListResponseDto
+					.setCategory(categoryRepository
+						.findById(groupEntity
+							.getGroupModifiableList()
+							.get(0)
+							.getCategoryTbId())
+						.getCategoryName());
+				mapGroupListResponseDto.setGroupStartDatetime(groupEntity.getGroupModifiableList().get(0).getGroupStartDatetime());
+
+
+				return mapGroupListResponseDto;
+			})
 			.collect(Collectors.toList());
 	}
 }

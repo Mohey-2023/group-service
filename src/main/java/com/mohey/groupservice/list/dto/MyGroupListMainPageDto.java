@@ -16,7 +16,7 @@ public class MyGroupListMainPageDto {
 	private String category;
 	private String groupUuid;
 	private LocalDateTime groupStartDatetime;
-	private String locationId;
+	private String locationAddress;
 	private Double Lng;
 	private Double Lat;
 	private Integer participantNum;

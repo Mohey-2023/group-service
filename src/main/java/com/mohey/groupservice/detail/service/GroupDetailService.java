@@ -68,7 +68,8 @@ public class GroupDetailService {
             group.setGroupStartDatetime(groupModifiableEntity.getGroupStartDatetime());
             group.setMaxParticipant(groupModifiableEntity.getMaxParticipant());
             group.setLeaderUuid(groupModifiableEntity.getLeaderUuid());
-            group.setLocationId(groupModifiableEntity.getLocationId());
+            group.setLocationName(groupModifiableEntity.getLocationName());
+            group.setLocationAddress(groupModifiableEntity.getLocationAddress());
             group.setLat(groupModifiableEntity.getLat());
             group.setLng(groupModifiableEntity.getLng());
             group.setMinAge(groupModifiableEntity.getMinAge());

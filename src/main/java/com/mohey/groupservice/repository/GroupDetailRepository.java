@@ -54,4 +54,20 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
         "AND gps.createdDatetime IS NULL " +
         "AND gp.memberUuid = :memberUuid")
     List<GroupEntity> findAllGroupsForParticipant(@Param("memberUuid") String memberUuid);
+
+    @Query("SELECT g FROM GroupEntity g " +
+        "JOIN g.groupModifiableList gm " +
+        "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+        "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
+        "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +
+        "LEFT JOIN GroupParticipantStatusEntity gps ON gp.id = gps.id " +
+        "WHERE gm.latestYn = true " +
+        "AND gc.createdDatetime IS NULL " +
+        "AND gd.createdDatetime IS NULL " +
+        "AND gps.createdDatetime IS NULL " +
+        "AND gm.groupStartDatetime > :currentDatetime " +
+        "AND gm.lat BETWEEN :neLat AND :swLat " +
+        "AND gm.lng BETWEEN :neLng AND :swLng")
+    List<GroupEntity> findGroupsInMap(@Param("currentDatetime") LocalDateTime currentDatetime,
+        @Param("swLng") Double swLng, @Param("swLat") Double swLat, @Param("neLng") Double neLng, @Param("neLat") Double neLat);
 }

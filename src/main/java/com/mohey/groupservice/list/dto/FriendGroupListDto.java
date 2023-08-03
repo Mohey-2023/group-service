@@ -17,8 +17,7 @@ public class FriendGroupListDto {
 	private String groupUuid;
 	private String category;
 	private LocalDateTime groupStartDatetime;
-	private Double Lat;
-	private Double Lng;
+	private String locationAddress;
 	private Integer participantNum;
 	private Integer maxParticipantNum;
 }

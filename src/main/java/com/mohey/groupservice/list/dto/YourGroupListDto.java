@@ -16,7 +16,7 @@ public class YourGroupListDto {
 	private String title;
 	private String category;
 	private LocalDateTime groupStartDatetime;
-	private String locationId;
+	private String locationAddress;
 	private Double lat;
 	private Double Lng;
 }

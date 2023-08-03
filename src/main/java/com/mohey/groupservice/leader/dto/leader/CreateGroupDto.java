@@ -23,7 +23,8 @@ public class CreateGroupDto {
 	private String genderOptionsUuid;
 	private Integer minAge;
 	private Integer maxAge;
-	private String locationId;
+	private String locationName;
+	private String locationAddress;
 	private double lng;
 	private double lat;
 	private String leaderUuid;

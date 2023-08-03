@@ -17,7 +17,8 @@ public class GroupDto {
     private LocalDateTime groupStartDatetime;
     private Integer maxParticipant;
     private String leaderUuid;
-    private String locationId;
+    private String locationName;
+    private String locationAddress;
     private double lng;
     private double lat;
     private String genderOptions;

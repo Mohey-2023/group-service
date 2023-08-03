@@ -17,6 +17,6 @@ public class CalendarResponseDto {
 	private String Category;
 	private Double Lat;
 	private Double Lng;
-	private String locationId;
+	private String locationAddress;
 	private LocalDateTime groupStartDatetime;
 }
