@@ -160,7 +160,7 @@ public class GroupListService {
 			.collect(Collectors.toList());
 	}
 
-	public List<YourGroupListDto> getYourPageGroupList(String memberUuid){
+	public List<YourGroupListDto> getYourPageGroupListFriend(String memberUuid){
 		List<GroupEntity> yourGroupList = groupDetailRepository.findAllGroupsForParticipant(memberUuid);
 
 		return yourGroupList.stream()
@@ -195,6 +195,41 @@ public class GroupListService {
 			.collect(Collectors.toList());
 	}
 
+	public List<YourGroupListDto> getYourPageGroupListNotFriend(String memberUuid){
+		List<GroupEntity> yourGroupList = groupDetailRepository.findAllGroupsForParticipant(memberUuid);
+
+		return yourGroupList.stream()
+				.map(groupEntity -> {
+					YourGroupListDto yourGroupListDto = new YourGroupListDto();
+
+					Boolean status = groupParticipantPublicStatusRepository
+							.findFirstByGroupParticipantTbIdOrderByCreatedDatetimeDesc(groupParticipantRepository
+									.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), memberUuid).getId())
+							.getStatus();
+					if(!status || groupEntity.getGroupModifiableList().get(0).getPrivateYn()){
+						return null;
+					}
+					yourGroupListDto.setGroupUuid(groupEntity.getGroupUuid());
+					yourGroupListDto.setTitle(groupEntity.getGroupModifiableList().get(0).getTitle());
+					yourGroupListDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
+					yourGroupListDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
+					yourGroupListDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
+					yourGroupListDto.setGroupStartDatetime(groupEntity.getGroupModifiableList().get(0).getGroupStartDatetime());
+
+					categoryRepository
+							.findById(groupEntity
+									.getGroupModifiableList()
+									.get(0).getCategoryTbId())
+							.ifPresent(category -> yourGroupListDto
+									.setCategory(category
+											.getCategoryName()));
+
+					return yourGroupListDto;
+				})
+				.filter(Objects::nonNull)
+				.collect(Collectors.toList());
+	}
+
 	public List<MapGroupListResponseDto> getMapGroupList(MapGroupListRequestDto mapGroupListRequestDto){
 		List<GroupEntity> mapGroupList = groupDetailRepository.findGroupsInMap(LocalDateTime.now(),
 			mapGroupListRequestDto.getSwlng(), mapGroupListRequestDto.getSwlat(), mapGroupListRequestDto.getNeLng(),
@@ -202,8 +237,10 @@ public class GroupListService {
 
 		return mapGroupList.stream()
 			.map(groupEntity -> {
+				if(groupEntity.getGroupModifiableList().get(0).getPrivateYn()){
+					return null;
+				}
 				MapGroupListResponseDto mapGroupListResponseDto = new MapGroupListResponseDto();
-
 				mapGroupListResponseDto.setGroupUuid(groupEntity.getGroupUuid());
 				mapGroupListResponseDto.setMaxParticipantNum(groupEntity.getGroupModifiableList().get(0).getMaxParticipant());
 				mapGroupListResponseDto.setTitle(groupEntity.getGroupModifiableList().get(0).getTitle());
@@ -211,6 +248,7 @@ public class GroupListService {
 				mapGroupListResponseDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
 				mapGroupListResponseDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
 				mapGroupListResponseDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
+
 
 				categoryRepository
 					.findById(groupEntity
@@ -223,7 +261,41 @@ public class GroupListService {
 
 
 				return mapGroupListResponseDto;
-			})
+			}).filter(Objects::nonNull)
 			.collect(Collectors.toList());
+	}
+
+	public List<MapGroupListResponseDto> getMapFriendsGroupList(MapGroupListRequestDto mapGroupListRequestDto){
+		List<GroupEntity> mapGroupList = groupDetailRepository.findGroupsInMap(LocalDateTime.now(),
+				mapGroupListRequestDto.getSwlng(), mapGroupListRequestDto.getSwlat(), mapGroupListRequestDto.getNeLng(),
+				mapGroupListRequestDto.getNeLat());
+
+		// 친구 가져와서 친구의 그룹 보여줘야 함
+
+		return mapGroupList.stream()
+				.map(groupEntity -> {
+					MapGroupListResponseDto mapGroupListResponseDto = new MapGroupListResponseDto();
+
+					mapGroupListResponseDto.setGroupUuid(groupEntity.getGroupUuid());
+					mapGroupListResponseDto.setMaxParticipantNum(groupEntity.getGroupModifiableList().get(0).getMaxParticipant());
+					mapGroupListResponseDto.setTitle(groupEntity.getGroupModifiableList().get(0).getTitle());
+					mapGroupListResponseDto.setParticipantNum(groupEntity.getGroupParticipantEntityList().size());
+					mapGroupListResponseDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
+					mapGroupListResponseDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
+					mapGroupListResponseDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
+
+					categoryRepository
+							.findById(groupEntity
+									.getGroupModifiableList()
+									.get(0).getCategoryTbId())
+							.ifPresent(category -> mapGroupListResponseDto
+									.setCategory(category
+											.getCategoryName()));
+					mapGroupListResponseDto.setGroupStartDatetime(groupEntity.getGroupModifiableList().get(0).getGroupStartDatetime());
+
+
+					return mapGroupListResponseDto;
+				})
+				.collect(Collectors.toList());
 	}
 }

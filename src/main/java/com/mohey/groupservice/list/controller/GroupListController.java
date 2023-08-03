@@ -59,7 +59,11 @@ public class GroupListController {
 
 	@GetMapping("/your-page-group-list/{memberUuid}")
 	public ResponseEntity<List<YourGroupListDto>> getYourPageGroupList(@PathVariable String memberUuid) {
-		List<YourGroupListDto> yourPageGroupList = groupListService.getYourPageGroupList(memberUuid);
+		// 만약 친구면
+		List<YourGroupListDto> yourPageGroupList = groupListService.getYourPageGroupListFriend(memberUuid);
+
+		//친구 아니면
+		// List<YourGroupListDto> yourPageGroupList = groupListService.getYourPageGroupListNotFriend(memberUuid);
 		return new ResponseEntity<>(yourPageGroupList, HttpStatus.OK);
 	}
 
