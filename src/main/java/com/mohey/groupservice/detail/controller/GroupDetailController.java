@@ -1,11 +1,15 @@
 package com.mohey.groupservice.detail.controller;
 
 import com.mohey.groupservice.detail.dto.GroupDto;
+import com.mohey.groupservice.detail.dto.PublicStatusDto;
 import com.mohey.groupservice.detail.service.GroupDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,10 +23,25 @@ public class GroupDetailController {
         this.groupDetailService = groupDetailService;
     }
 
-    @GetMapping("/{group-id}")
-    public ResponseEntity<GroupDto> getGroupDetail(@PathVariable("group-id") String groupId) {
-        // 주어진 groupId를 기반으로 그룹 상세 정보를 조회하는 기능을 호출하고 결과를 ResponseEntity로 반환합니다.
-        GroupDto groupDetailDto = groupDetailService.getGroupDetailByGroupId(groupId);
-        return ResponseEntity.ok(groupDetailDto);
+    @GetMapping("/{groupUuid}")
+    public ResponseEntity<GroupDto> getGroupDetail(@PathVariable String groupUuid) {
+        GroupDto group = groupDetailService.getGroupDetailByGroupId(groupUuid);
+        if (group != null) {
+            return new ResponseEntity<>(group, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/{groupUuid}/delete")
+    public ResponseEntity<Void> deleteGroup(@PathVariable String groupUuid) {
+        groupDetailService.deleteGroup(groupUuid);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/public-status")
+    public ResponseEntity<Void> setGroupPublicStatus(@RequestBody PublicStatusDto publicStatus) {
+        groupDetailService.setGroupPublicStatus(publicStatus);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

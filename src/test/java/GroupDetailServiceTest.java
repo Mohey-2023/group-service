@@ -75,7 +75,7 @@ public class GroupDetailServiceTest {
 		groupModifiableEntity.setMaxAge(30);
 		groupModifiableEntity.setLatestYn(true);
 		groupModifiableEntity.setDescription("맛있는 초밥을 먹으러 가요");
-		groupModifiableEntity.setLocationId("123");
+		groupModifiableEntity.setLocationAddress("강남구");
 
 		List<GroupParticipantEntity> groupParticipantEntities = new ArrayList<>();
 		GroupParticipantEntity participant1 = new GroupParticipantEntity();
@@ -108,7 +108,7 @@ public class GroupDetailServiceTest {
 		assertEquals(groupId, groupDto.getGroupId());
 		assertEquals(3, groupDto.getParticipantsNum());
 		assertEquals("맛있는 초밥을 먹으러 가요", groupDto.getGroupDescription());
-		assertEquals("강남구 멀티캠퍼스", groupDto.getLocationId());
+		assertEquals("강남구", groupDto.getLocationAddress());
 		assertEquals("TestCategory", groupDto.getCategory());
 		assertEquals("TestGender", groupDto.getGenderOptions());
 		// 나머지 필드들에 대해서도 적절한 검증
