@@ -16,6 +16,7 @@ import com.mohey.groupservice.list.dto.CalendarRequestDto;
 import com.mohey.groupservice.list.dto.CalendarResponseDto;
 import com.mohey.groupservice.list.dto.MyGroupListMainPageDto;
 import com.mohey.groupservice.list.dto.MyGroupListMyPageDto;
+import com.mohey.groupservice.list.dto.YourGroupListDto;
 import com.mohey.groupservice.repository.CategoryRepository;
 import com.mohey.groupservice.repository.GenderOptionsRepository;
 import com.mohey.groupservice.repository.GroupApplicantRepository;
@@ -149,6 +150,38 @@ public class GroupListService {
 
 				return myGroupListMyPageDto;
 			})
+			.collect(Collectors.toList());
+	}
+
+	public List<YourGroupListDto> getYourPageGroupList(String memberUuid){
+		List<GroupEntity> yourGroupList = groupDetailRepository.findAllGroupsForParticipant(memberUuid);
+
+		return yourGroupList.stream()
+			.map(groupEntity -> {
+				YourGroupListDto yourGroupListDto = new YourGroupListDto();
+
+				Boolean status = groupParticipantPublicStatusRepository
+					.findFirstByGroupParticipantTbIdOrderByCreatedDatetimeDesc(groupParticipantRepository
+						.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), memberUuid).getId())
+					.getStatus();
+				if(!status){
+					return null;
+				}
+				yourGroupListDto.setGroupUuid(groupEntity.getGroupUuid());
+				yourGroupListDto.setTitle(groupEntity.getGroupModifiableList().get(0).getTitle());
+				yourGroupListDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
+				yourGroupListDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
+				yourGroupListDto.setLocationId(groupEntity.getGroupModifiableList().get(0).getLocationId());
+				yourGroupListDto.setGroupStartDatetime(groupEntity.getGroupModifiableList().get(0).getGroupStartDatetime());
+				yourGroupListDto
+					.setCategory(categoryRepository
+						.findById(groupEntity.getGroupModifiableList().get(0).getCategoryTbId())
+						.getCategoryName());
+
+
+				return yourGroupListDto;
+			})
+			.filter(Objects::nonNull)
 			.collect(Collectors.toList());
 	}
 }
