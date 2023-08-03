@@ -160,42 +160,8 @@ public class GroupListService {
 			.collect(Collectors.toList());
 	}
 
-	public List<YourGroupListDto> getYourPageGroupListFriend(String memberUuid){
-		List<GroupEntity> yourGroupList = groupDetailRepository.findAllGroupsForParticipant(memberUuid);
 
-		return yourGroupList.stream()
-			.map(groupEntity -> {
-				YourGroupListDto yourGroupListDto = new YourGroupListDto();
-
-				Boolean status = groupParticipantPublicStatusRepository
-					.findFirstByGroupParticipantTbIdOrderByCreatedDatetimeDesc(groupParticipantRepository
-						.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), memberUuid).getId())
-					.getStatus();
-				if(!status){
-					return null;
-				}
-				yourGroupListDto.setGroupUuid(groupEntity.getGroupUuid());
-				yourGroupListDto.setTitle(groupEntity.getGroupModifiableList().get(0).getTitle());
-				yourGroupListDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
-				yourGroupListDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
-				yourGroupListDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
-				yourGroupListDto.setGroupStartDatetime(groupEntity.getGroupModifiableList().get(0).getGroupStartDatetime());
-
-				categoryRepository
-					.findById(groupEntity
-						.getGroupModifiableList()
-						.get(0).getCategoryTbId())
-					.ifPresent(category -> yourGroupListDto
-						.setCategory(category
-							.getCategoryName()));
-
-				return yourGroupListDto;
-			})
-			.filter(Objects::nonNull)
-			.collect(Collectors.toList());
-	}
-
-	public List<YourGroupListDto> getYourPageGroupListNotFriend(String memberUuid){
+	public List<YourGroupListDto> getYourPageGroupList(String memberUuid){
 		List<GroupEntity> yourGroupList = groupDetailRepository.findAllGroupsForParticipant(memberUuid);
 
 		return yourGroupList.stream()
