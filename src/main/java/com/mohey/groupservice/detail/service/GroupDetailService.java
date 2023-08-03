@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class GroupDetailService {
@@ -61,8 +62,11 @@ public class GroupDetailService {
                 .findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId());
 
             group.setGroupId(groupEntity.getId());
-            group.setCategory(categoryRepository.findById(groupModifiableEntity.getCategoryTbId()).getCategoryName());
-            group.setGenderOptions(genderOptionsRepository.findById(groupModifiableEntity.getGenderOptionsTbId()).getGenderDescription());
+            categoryRepository.findById(groupModifiableEntity.getCategoryTbId())
+                .ifPresent(category -> group.setCategory(category.getCategoryName()));
+
+            genderOptionsRepository.findById(groupModifiableEntity.getGenderOptionsTbId())
+                .ifPresent(genderOptions -> group.setGenderOptions(genderOptions.getGenderDescription()));
             group.setParticipantsNum(groupParticipantEntities.size());
             group.setGroupDescription(groupModifiableEntity.getDescription());
             group.setGroupStartDatetime(groupModifiableEntity.getGroupStartDatetime());

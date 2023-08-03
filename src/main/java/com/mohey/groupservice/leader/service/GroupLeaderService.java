@@ -73,6 +73,7 @@ public class GroupLeaderService {
 	public void createGroup(CreateGroupDto groupDto){
 		GroupEntity groupEntity = new GroupEntity();
 		groupEntity.setGroupUuid(UUID.randomUUID().toString());
+		groupEntity.setCreatedDatetime(LocalDateTime.now());
 		groupDetailRepository.save(groupEntity);
 
 		GroupModifiableEntity latest = groupModifiableRepository.findLatestGroupModifiableByGroupId(groupEntity.getId());
@@ -84,6 +85,7 @@ public class GroupLeaderService {
 		groupModifiableEntity.setGroupTbId(groupEntity.getId());
 
 		CategoryEntity categoryEntity = categoryRepository.findByCategoryUuid(groupDto.getCategoryUuid());
+		System.out.println(categoryEntity.getCategoryName());
 		groupModifiableEntity.setCategoryTbId(categoryEntity.getId());
 
 		GenderOptionsEntity genderOptionsEntity = genderOptionsRepository.findByGenderUuid(groupDto.getGenderOptionsUuid());
@@ -133,7 +135,7 @@ public class GroupLeaderService {
 
 		groupModifiableEntity.setLeaderUuid(delegateDto.getDelegatedUuid());
 		groupModifiableEntity.setLatestYn(true);
-		groupModifiableEntity.setCreatedDatetime(null);
+		groupModifiableEntity.setCreatedDatetime(LocalDateTime.now());
 
 		groupModifiableRepository.save(groupModifiableEntity);
 	}

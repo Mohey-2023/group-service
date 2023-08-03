@@ -34,6 +34,9 @@ public class GroupLeaderController {
 
 	@PostMapping("/create-group")
 	public ResponseEntity<Void> createGroup(@RequestBody CreateGroupDto groupDto) {
+		System.out.println(groupDto);
+		System.out.println(groupDto.getCategoryUuid());
+		System.out.println(groupDto.getLeaderUuid());
 		groupLeaderService.createGroup(groupDto);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}

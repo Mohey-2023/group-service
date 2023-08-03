@@ -22,7 +22,7 @@ public class GroupModifiableEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false)
+	@Column(nullable = false, name = "group_tb_id", insertable = false, updatable = false)
 	private Long groupTbId;
 
 	@Column(nullable = false)

@@ -1,11 +1,11 @@
 package com.mohey.groupservice.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.mohey.groupservice.entity.category.CategoryEntity;
 
 @Repository
-public interface CategoryRepository {
+public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
 	CategoryEntity findByCategoryUuid(String categoryUuid);
-	CategoryEntity findById(Long id);
 }

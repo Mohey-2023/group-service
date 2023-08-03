@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,8 @@ public class GroupListService {
 
 		return memberParticipantList.stream()
 			.map(GroupParticipantEntity::getGroupId)
-			.map(groupDetailRepository::findByGroupId)
+			.map(groupDetailRepository::findById)
+			.flatMap(Optional::stream)
 			.collect(Collectors.toList());
 	}
 
@@ -81,7 +83,8 @@ public class GroupListService {
 				calendarResponseDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
 				calendarResponseDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
 				calendarResponseDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
-				calendarResponseDto.setCategory(categoryRepository.findById(groupEntity.getGroupModifiableList().get(0).getCategoryTbId()).getCategoryName());
+
+				categoryRepository.findById(groupEntity.getGroupModifiableList().get(0).getCategoryTbId()).ifPresent(category -> calendarResponseDto.setCategory(category.getCategoryName()));
 
 				return calendarResponseDto;
 			})
@@ -98,13 +101,15 @@ public class GroupListService {
 
 				myGroupListMainPageDto.setGroupUuid(groupEntity.getGroupUuid());
 				myGroupListMainPageDto.setTitle(groupEntity.getGroupModifiableList().get(0).getTitle());
-				myGroupListMainPageDto
-					.setCategory(categoryRepository
-						.findById(groupEntity
-							.getGroupModifiableList()
-							.get(0)
-							.getCategoryTbId())
-						.getCategoryName());
+
+				categoryRepository
+					.findById(groupEntity
+						.getGroupModifiableList()
+						.get(0).getCategoryTbId())
+					.ifPresent(category -> myGroupListMainPageDto
+						.setCategory(category
+							.getCategoryName()));
+
 				myGroupListMainPageDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
 				myGroupListMainPageDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
 				myGroupListMainPageDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
@@ -136,13 +141,14 @@ public class GroupListService {
 				myGroupListMyPageDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
 				myGroupListMyPageDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
 				myGroupListMyPageDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
-				myGroupListMyPageDto
-					.setCategory(categoryRepository
-						.findById(groupEntity
-							.getGroupModifiableList()
-							.get(0)
-							.getCategoryTbId())
-						.getCategoryName());
+
+				categoryRepository
+					.findById(groupEntity
+						.getGroupModifiableList()
+						.get(0).getCategoryTbId())
+					.ifPresent(category -> myGroupListMyPageDto
+						.setCategory(category
+							.getCategoryName()));
 				myGroupListMyPageDto.setGroupStartDatetime(groupEntity.getGroupModifiableList().get(0).getGroupStartDatetime());
 				myGroupListMyPageDto.setIsPrivate(groupParticipantPublicStatusRepository
 					.findFirstByGroupParticipantTbIdOrderByCreatedDatetimeDesc(groupParticipantRepository
@@ -174,11 +180,14 @@ public class GroupListService {
 				yourGroupListDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
 				yourGroupListDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
 				yourGroupListDto.setGroupStartDatetime(groupEntity.getGroupModifiableList().get(0).getGroupStartDatetime());
-				yourGroupListDto
-					.setCategory(categoryRepository
-						.findById(groupEntity.getGroupModifiableList().get(0).getCategoryTbId())
-						.getCategoryName());
 
+				categoryRepository
+					.findById(groupEntity
+						.getGroupModifiableList()
+						.get(0).getCategoryTbId())
+					.ifPresent(category -> yourGroupListDto
+						.setCategory(category
+							.getCategoryName()));
 
 				return yourGroupListDto;
 			})
@@ -202,13 +211,14 @@ public class GroupListService {
 				mapGroupListResponseDto.setLng(groupEntity.getGroupModifiableList().get(0).getLng());
 				mapGroupListResponseDto.setLat(groupEntity.getGroupModifiableList().get(0).getLat());
 				mapGroupListResponseDto.setLocationAddress(groupEntity.getGroupModifiableList().get(0).getLocationAddress());
-				mapGroupListResponseDto
-					.setCategory(categoryRepository
-						.findById(groupEntity
-							.getGroupModifiableList()
-							.get(0)
-							.getCategoryTbId())
-						.getCategoryName());
+
+				categoryRepository
+					.findById(groupEntity
+						.getGroupModifiableList()
+						.get(0).getCategoryTbId())
+					.ifPresent(category -> mapGroupListResponseDto
+						.setCategory(category
+							.getCategoryName()));
 				mapGroupListResponseDto.setGroupStartDatetime(groupEntity.getGroupModifiableList().get(0).getGroupStartDatetime());
 
 

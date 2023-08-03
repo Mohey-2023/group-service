@@ -22,7 +22,7 @@ public class GroupApplicantEntity {
     @ManyToOne
     private GroupEntity group;
 
-    @Column(name = "group_id", nullable = false)
+    @Column(name = "group_id", nullable = false, insertable = false, updatable = false)
     private Long groupId;
 
     @Column(name = "member_uuid", nullable = false, length = 36)
