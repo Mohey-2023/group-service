@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.UUID;
 
 import com.mohey.groupservice.entity.applicant.GroupApplicantEntity;
+import com.mohey.groupservice.entity.applicant.GroupApplicantStatusEntity;
 import com.mohey.groupservice.entity.group.GroupConfirmEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
+import com.mohey.groupservice.leader.dto.applicant.ApplicantAcceptRejectDto;
 import com.mohey.groupservice.leader.dto.leader.DelegateDto;
+import com.mohey.groupservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,14 +24,7 @@ import com.mohey.groupservice.leader.dto.leader.CreateGroupDto;
 import com.mohey.groupservice.leader.dto.leader.GroupLeaderDto;
 import com.mohey.groupservice.leader.dto.leader.KickDto;
 import com.mohey.groupservice.leader.dto.leader.ModifyGroupDto;
-import com.mohey.groupservice.repository.CategoryRepository;
-import com.mohey.groupservice.repository.GenderOptionsRepository;
-import com.mohey.groupservice.repository.GroupApplicantRepository;
-import com.mohey.groupservice.repository.GroupDetailRepository;
-import com.mohey.groupservice.repository.GroupModifiableRepository;
-import com.mohey.groupservice.repository.GroupParticipantPublicStatusRepository;
-import com.mohey.groupservice.repository.GroupParticipantRepository;
-import com.mohey.groupservice.repository.GroupTagRepository;
+
 @Service
 public class GroupLeaderService {
 	private final GroupDetailRepository groupDetailRepository;
@@ -38,6 +34,7 @@ public class GroupLeaderService {
 	private final CategoryRepository categoryRepository;
 	private final GenderOptionsRepository genderOptionsRepository;
 	private final GroupApplicantRepository groupApplicantRepository;
+	private final GroupApplicantStatusRepository groupApplicantStatusRepository;
 	private final GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository;
 
 	@Autowired
@@ -48,7 +45,8 @@ public class GroupLeaderService {
 		CategoryRepository categoryRepository,
 		GenderOptionsRepository genderOptionsRepository,
 		GroupApplicantRepository groupApplicantRepository,
-		GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository
+		GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository,
+	 	GroupApplicantStatusRepository groupApplicantStatusRepository
 		){
 		this.groupDetailRepository = groupDetailRepository;
 		this.groupModifiableRepository = groupModifiableRepository;
@@ -58,6 +56,7 @@ public class GroupLeaderService {
 		this.genderOptionsRepository = genderOptionsRepository;
 		this.groupApplicantRepository = groupApplicantRepository;
 		this.groupParticipantPublicStatusRepository = groupParticipantPublicStatusRepository;
+		this.groupApplicantStatusRepository = groupApplicantStatusRepository;
 	}
 
 	public boolean checkLeader(Long groupId, String memberUuid){
@@ -147,6 +146,8 @@ public class GroupLeaderService {
 			return null;
 		}
 
+		// 유저랑 통신해서 프사랑 즐겨찾기 여부 가져오기
+
 		if (groupEntity != null) {
 			return groupApplicantRepository.findByGroupIdApplicantsWithNoStatus(groupEntity.getId());
 		}
@@ -213,5 +214,39 @@ public class GroupLeaderService {
 
 		groupEntity.setGroupConfirm(confirmEntity);
 		groupDetailRepository.save(groupEntity);
+	}
+
+	public void acceptApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto){
+		GroupApplicantEntity applicant = groupApplicantRepository
+				.findByGroupIdAndMemberUuidApplicantsWithNoStatus(groupDetailRepository
+						.findByGroupUuid(applicantAcceptRejectDto
+								.getGroupUuid()).getId(),
+						applicantAcceptRejectDto.getMemberUuid());
+
+		GroupApplicantStatusEntity status = new GroupApplicantStatusEntity();
+		status.setId(applicant.getId());
+		status.setApplicantStatus(true);
+		status.setCreatedDatetime(LocalDateTime.now());
+		groupApplicantStatusRepository.save(status);
+
+		GroupParticipantEntity participant = new GroupParticipantEntity();
+		participant.setGroupId(applicant.getGroupId());
+		participant.setMemberUuid(applicant.getMemberUuid());
+		participant.setCreatedDatetime(LocalDateTime.now());
+		groupParticipantRepository.save(participant);
+	}
+
+	public void rejectApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto){
+		GroupApplicantEntity applicant = groupApplicantRepository
+				.findByGroupIdAndMemberUuidApplicantsWithNoStatus(groupDetailRepository
+								.findByGroupUuid(applicantAcceptRejectDto
+										.getGroupUuid()).getId(),
+						applicantAcceptRejectDto.getMemberUuid());
+
+		GroupApplicantStatusEntity status = new GroupApplicantStatusEntity();
+		status.setId(applicant.getId());
+		status.setApplicantStatus(false);
+		status.setCreatedDatetime(LocalDateTime.now());
+		groupApplicantStatusRepository.save(status);
 	}
 }

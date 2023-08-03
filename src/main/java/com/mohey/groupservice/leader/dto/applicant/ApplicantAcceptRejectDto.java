@@ -5,13 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupApplicantListDto {
+public class ApplicantAcceptRejectDto {
     private String groupUuid;
-    private List<GroupApplicantDto> applicants;
+    private String memberUuid;
 }

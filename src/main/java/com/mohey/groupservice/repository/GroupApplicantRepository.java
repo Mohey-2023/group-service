@@ -15,5 +15,5 @@ public interface GroupApplicantRepository extends JpaRepository<GroupApplicantEn
 	List<GroupApplicantEntity> findByGroupIdApplicantsWithNoStatus(@Param("groupId") Long groupId);
 
 	@Query("SELECT ga FROM GroupApplicantEntity ga LEFT JOIN FETCH ga.applicantStatus status WHERE ga.groupId = :groupId AND ga.memberUuid = :memberUuid AND status IS NULL")
-	GroupApplicantRepository findByGroupIdAndMemberUuidApplicantsWithNoStatus(@Param("groupId") Long groupId, @Param("memberUuid") String memberUuid);
+	GroupApplicantEntity findByGroupIdAndMemberUuidApplicantsWithNoStatus(@Param("groupId") Long groupId, @Param("memberUuid") String memberUuid);
 }
