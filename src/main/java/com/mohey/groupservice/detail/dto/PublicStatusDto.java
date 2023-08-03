@@ -12,4 +12,5 @@ import lombok.Setter;
 public class PublicStatusDto {
 	private String groupUuid;
 	private String memberUuid;
+	private Boolean publicYn;
 }

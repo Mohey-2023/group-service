@@ -2,14 +2,17 @@ package com.mohey.groupservice.detail.service;
 
 
 import com.mohey.groupservice.detail.dto.GroupDto;
+import com.mohey.groupservice.detail.dto.PublicStatusDto;
 import com.mohey.groupservice.entity.group.GroupDeleteEntity;
 import com.mohey.groupservice.entity.group.GroupEntity;
 import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
+import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.repository.CategoryRepository;
 import com.mohey.groupservice.repository.GenderOptionsRepository;
 import com.mohey.groupservice.repository.GroupDetailRepository;
 import com.mohey.groupservice.repository.GroupModifiableRepository;
+import com.mohey.groupservice.repository.GroupParticipantPublicStatusRepository;
 import com.mohey.groupservice.repository.GroupParticipantRepository;
 import com.mohey.groupservice.repository.GroupTagRepository;
 
@@ -27,6 +30,7 @@ public class GroupDetailService {
     private final GroupParticipantRepository groupParticipantRepository;
     private final CategoryRepository categoryRepository;
     private final GenderOptionsRepository genderOptionsRepository;
+    private final GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository;
 
 
     @Autowired
@@ -35,13 +39,15 @@ public class GroupDetailService {
         GenderOptionsRepository genderOptionsRepository,
         GroupTagRepository groupTagRepository,
         GroupParticipantRepository groupParticipantRepository,
-        CategoryRepository categoryRepository){
+        CategoryRepository categoryRepository,
+        GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository){
         this.groupDetailRepository = groupDetailRepository;
         this.groupModifiableRepository = groupModifiableRepository;
         this.groupTagRepository = groupTagRepository;
         this.groupParticipantRepository = groupParticipantRepository;
         this.categoryRepository = categoryRepository;
         this.genderOptionsRepository = genderOptionsRepository;
+        this.groupParticipantPublicStatusRepository = groupParticipantPublicStatusRepository;
     }
 
     public  GroupDto getGroupDetailByGroupId(String groupId) {
@@ -82,7 +88,16 @@ public class GroupDetailService {
         groupDetailRepository.save(groupEntity);
     }
 
-    public void setGroupPublicStatus(){
+    public void setGroupPublicStatus(PublicStatusDto publicStatus){
+        GroupParticipantPublicStatusEntity status = new GroupParticipantPublicStatusEntity();
 
+        status.setId(groupParticipantRepository
+            .findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupDetailRepository
+                    .findByGroupUuid(publicStatus.getGroupUuid()).getId(),
+                publicStatus.getMemberUuid()).getId());
+        status.setCreatedDatetime(LocalDateTime.now());
+        status.setStatus(publicStatus.getPublicYn());
+
+        groupParticipantPublicStatusRepository.save(status);
     }
 }
