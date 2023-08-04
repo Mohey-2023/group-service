@@ -5,6 +5,8 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mohey.groupservice.entity.group.GroupEntity;
 
 @Table(name = "group_applicant_tb")
@@ -13,16 +15,18 @@ import com.mohey.groupservice.entity.group.GroupEntity;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class GroupApplicantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    private GroupEntity group;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_tb_id")
+    private GroupEntity groupEntity;
 
-    @Column(name = "group_id", nullable = false, insertable = false, updatable = false)
+    @Column(name = "group_id", nullable = false)
     private Long groupId;
 
     @Column(name = "member_uuid", nullable = false, length = 36)

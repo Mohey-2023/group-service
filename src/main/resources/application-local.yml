@@ -1,5 +1,5 @@
 spring:
   application:
-    name: group-service
+    name: groupservice
   config:
     import: optional:configserver:http://127.0.0.1:8888/

@@ -13,7 +13,7 @@ import java.util.List;
 public interface GroupModifiableRepository extends JpaRepository<GroupModifiableEntity, Long> {
 
 	@Query("SELECT gm FROM GroupModifiableEntity gm " +
-		"WHERE gm.groupTbId = :groupId AND gm.latestYn = true")
+		"WHERE gm.groupId = :groupId AND gm.latestYn = true")
 	GroupModifiableEntity findLatestGroupModifiableByGroupId(@Param("groupId") Long groupId);
 
 }

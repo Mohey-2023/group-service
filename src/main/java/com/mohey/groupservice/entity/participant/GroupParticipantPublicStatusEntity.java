@@ -17,8 +17,8 @@ public class GroupParticipantPublicStatusEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "group_participant_tb_id", nullable = false, insertable = false, updatable = false)
-    private Long groupParticipantTbId;
+    @Column(name = "group_participant_id", nullable = false)
+    private Long groupParticipantId;
 
     @Column(nullable = false)
     private Boolean status;

@@ -68,6 +68,7 @@ public class GroupParticipantService {
         groupApplicant.setCreatedDatetime(LocalDateTime.now());
 
         groupApplicantRepository.save(groupApplicant);
+
     }
 
     public void leaveGroup(JoinLeaveDto joinLeaveDto) {
@@ -104,5 +105,8 @@ public class GroupParticipantService {
                 groupDetailService.deleteGroup(groupEntity.getGroupUuid());
             }
         }
+
+
+        // chat한테 groupuuid, memberuuid
     }
 }

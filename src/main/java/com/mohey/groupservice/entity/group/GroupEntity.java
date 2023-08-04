@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mohey.groupservice.entity.applicant.GroupApplicantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 
@@ -14,6 +16,7 @@ import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class GroupEntity {
 
     @Id
@@ -27,11 +30,11 @@ public class GroupEntity {
     private LocalDateTime createdDatetime;
 
     @OneToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "group_delete_tb.id")
     private GroupDeleteEntity groupDelete;
 
     @OneToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "group_confirm_tb.id")
     private GroupConfirmEntity groupConfirm;
 
     @OneToMany(mappedBy = "groupEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

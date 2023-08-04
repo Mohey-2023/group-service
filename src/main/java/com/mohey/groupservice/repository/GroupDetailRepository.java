@@ -45,6 +45,16 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
 
     @Query("SELECT g FROM GroupEntity g " +
         "JOIN g.groupModifiableList gm " +
+        "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+        "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
+        "WHERE gm.latestYn = true " +
+        "AND gc.createdDatetime IS NULL " +
+        "AND gd.createdDatetime IS NULL " +
+        "AND gm.groupStartDatetime <= :deleteDatetime")
+    List<GroupEntity> findGroupsToBeDeleted(@Param("deleteDatetime") LocalDateTime deleteDatetime);
+
+    @Query("SELECT g FROM GroupEntity g " +
+        "JOIN g.groupModifiableList gm " +
         "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
         "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +
         "LEFT JOIN GroupParticipantStatusEntity gps ON gp.id = gps.id " +

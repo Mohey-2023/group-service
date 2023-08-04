@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mohey.groupservice.entity.group.GroupEntity;
 
 @Table(name="group_participant_tb")
@@ -15,13 +17,14 @@ import com.mohey.groupservice.entity.group.GroupEntity;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class GroupParticipantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "group_id", nullable = false, insertable = false, updatable = false)
+    @Column(name = "group_id", nullable = false)
     private Long groupId;
 
     @Column(name = "member_uuid", nullable = false, length = 36)
@@ -31,13 +34,13 @@ public class GroupParticipantEntity {
     private LocalDateTime createdDatetime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
+    @JoinColumn(name = "group_tb_id")
     private GroupEntity groupEntity;
 
     @OneToOne
     @JoinColumn(name = "id")
     private GroupParticipantStatusEntity groupParticipantStatusEntity;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "groupParticipantEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<GroupParticipantPublicStatusEntity> participantPublicStatusList = new ArrayList<>();
 }

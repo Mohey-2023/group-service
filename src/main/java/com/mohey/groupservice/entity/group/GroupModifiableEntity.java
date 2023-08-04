@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mohey.groupservice.entity.category.CategoryEntity;
 
 import lombok.AllArgsConstructor;
@@ -17,13 +19,14 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 public class GroupModifiableEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(nullable = false, name = "group_tb_id", insertable = false, updatable = false)
-	private Long groupTbId;
+	@Column(nullable = false, name = "group_id")
+	private Long groupId;
 
 	@Column(nullable = false)
 	private Long categoryTbId;
@@ -74,6 +77,6 @@ public class GroupModifiableEntity {
 	private LocalDateTime createdDatetime;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "group_tb_id")
+	@JoinColumn(name = "group_tb.id")
 	private GroupEntity groupEntity;
 }

@@ -8,20 +8,25 @@ import com.mohey.groupservice.entity.group.GroupEntity;
 import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
+import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
 import com.mohey.groupservice.repository.CategoryRepository;
 import com.mohey.groupservice.repository.GenderOptionsRepository;
+import com.mohey.groupservice.repository.GroupDeleteRepository;
 import com.mohey.groupservice.repository.GroupDetailRepository;
 import com.mohey.groupservice.repository.GroupModifiableRepository;
 import com.mohey.groupservice.repository.GroupParticipantPublicStatusRepository;
 import com.mohey.groupservice.repository.GroupParticipantRepository;
+import com.mohey.groupservice.repository.GroupParticipantStatusRepository;
 import com.mohey.groupservice.repository.GroupTagRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class GroupDetailService {
@@ -31,7 +36,10 @@ public class GroupDetailService {
     private final GroupParticipantRepository groupParticipantRepository;
     private final CategoryRepository categoryRepository;
     private final GenderOptionsRepository genderOptionsRepository;
+    private final GroupParticipantStatusRepository groupParticipantStatusRepository;
     private final GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository;
+    private final GroupDeleteRepository groupDeleteRepository;
+
 
 
     @Autowired
@@ -41,7 +49,9 @@ public class GroupDetailService {
         GroupTagRepository groupTagRepository,
         GroupParticipantRepository groupParticipantRepository,
         CategoryRepository categoryRepository,
-        GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository){
+        GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository,
+        GroupDeleteRepository groupDeleteRepository,
+        GroupParticipantStatusRepository groupParticipantStatusRepository){
         this.groupDetailRepository = groupDetailRepository;
         this.groupModifiableRepository = groupModifiableRepository;
         this.groupTagRepository = groupTagRepository;
@@ -49,6 +59,8 @@ public class GroupDetailService {
         this.categoryRepository = categoryRepository;
         this.genderOptionsRepository = genderOptionsRepository;
         this.groupParticipantPublicStatusRepository = groupParticipantPublicStatusRepository;
+        this.groupDeleteRepository = groupDeleteRepository;
+        this.groupParticipantStatusRepository = groupParticipantStatusRepository;
     }
 
     public  GroupDto getGroupDetailByGroupId(String groupId) {
@@ -89,8 +101,7 @@ public class GroupDetailService {
         deleteEntity.setCreatedDatetime(LocalDateTime.now());
         deleteEntity.setId(groupEntity.getId());
 
-        groupEntity.setGroupDelete(deleteEntity);
-        groupDetailRepository.save(groupEntity);
+        groupDeleteRepository.save(deleteEntity);
     }
 
     public void setGroupPublicStatus(PublicStatusDto publicStatus){
@@ -104,5 +115,34 @@ public class GroupDetailService {
         status.setStatus(publicStatus.getPublicYn());
 
         groupParticipantPublicStatusRepository.save(status);
+    }
+
+    public void deleteNotConfirmedGroups(LocalDateTime oneHourBefore){
+        List<GroupEntity> groupsToBeDeleted = groupDetailRepository.findGroupsToBeDeleted(oneHourBefore);
+
+        groupsToBeDeleted.stream()
+            .map(groupEntity -> {
+                deleteGroup(groupEntity.getGroupUuid());
+
+                List<GroupParticipantEntity> participants = groupParticipantRepository
+                    .findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId());
+
+                return participants;
+            })
+            .collect(Collectors.toList())
+            .forEach(participantsList -> {
+                kickEverybody(participantsList);
+            });
+    }
+
+    public void kickEverybody(List<GroupParticipantEntity> participants){
+        participants.forEach(participant -> {
+            GroupParticipantStatusEntity status = new GroupParticipantStatusEntity();
+            status.setId(participant.getId());
+            status.setCreatedDatetime(LocalDateTime.now());
+            participant.setGroupParticipantStatusEntity(status);
+            groupParticipantStatusRepository.save(status);
+            groupParticipantRepository.save(participant);
+        });
     }
 }

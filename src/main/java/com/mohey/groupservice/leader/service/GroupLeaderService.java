@@ -2,6 +2,7 @@ package com.mohey.groupservice.leader.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.mohey.groupservice.entity.applicant.GroupApplicantEntity;
@@ -35,6 +36,7 @@ public class GroupLeaderService {
 	private final GenderOptionsRepository genderOptionsRepository;
 	private final GroupApplicantRepository groupApplicantRepository;
 	private final GroupApplicantStatusRepository groupApplicantStatusRepository;
+	private final GroupParticipantStatusRepository groupParticipantStatusRepository;
 	private final GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository;
 
 	@Autowired
@@ -46,7 +48,8 @@ public class GroupLeaderService {
 		GenderOptionsRepository genderOptionsRepository,
 		GroupApplicantRepository groupApplicantRepository,
 		GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository,
-	 	GroupApplicantStatusRepository groupApplicantStatusRepository
+	 	GroupApplicantStatusRepository groupApplicantStatusRepository,
+		GroupParticipantStatusRepository groupParticipantStatusRepository
 		){
 		this.groupDetailRepository = groupDetailRepository;
 		this.groupModifiableRepository = groupModifiableRepository;
@@ -57,6 +60,7 @@ public class GroupLeaderService {
 		this.groupApplicantRepository = groupApplicantRepository;
 		this.groupParticipantPublicStatusRepository = groupParticipantPublicStatusRepository;
 		this.groupApplicantStatusRepository = groupApplicantStatusRepository;
+		this.groupParticipantStatusRepository = groupParticipantStatusRepository;
 	}
 
 	public boolean checkLeader(Long groupId, String memberUuid){
@@ -81,15 +85,13 @@ public class GroupLeaderService {
 		}
 
 		GroupModifiableEntity groupModifiableEntity = new GroupModifiableEntity();
-		groupModifiableEntity.setGroupTbId(groupEntity.getId());
+		groupModifiableEntity.setGroupId(groupDetailRepository.findByGroupUuid(groupEntity.getGroupUuid()).getId());
 
 		CategoryEntity categoryEntity = categoryRepository.findByCategoryUuid(groupDto.getCategoryUuid());
-		System.out.println(categoryEntity.getCategoryName());
 		groupModifiableEntity.setCategoryTbId(categoryEntity.getId());
 
 		GenderOptionsEntity genderOptionsEntity = genderOptionsRepository.findByGenderUuid(groupDto.getGenderOptionsUuid());
 		groupModifiableEntity.setGenderOptionsTbId(genderOptionsEntity.getId());
-
 		groupModifiableEntity.setTitle(groupDto.getTitle());
 		groupModifiableEntity.setGroupStartDatetime(groupDto.getGroupStartDatetime());
 		groupModifiableEntity.setMaxParticipant(groupDto.getMaxParticipant());
@@ -104,6 +106,7 @@ public class GroupLeaderService {
 		groupModifiableEntity.setCreatedDatetime(LocalDateTime.now());
 		groupModifiableEntity.setLocationName(groupDto.getLocationName());
 		groupModifiableEntity.setLocationAddress(groupDto.getLocationAddress());
+		groupModifiableEntity.setGroupEntity(groupEntity);
 		groupModifiableRepository.save(groupModifiableEntity);
 
 		GroupParticipantEntity leader = new GroupParticipantEntity();
@@ -113,12 +116,14 @@ public class GroupLeaderService {
 		groupParticipantRepository.save(leader);
 
 		GroupParticipantPublicStatusEntity groupParticipantPublicStatusEntity = new GroupParticipantPublicStatusEntity();
-		groupParticipantPublicStatusEntity.setGroupParticipantTbId(groupParticipantRepository
+		groupParticipantPublicStatusEntity.setGroupParticipantId(groupParticipantRepository
 			.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), leader.getMemberUuid()).getId());
 		groupParticipantPublicStatusEntity.setStatus(true);
 		groupParticipantPublicStatusEntity.setCreatedDatetime(LocalDateTime.now());
+		groupParticipantPublicStatusEntity.setGroupParticipantEntity(leader);
 		groupParticipantPublicStatusRepository.save(groupParticipantPublicStatusEntity);
 
+		// chats한테 groupuuid, gruopname, category, memberuuid 보내기
 	}
 
 	public void delegateLeadership(DelegateDto delegateDto){
@@ -164,7 +169,7 @@ public class GroupLeaderService {
 		GroupModifiableEntity groupModifiableEntity = new GroupModifiableEntity();
 
 		if(modifyGroupDto.getLeaderUuid() == latest.getLeaderUuid()){
-			groupModifiableEntity.setGroupTbId(groupEntity.getId());
+			groupModifiableEntity.setGroupId(groupEntity.getId());
 			groupModifiableEntity.setCategoryTbId(categoryRepository
 				.findByCategoryUuid(modifyGroupDto.getCategoryUuid())
 				.getId());
@@ -187,6 +192,8 @@ public class GroupLeaderService {
 			groupModifiableEntity.setPrivateYn(modifyGroupDto.isPrivacyYn());
 			groupModifiableEntity.setDescription(modifyGroupDto.getDescription());
 			groupModifiableRepository.save(groupModifiableEntity);
+
+			// chats한테 groupuuid, groupname, category
 		}
 	}
 
@@ -198,10 +205,13 @@ public class GroupLeaderService {
 				.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), kickDto.getKickUuid());
 
 			GroupParticipantStatusEntity status = new GroupParticipantStatusEntity();
-			status.setId(groupEntity.getId());
+			status.setId(kickedMember.getId());
 			status.setCreatedDatetime(LocalDateTime.now());
 			kickedMember.setGroupParticipantStatusEntity(status);
+			groupParticipantStatusRepository.save(status);
 			groupParticipantRepository.save(kickedMember);
+
+			// groupuuid, memberuuid
 		}
 	}
 
@@ -234,6 +244,8 @@ public class GroupLeaderService {
 		participant.setMemberUuid(applicant.getMemberUuid());
 		participant.setCreatedDatetime(LocalDateTime.now());
 		groupParticipantRepository.save(participant);
+
+		// chat한테 groupuuid, memberuuid
 	}
 
 	public void rejectApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto){

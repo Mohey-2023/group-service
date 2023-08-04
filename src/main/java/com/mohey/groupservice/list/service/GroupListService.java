@@ -60,14 +60,8 @@ public class GroupListService {
 	}
 
 	public List<GroupEntity> getMemberGroupList(String memberUuid){
-		List<GroupParticipantEntity> memberParticipantList = groupParticipantRepository
-			.findByMemberUuidAndGroupParticipantStatusIsNull(memberUuid);
-
-		return memberParticipantList.stream()
-			.map(GroupParticipantEntity::getGroupId)
-			.map(groupDetailRepository::findById)
-			.flatMap(Optional::stream)
-			.collect(Collectors.toList());
+		return groupDetailRepository
+			.findAllGroupsForParticipant(memberUuid);
 	}
 
 	public List<CalendarResponseDto> getCalendarGroupList(CalendarRequestDto calendarRequestDto){
@@ -151,7 +145,7 @@ public class GroupListService {
 							.getCategoryName()));
 				myGroupListMyPageDto.setGroupStartDatetime(groupEntity.getGroupModifiableList().get(0).getGroupStartDatetime());
 				myGroupListMyPageDto.setIsPrivate(groupParticipantPublicStatusRepository
-					.findFirstByGroupParticipantTbIdOrderByCreatedDatetimeDesc(groupParticipantRepository
+					.findFirstByGroupParticipantIdOrderByCreatedDatetimeDesc(groupParticipantRepository
 						.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), memberUuid).getId())
 					.getStatus());
 
@@ -169,7 +163,7 @@ public class GroupListService {
 					YourGroupListDto yourGroupListDto = new YourGroupListDto();
 
 					Boolean status = groupParticipantPublicStatusRepository
-							.findFirstByGroupParticipantTbIdOrderByCreatedDatetimeDesc(groupParticipantRepository
+							.findFirstByGroupParticipantIdOrderByCreatedDatetimeDesc(groupParticipantRepository
 									.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), memberUuid).getId())
 							.getStatus();
 					if(!status || groupEntity.getGroupModifiableList().get(0).getPrivateYn()){

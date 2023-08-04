@@ -34,9 +34,6 @@ public class GroupLeaderController {
 
 	@PostMapping("/create-group")
 	public ResponseEntity<Void> createGroup(@RequestBody CreateGroupDto groupDto) {
-		System.out.println(groupDto);
-		System.out.println(groupDto.getCategoryUuid());
-		System.out.println(groupDto.getLeaderUuid());
 		groupLeaderService.createGroup(groupDto);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
@@ -47,7 +44,7 @@ public class GroupLeaderController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
-	@GetMapping("/group-applicants")
+	@PostMapping("/group-applicants")
 	public ResponseEntity<List<GroupApplicantEntity>> getGroupApplicants(@RequestBody GroupLeaderDto groupLeaderDto) {
 		List<GroupApplicantEntity> groupApplicants = groupLeaderService.getGroupApplicants(groupLeaderDto);
 		if (groupApplicants != null) {

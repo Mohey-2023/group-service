@@ -7,5 +7,5 @@ import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEnt
 
 @Repository
 public interface GroupParticipantPublicStatusRepository extends JpaRepository<GroupParticipantPublicStatusEntity, Long> {
-	GroupParticipantPublicStatusEntity findFirstByGroupParticipantTbIdOrderByCreatedDatetimeDesc(Long groupParticipantTbId);
+	GroupParticipantPublicStatusEntity findFirstByGroupParticipantIdOrderByCreatedDatetimeDesc(Long groupParticipantId);
 }
