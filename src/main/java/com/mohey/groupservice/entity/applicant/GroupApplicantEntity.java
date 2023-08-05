@@ -22,10 +22,6 @@ public class GroupApplicantEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_tb_id")
-    private GroupEntity groupEntity;
-
     @Column(name = "group_id", nullable = false)
     private Long groupId;
 

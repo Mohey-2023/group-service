@@ -33,14 +33,8 @@ public class GroupParticipantEntity {
     @Column(name = "created_datetime", nullable = false)
     private LocalDateTime createdDatetime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_tb_id")
-    private GroupEntity groupEntity;
-
     @OneToOne
     @JoinColumn(name = "id")
     private GroupParticipantStatusEntity groupParticipantStatusEntity;
 
-    @OneToMany(mappedBy = "groupParticipantEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<GroupParticipantPublicStatusEntity> participantPublicStatusList = new ArrayList<>();
 }

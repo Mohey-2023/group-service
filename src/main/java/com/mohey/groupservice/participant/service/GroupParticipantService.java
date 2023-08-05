@@ -90,7 +90,7 @@ public class GroupParticipantService {
             groupEntity.getId());
         List<GroupParticipantEntity> participantList = groupParticipantRepository
             .findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId());
-        if(joinLeaveDto.getMemberUuid() == groupModifiableEntity.getLeaderUuid()){
+        if(joinLeaveDto.getMemberUuid().equals(groupModifiableEntity.getLeaderUuid())){
             if(participantList.size() > 0) {
                 DelegateDto dto = new DelegateDto();
                 dto.setGroupUuid(groupEntity.getGroupUuid());

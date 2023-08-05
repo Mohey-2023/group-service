@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.mohey.groupservice.entity.applicant.GroupApplicantEntity;
 import com.mohey.groupservice.entity.applicant.GroupApplicantStatusEntity;
@@ -12,6 +13,8 @@ import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
 import com.mohey.groupservice.leader.dto.applicant.ApplicantAcceptRejectDto;
+import com.mohey.groupservice.leader.dto.applicant.GroupApplicantDto;
+import com.mohey.groupservice.leader.dto.applicant.GroupApplicantListDto;
 import com.mohey.groupservice.leader.dto.leader.DelegateDto;
 import com.mohey.groupservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,10 +73,10 @@ public class GroupLeaderService {
 		GroupModifiableEntity groupModifiableEntity = groupModifiableRepository
 			.findLatestGroupModifiableByGroupId(groupId);
 
-		if(memberUuid != groupModifiableEntity.getLeaderUuid()){
-			return false;
+		if(memberUuid.equals(groupModifiableEntity.getLeaderUuid())){
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public void createGroup(CreateGroupDto groupDto){
@@ -109,7 +112,6 @@ public class GroupLeaderService {
 		groupModifiableEntity.setCreatedDatetime(LocalDateTime.now());
 		groupModifiableEntity.setLocationName(groupDto.getLocationName());
 		groupModifiableEntity.setLocationAddress(groupDto.getLocationAddress());
-		groupModifiableEntity.setGroupEntity(groupEntity);
 		groupModifiableRepository.save(groupModifiableEntity);
 
 		GroupParticipantEntity leader = new GroupParticipantEntity();
@@ -146,19 +148,26 @@ public class GroupLeaderService {
 		groupModifiableRepository.save(groupModifiableEntity);
 	}
 
-	public List<GroupApplicantEntity> getGroupApplicants(GroupLeaderDto groupLeaderDto) {
+	public GroupApplicantListDto getGroupApplicantList(GroupLeaderDto groupLeaderDto) {
 		GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupLeaderDto.getGroupUuid());
 
-		if(!checkLeader(groupEntity.getId(), groupLeaderDto.getLeaderUuid())){
-			return null;
-		}
+		checkLeader(groupEntity.getId(), groupLeaderDto.getLeaderUuid());
 
-		// 유저랑 통신해서 프사랑 즐겨찾기 여부 가져오기
+		GroupApplicantListDto applicantList = new GroupApplicantListDto();
 
-		if (groupEntity != null) {
-			return groupApplicantRepository.findByGroupIdApplicantsWithNoStatus(groupEntity.getId());
-		}
-		return null;
+		List<GroupApplicantDto> applicants = groupApplicantRepository
+				.findByGroupIdApplicantsWithNoStatus(groupEntity.getId())
+				.stream()
+				.map(groupApplicantEntity -> {
+					GroupApplicantDto applicantDto = new GroupApplicantDto();
+					applicantDto.setMemberUuid(groupApplicantEntity.getMemberUuid());
+					// 유저랑 통신해서 프사랑 즐찾 가져와야됨
+					return applicantDto;
+				}).collect(Collectors.toList());
+		applicantList.setApplicants(applicants);
+		applicantList.setGroupUuid(groupLeaderDto.getGroupUuid());
+
+		return applicantList;
 	}
 
 

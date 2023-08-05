@@ -1,6 +1,7 @@
 package com.mohey.groupservice.detail.controller;
 
 import com.mohey.groupservice.detail.dto.GroupDto;
+import com.mohey.groupservice.detail.dto.GroupParticipantListDto;
 import com.mohey.groupservice.detail.dto.PublicStatusDto;
 import com.mohey.groupservice.detail.service.GroupDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,11 @@ public class GroupDetailController {
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    @GetMapping("/{groupUuid}/participants")
+    public ResponseEntity<GroupParticipantListDto> getGroupParticipants(@PathVariable String groupUuid) {
+        return new ResponseEntity<>(groupDetailService.getGroupParticipantList(groupUuid), HttpStatus.OK);
     }
 
     @PostMapping("/delete")

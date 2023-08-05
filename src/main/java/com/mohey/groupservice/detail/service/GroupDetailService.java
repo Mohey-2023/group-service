@@ -2,6 +2,8 @@ package com.mohey.groupservice.detail.service;
 
 
 import com.mohey.groupservice.detail.dto.GroupDto;
+import com.mohey.groupservice.detail.dto.GroupParticipantDto;
+import com.mohey.groupservice.detail.dto.GroupParticipantListDto;
 import com.mohey.groupservice.detail.dto.PublicStatusDto;
 import com.mohey.groupservice.entity.group.GroupDeleteEntity;
 import com.mohey.groupservice.entity.group.GroupEntity;
@@ -9,6 +11,7 @@ import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
+import com.mohey.groupservice.leader.dto.applicant.GroupApplicantListDto;
 import com.mohey.groupservice.repository.CategoryRepository;
 import com.mohey.groupservice.repository.GenderOptionsRepository;
 import com.mohey.groupservice.repository.GroupDeleteRepository;
@@ -117,6 +120,26 @@ public class GroupDetailService {
         status.setStatus(publicStatus.getPublicYn());
 
         groupParticipantPublicStatusRepository.save(status);
+    }
+
+    public GroupParticipantListDto getGroupParticipantList(String groupUuid){
+        GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupUuid);
+
+        GroupParticipantListDto participantList = new GroupParticipantListDto();
+
+        List<GroupParticipantDto> participants = groupParticipantRepository
+                .findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId())
+                .stream()
+                .map(groupParticipantEntity -> {
+                    GroupParticipantDto participantDto = new GroupParticipantDto();
+                    participantDto.setMemberUuid(groupParticipantEntity.getMemberUuid());
+                    // 유저랑 통신해서 프사랑 즐찾 가져와야됨
+                    return participantDto;
+                }).collect(Collectors.toList());
+        participantList.setParticipants(participants);
+        participantList.setGroupUuid(groupUuid);
+
+        return participantList;
     }
 
     public void deleteNotConfirmedGroups(LocalDateTime oneHourBefore){

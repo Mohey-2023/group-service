@@ -22,7 +22,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class GroupApplicantStatusEntity {
 		@Id
-		@GeneratedValue(strategy = GenerationType.IDENTITY)
 		private Long id;
 
 		@Column(nullable = false)

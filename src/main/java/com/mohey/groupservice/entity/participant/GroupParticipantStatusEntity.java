@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 public class GroupParticipantStatusEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "created_datetime", nullable = false)

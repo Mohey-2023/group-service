@@ -2,6 +2,8 @@ package com.mohey.groupservice.leader.controller;
 
 import java.util.List;
 
+import com.mohey.groupservice.leader.dto.applicant.ApplicantAcceptRejectDto;
+import com.mohey.groupservice.leader.dto.applicant.GroupApplicantListDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,13 +47,20 @@ public class GroupLeaderController {
 	}
 
 	@PostMapping("/applicants")
-	public ResponseEntity<List<GroupApplicantEntity>> getGroupApplicants(@RequestBody GroupLeaderDto groupLeaderDto) {
-		List<GroupApplicantEntity> groupApplicants = groupLeaderService.getGroupApplicants(groupLeaderDto);
-		if (groupApplicants != null) {
-			return new ResponseEntity<>(groupApplicants, HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+	public ResponseEntity<GroupApplicantListDto> getGroupApplicants(@RequestBody GroupLeaderDto groupLeaderDto) {
+		return new ResponseEntity<>(groupLeaderService.getGroupApplicantList(groupLeaderDto), HttpStatus.OK);
+	}
+
+	@PostMapping("/accept")
+	public ResponseEntity<Void> acceptGroupApplicants(@RequestBody ApplicantAcceptRejectDto applicantAcceptRejectDto) {
+		groupLeaderService.acceptApplicant(applicantAcceptRejectDto);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+
+	@PostMapping("/reject")
+	public ResponseEntity<Void> rejectGroupApplicants(@RequestBody ApplicantAcceptRejectDto applicantAcceptRejectDto) {
+		groupLeaderService.rejectApplicant(applicantAcceptRejectDto);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PostMapping("/modify")

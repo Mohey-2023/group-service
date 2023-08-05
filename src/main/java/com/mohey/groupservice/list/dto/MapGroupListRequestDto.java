@@ -12,6 +12,6 @@ import lombok.Setter;
 public class MapGroupListRequestDto {
 	Double neLat;
 	Double neLng;
-	Double swlat;
-	Double swlng;
+	Double swLat;
+	Double swLng;
 }

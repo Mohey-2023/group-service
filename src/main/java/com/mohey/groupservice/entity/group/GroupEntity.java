@@ -37,9 +37,4 @@ public class GroupEntity {
     @JoinColumn(name = "group_confirm_tb.id")
     private GroupConfirmEntity groupConfirm;
 
-    @OneToMany(mappedBy = "groupEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<GroupModifiableEntity> groupModifiableList = new ArrayList<>();
-
-    @OneToMany(mappedBy = "groupEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<GroupParticipantEntity> groupParticipantEntityList = new ArrayList<>();
 }

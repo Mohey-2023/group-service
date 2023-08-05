@@ -75,8 +75,4 @@ public class GroupModifiableEntity {
 
 	@Column(nullable = false)
 	private LocalDateTime createdDatetime;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "group_tb.id")
-	private GroupEntity groupEntity;
 }

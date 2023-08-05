@@ -25,8 +25,4 @@ public class GroupParticipantPublicStatusEntity {
 
     @Column(name = "created_datetime", nullable = false)
     private LocalDateTime createdDatetime;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_participant_tb_id")
-    private GroupParticipantEntity groupParticipantEntity;
 }
