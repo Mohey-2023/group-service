@@ -11,7 +11,7 @@ import java.util.List;
 public class GroupDto {
     private Long groupId;
     private Integer participantsNum;
-    private String groupDescription;
+    private String description;
     private String category;
     private String title;
     private LocalDateTime groupStartDatetime;

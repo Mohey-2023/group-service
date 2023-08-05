@@ -81,7 +81,7 @@ public class GroupDetailService {
                 .ifPresent(genderOptions -> group.setGenderOptions(genderOptions.getGenderDescription()));
             group.setParticipantsNum(groupParticipantEntities.size());
             group.setTitle(groupModifiableEntity.getTitle());
-            group.setGroupDescription(groupModifiableEntity.getDescription());
+            group.setDescription(groupModifiableEntity.getDescription());
             group.setGroupStartDatetime(groupModifiableEntity.getGroupStartDatetime());
             group.setMaxParticipant(groupModifiableEntity.getMaxParticipant());
             group.setLeaderUuid(groupModifiableEntity.getLeaderUuid());

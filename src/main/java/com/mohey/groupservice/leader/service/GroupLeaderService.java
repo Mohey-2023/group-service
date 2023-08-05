@@ -168,22 +168,23 @@ public class GroupLeaderService {
 		GroupModifiableEntity latest = groupModifiableRepository
 			.findLatestGroupModifiableByGroupId(groupEntity.getId());
 
+
 		GroupModifiableEntity groupModifiableEntity = new GroupModifiableEntity();
 
-		if(modifyGroupDto.getLeaderUuid() == latest.getLeaderUuid()){
+		if(modifyGroupDto.getLeaderUuid().equals(latest.getLeaderUuid())){
 			groupModifiableEntity.setGroupId(groupEntity.getId());
-			groupModifiableEntity.setCategoryTbId(categoryRepository
-				.findByCategoryUuid(modifyGroupDto.getCategoryUuid())
-				.getId());
-			groupModifiableEntity.setGenderOptionsTbId(genderOptionsRepository
-				.findByGenderUuid(modifyGroupDto.getGenderOptionsUuid())
-				.getId());
+				groupModifiableEntity.setCategoryTbId(categoryRepository
+						.findByCategoryUuid(modifyGroupDto.getCategory())
+						.getId());
+				groupModifiableEntity.setGenderOptionsTbId(genderOptionsRepository
+						.findByGenderUuid(modifyGroupDto.getGenderOptionsUuid())
+						.getId());
 			groupModifiableEntity.setTitle(modifyGroupDto.getTitle());
 			groupModifiableEntity.setGroupStartDatetime(modifyGroupDto.getGroupStartDatetime());
 			groupModifiableEntity.setMaxParticipant(modifyGroupDto.getMaxParticipant());
 			groupModifiableEntity.setLeaderUuid(modifyGroupDto.getLeaderUuid());
-			groupModifiableEntity.setPrivateYn(true);
-			latest.setPrivateYn(false);
+			groupModifiableEntity.setPrivateYn(modifyGroupDto.isPrivacyYn());
+			latest.setLatestYn(false);
 			groupModifiableRepository.save(latest);
 			groupModifiableEntity.setLat(modifyGroupDto.getLat());
 			groupModifiableEntity.setLng(modifyGroupDto.getLng());
@@ -193,6 +194,8 @@ public class GroupLeaderService {
 			groupModifiableEntity.setMaxAge(modifyGroupDto.getMaxAge());
 			groupModifiableEntity.setPrivateYn(modifyGroupDto.isPrivacyYn());
 			groupModifiableEntity.setDescription(modifyGroupDto.getDescription());
+			groupModifiableEntity.setCreatedDatetime(LocalDateTime.now());
+			groupModifiableEntity.setLatestYn(true);
 			groupModifiableRepository.save(groupModifiableEntity);
 
 			// chats한테 groupuuid, groupname, category
