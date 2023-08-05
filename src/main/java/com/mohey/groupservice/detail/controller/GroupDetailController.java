@@ -33,13 +33,13 @@ public class GroupDetailController {
         }
     }
 
-    @PostMapping("/{groupUuid}/delete")
-    public ResponseEntity<Void> deleteGroup(@PathVariable String groupUuid) {
+    @PostMapping("/delete")
+    public ResponseEntity<Void> deleteGroup(@RequestBody String groupUuid) {
         groupDetailService.deleteGroup(groupUuid);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/public-status")
+    @PostMapping("/public")
     public ResponseEntity<Void> setGroupPublicStatus(@RequestBody PublicStatusDto publicStatus) {
         groupDetailService.setGroupPublicStatus(publicStatus);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

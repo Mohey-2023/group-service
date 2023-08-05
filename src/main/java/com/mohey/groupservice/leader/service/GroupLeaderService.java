@@ -30,6 +30,7 @@ import com.mohey.groupservice.leader.dto.leader.ModifyGroupDto;
 public class GroupLeaderService {
 	private final GroupDetailRepository groupDetailRepository;
 	private final GroupModifiableRepository groupModifiableRepository;
+	private final GroupConfirmRepository groupConfirmRepository;
 	private final GroupTagRepository groupTagRepository;
 	private final GroupParticipantRepository groupParticipantRepository;
 	private final CategoryRepository categoryRepository;
@@ -49,7 +50,8 @@ public class GroupLeaderService {
 		GroupApplicantRepository groupApplicantRepository,
 		GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository,
 	 	GroupApplicantStatusRepository groupApplicantStatusRepository,
-		GroupParticipantStatusRepository groupParticipantStatusRepository
+		GroupParticipantStatusRepository groupParticipantStatusRepository,
+							  GroupConfirmRepository groupConfirmRepository
 		){
 		this.groupDetailRepository = groupDetailRepository;
 		this.groupModifiableRepository = groupModifiableRepository;
@@ -61,6 +63,7 @@ public class GroupLeaderService {
 		this.groupParticipantPublicStatusRepository = groupParticipantPublicStatusRepository;
 		this.groupApplicantStatusRepository = groupApplicantStatusRepository;
 		this.groupParticipantStatusRepository = groupParticipantStatusRepository;
+		this.groupConfirmRepository = groupConfirmRepository;
 	}
 
 	public boolean checkLeader(Long groupId, String memberUuid){
@@ -120,7 +123,6 @@ public class GroupLeaderService {
 			.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), leader.getMemberUuid()).getId());
 		groupParticipantPublicStatusEntity.setStatus(true);
 		groupParticipantPublicStatusEntity.setCreatedDatetime(LocalDateTime.now());
-		groupParticipantPublicStatusEntity.setGroupParticipantEntity(leader);
 		groupParticipantPublicStatusRepository.save(groupParticipantPublicStatusEntity);
 
 		// chats한테 groupuuid, gruopname, category, memberuuid 보내기
@@ -220,8 +222,9 @@ public class GroupLeaderService {
 
 		GroupConfirmEntity confirmEntity = new GroupConfirmEntity();
 		confirmEntity.setCreatedDatetime(LocalDateTime.now());
-		confirmEntity.setId(groupEntity.getId());
 
+		confirmEntity.setId(groupEntity.getId());
+		groupConfirmRepository.save(confirmEntity);
 		groupEntity.setGroupConfirm(confirmEntity);
 		groupDetailRepository.save(groupEntity);
 	}

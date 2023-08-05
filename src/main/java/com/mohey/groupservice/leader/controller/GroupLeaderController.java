@@ -22,7 +22,7 @@ import com.mohey.groupservice.leader.dto.leader.ModifyGroupDto;
 import com.mohey.groupservice.leader.service.GroupLeaderService;
 
 @RestController
-@RequestMapping("/leader")
+@RequestMapping("/groups")
 public class GroupLeaderController {
 
 	private final GroupLeaderService groupLeaderService;
@@ -32,19 +32,19 @@ public class GroupLeaderController {
 		this.groupLeaderService = groupLeaderService;
 	}
 
-	@PostMapping("/create-group")
+	@PostMapping("/create")
 	public ResponseEntity<Void> createGroup(@RequestBody CreateGroupDto groupDto) {
 		groupLeaderService.createGroup(groupDto);
 		return new ResponseEntity<>(HttpStatus.CREATED);
 	}
 
-	@PostMapping("/delegate-leadership")
+	@PostMapping("/delegate")
 	public ResponseEntity<Void> delegateLeadership(@RequestBody DelegateDto delegateDto) {
 		groupLeaderService.delegateLeadership(delegateDto);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
-	@PostMapping("/group-applicants")
+	@PostMapping("/applicants")
 	public ResponseEntity<List<GroupApplicantEntity>> getGroupApplicants(@RequestBody GroupLeaderDto groupLeaderDto) {
 		List<GroupApplicantEntity> groupApplicants = groupLeaderService.getGroupApplicants(groupLeaderDto);
 		if (groupApplicants != null) {
@@ -54,20 +54,20 @@ public class GroupLeaderController {
 		}
 	}
 
-	@PostMapping("/modify-group")
+	@PostMapping("/modify")
 	public ResponseEntity<Void> modifyGroup(@RequestBody ModifyGroupDto modifyGroupDto) {
 		groupLeaderService.modifyGroup(modifyGroupDto);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
-	@PostMapping("/kick-member")
+	@PostMapping("/kick")
 	public ResponseEntity<Void> kickMember(@RequestBody KickDto kickDto) {
 		groupLeaderService.kickMember(kickDto);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
-	@PostMapping("/confirm-group/{groupUuid}")
-	public ResponseEntity<Void> confirmGroup(@PathVariable String groupUuid) {
+	@PostMapping("/confirm")
+	public ResponseEntity<Void> confirmGroup(@RequestBody String groupUuid) {
 		groupLeaderService.confirmGroup(groupUuid);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}

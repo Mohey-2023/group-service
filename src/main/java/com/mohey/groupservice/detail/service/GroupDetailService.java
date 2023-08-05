@@ -80,6 +80,7 @@ public class GroupDetailService {
             genderOptionsRepository.findById(groupModifiableEntity.getGenderOptionsTbId())
                 .ifPresent(genderOptions -> group.setGenderOptions(genderOptions.getGenderDescription()));
             group.setParticipantsNum(groupParticipantEntities.size());
+            group.setTitle(groupModifiableEntity.getTitle());
             group.setGroupDescription(groupModifiableEntity.getDescription());
             group.setGroupStartDatetime(groupModifiableEntity.getGroupStartDatetime());
             group.setMaxParticipant(groupModifiableEntity.getMaxParticipant());
@@ -100,14 +101,15 @@ public class GroupDetailService {
         GroupDeleteEntity deleteEntity = new GroupDeleteEntity();
         deleteEntity.setCreatedDatetime(LocalDateTime.now());
         deleteEntity.setId(groupEntity.getId());
-
         groupDeleteRepository.save(deleteEntity);
+        groupEntity.setGroupDelete(deleteEntity);
+        groupDetailRepository.save(groupEntity);
     }
 
     public void setGroupPublicStatus(PublicStatusDto publicStatus){
         GroupParticipantPublicStatusEntity status = new GroupParticipantPublicStatusEntity();
 
-        status.setId(groupParticipantRepository
+        status.setGroupParticipantId(groupParticipantRepository
             .findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupDetailRepository
                     .findByGroupUuid(publicStatus.getGroupUuid()).getId(),
                 publicStatus.getMemberUuid()).getId());

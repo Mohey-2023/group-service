@@ -15,18 +15,16 @@ import java.util.Optional;
 public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> {
     GroupEntity findByGroupUuid(String groupUuid);
 
-    @Query("SELECT DISTINCT g FROM GroupEntity g " +
+    @Query("SELECT g FROM GroupEntity g " +
         "JOIN g.groupModifiableList gm " +
-        "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +
-        "LEFT JOIN GroupParticipantStatusEntity gps ON gp.id = gps.id " +
-        "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
-        "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
+            "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +
+            "LEFT JOIN GroupParticipantStatusEntity gps ON gp.id = gps.id " +
         "WHERE YEAR(gm.groupStartDatetime) = :year AND MONTH(gm.groupStartDatetime) = :month " +
         "AND gm.latestYn = true " +
         "AND gp.memberUuid = :memberUuid " +
         "AND gps.createdDatetime IS NULL " +
-        "AND gc.createdDatetime IS NOT NULL " +
-        "AND gd.createdDatetime IS NULL")
+        "AND g.groupDelete IS NULL " +
+        "AND g.groupConfirm IS NOT NULL")
     List<GroupEntity> findGroupsByYearAndMonthForParticipant(@Param("year") int year, @Param("month") int month, @Param("memberUuid") String memberUuid);
 
     @Query("SELECT g FROM GroupEntity g " +
@@ -55,11 +53,10 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
 
     @Query("SELECT g FROM GroupEntity g " +
         "JOIN g.groupModifiableList gm " +
-        "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
         "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +
         "LEFT JOIN GroupParticipantStatusEntity gps ON gp.id = gps.id " +
         "WHERE gm.latestYn = true " +
-        "AND gd.createdDatetime IS NULL " +
+        "AND g.groupDelete IS NULL " +
         "AND gps.createdDatetime IS NULL " +
         "AND gp.memberUuid = :memberUuid")
     List<GroupEntity> findAllGroupsForParticipant(@Param("memberUuid") String memberUuid);

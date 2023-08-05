@@ -1,6 +1,7 @@
 package com.mohey.groupservice.entity.group;
 
 import lombok.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -14,11 +15,9 @@ import java.time.LocalDateTime;
 public class GroupConfirmEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "created_datetime", nullable = false)
     private LocalDateTime createdDatetime;
-
 
 }
