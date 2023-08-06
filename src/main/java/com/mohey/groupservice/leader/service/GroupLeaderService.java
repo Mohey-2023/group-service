@@ -80,70 +80,78 @@ public class GroupLeaderService {
 	}
 
 	public void createGroup(CreateGroupDto groupDto){
-		GroupEntity groupEntity = new GroupEntity();
-		groupEntity.setGroupUuid(UUID.randomUUID().toString());
-		groupEntity.setCreatedDatetime(LocalDateTime.now());
+		GroupEntity groupEntity = GroupEntity.builder()
+				.groupUuid(UUID.randomUUID().toString())
+				.createdDatetime(LocalDateTime.now())
+				.build();
 		groupDetailRepository.save(groupEntity);
 
-		GroupModifiableEntity latest = groupModifiableRepository.findLatestGroupModifiableByGroupId(groupEntity.getId());
-		if(latest != null) {
-			latest.setLatestYn(false);
-		}
-
-		GroupModifiableEntity groupModifiableEntity = new GroupModifiableEntity();
-		groupModifiableEntity.setGroupId(groupDetailRepository.findByGroupUuid(groupEntity.getGroupUuid()).getId());
-
-		CategoryEntity categoryEntity = categoryRepository.findByCategoryUuid(groupDto.getCategoryUuid());
-		groupModifiableEntity.setCategoryTbId(categoryEntity.getId());
-
-		GenderOptionsEntity genderOptionsEntity = genderOptionsRepository.findByGenderUuid(groupDto.getGenderOptionsUuid());
-		groupModifiableEntity.setGenderOptionsTbId(genderOptionsEntity.getId());
-		groupModifiableEntity.setTitle(groupDto.getTitle());
-		groupModifiableEntity.setGroupStartDatetime(groupDto.getGroupStartDatetime());
-		groupModifiableEntity.setMaxParticipant(groupDto.getMaxParticipant());
-		groupModifiableEntity.setLeaderUuid(groupDto.getLeaderUuid());
-		groupModifiableEntity.setPrivateYn(groupDto.isPrivacyYn());
-		groupModifiableEntity.setLat(groupDto.getLat());
-		groupModifiableEntity.setLng(groupDto.getLng());
-		groupModifiableEntity.setMinAge(groupDto.getMinAge());
-		groupModifiableEntity.setMaxAge(groupDto.getMaxAge());
-		groupModifiableEntity.setDescription(groupDto.getDescription());
-		groupModifiableEntity.setLatestYn(true);
-		groupModifiableEntity.setCreatedDatetime(LocalDateTime.now());
-		groupModifiableEntity.setLocationName(groupDto.getLocationName());
-		groupModifiableEntity.setLocationAddress(groupDto.getLocationAddress());
+		GroupModifiableEntity groupModifiableEntity = GroupModifiableEntity.builder()
+				.groupId(groupDetailRepository.findByGroupUuid(groupEntity.getGroupUuid()).getId())
+				.categoryTbId(categoryRepository.findByCategoryUuid(groupDto.getCategoryUuid()).getId())
+				.genderOptionsTbId(genderOptionsRepository.findByGenderUuid(groupDto.getGenderOptionsUuid()).getId())
+				.title(groupDto.getTitle())
+				.groupStartDatetime(groupDto.getGroupStartDatetime())
+				.maxParticipant(groupDto.getMaxParticipant())
+				.leaderUuid(groupDto.getLeaderUuid())
+				.privateYn(groupDto.isPrivacyYn())
+				.lat(groupDto.getLat())
+				.lng(groupDto.getLng())
+				.minAge(groupDto.getMinAge())
+				.maxAge(groupDto.getMaxAge())
+				.description(groupDto.getDescription())
+				.latestYn(true)
+				.createdDatetime(LocalDateTime.now())
+				.locationName(groupDto.getLocationName())
+				.locationAddress(groupDto.getLocationAddress())
+				.build();
 		groupModifiableRepository.save(groupModifiableEntity);
 
-		GroupParticipantEntity leader = new GroupParticipantEntity();
-		leader.setGroupId(groupEntity.getId());
-		leader.setMemberUuid(groupDto.getLeaderUuid());
-		leader.setCreatedDatetime(LocalDateTime.now());
+		GroupParticipantEntity leader = GroupParticipantEntity.builder()
+				.groupId(groupEntity.getId())
+				.memberUuid(groupDto.getLeaderUuid())
+				.createdDatetime(LocalDateTime.now())
+				.build();
 		groupParticipantRepository.save(leader);
 
-		GroupParticipantPublicStatusEntity groupParticipantPublicStatusEntity = new GroupParticipantPublicStatusEntity();
-		groupParticipantPublicStatusEntity.setGroupParticipantId(groupParticipantRepository
-			.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), leader.getMemberUuid()).getId());
-		groupParticipantPublicStatusEntity.setStatus(true);
-		groupParticipantPublicStatusEntity.setCreatedDatetime(LocalDateTime.now());
+		GroupParticipantPublicStatusEntity groupParticipantPublicStatusEntity = GroupParticipantPublicStatusEntity.builder()
+				.groupParticipantId(groupParticipantRepository
+						.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), leader.getMemberUuid()).getId())
+				.status(true)
+				.createdDatetime(LocalDateTime.now())
+				.build();
 		groupParticipantPublicStatusRepository.save(groupParticipantPublicStatusEntity);
 
 		// chats한테 groupuuid, gruopname, category, memberuuid 보내기
 	}
 
-	public void delegateLeadership(DelegateDto delegateDto){
+	public void delegateLeadership(DelegateDto delegateDto) {
 		GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(delegateDto.getGroupUuid());
 
 		GroupModifiableEntity latest = groupModifiableRepository
 				.findLatestGroupModifiableByGroupId(groupEntity.getId());
-		latest.setLatestYn(false);
+		latest.updateLatestYn(false);
 		groupModifiableRepository.save(latest);
 
-		GroupModifiableEntity groupModifiableEntity = new GroupModifiableEntity();
-		groupModifiableEntity = latest;
-
-		groupModifiableEntity.setLeaderUuid(delegateDto.getDelegatedUuid());
-		groupModifiableEntity.setLatestYn(true);
-		groupModifiableEntity.setCreatedDatetime(LocalDateTime.now());
+		GroupModifiableEntity groupModifiableEntity = GroupModifiableEntity.builder()
+				.groupId(latest.getGroupId())
+				.categoryTbId(latest.getCategoryTbId())
+				.genderOptionsTbId(latest.getGenderOptionsTbId())
+				.title(latest.getTitle())
+				.groupStartDatetime(latest.getGroupStartDatetime())
+				.maxParticipant(latest.getMaxParticipant())
+				.leaderUuid(delegateDto.getDelegatedUuid())
+				.privateYn(latest.getPrivateYn())
+				.lat(latest.getLat())
+				.lng(latest.getLng())
+				.minAge(latest.getMinAge())
+				.maxAge(latest.getMaxAge())
+				.description(latest.getDescription())
+				.latestYn(true)
+				.createdDatetime(LocalDateTime.now())
+				.locationName(latest.getLocationName())
+				.locationAddress(latest.getLocationAddress())
+				.build();
 
 		groupModifiableRepository.save(groupModifiableEntity);
 	}
@@ -171,60 +179,55 @@ public class GroupLeaderService {
 	}
 
 
-	public void modifyGroup(ModifyGroupDto modifyGroupDto){
+	public void modifyGroup(ModifyGroupDto modifyGroupDto) {
 		GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(modifyGroupDto.getGroupUuid());
 
 		GroupModifiableEntity latest = groupModifiableRepository
-			.findLatestGroupModifiableByGroupId(groupEntity.getId());
+				.findLatestGroupModifiableByGroupId(groupEntity.getId());
 
-
-		GroupModifiableEntity groupModifiableEntity = new GroupModifiableEntity();
-
-		if(modifyGroupDto.getLeaderUuid().equals(latest.getLeaderUuid())){
-			groupModifiableEntity.setGroupId(groupEntity.getId());
-				groupModifiableEntity.setCategoryTbId(categoryRepository
-						.findByCategoryUuid(modifyGroupDto.getCategory())
-						.getId());
-				groupModifiableEntity.setGenderOptionsTbId(genderOptionsRepository
-						.findByGenderUuid(modifyGroupDto.getGenderOptionsUuid())
-						.getId());
-			groupModifiableEntity.setTitle(modifyGroupDto.getTitle());
-			groupModifiableEntity.setGroupStartDatetime(modifyGroupDto.getGroupStartDatetime());
-			groupModifiableEntity.setMaxParticipant(modifyGroupDto.getMaxParticipant());
-			groupModifiableEntity.setLeaderUuid(modifyGroupDto.getLeaderUuid());
-			groupModifiableEntity.setPrivateYn(modifyGroupDto.isPrivacyYn());
-			latest.setLatestYn(false);
+		if (modifyGroupDto.getLeaderUuid().equals(latest.getLeaderUuid())) {
+			latest.updateLatestYn(false);
 			groupModifiableRepository.save(latest);
-			groupModifiableEntity.setLat(modifyGroupDto.getLat());
-			groupModifiableEntity.setLng(modifyGroupDto.getLng());
-			groupModifiableEntity.setLocationName(modifyGroupDto.getLocationName());
-			groupModifiableEntity.setLocationAddress(modifyGroupDto.getLocationAddress());
-			groupModifiableEntity.setMinAge(modifyGroupDto.getMinAge());
-			groupModifiableEntity.setMaxAge(modifyGroupDto.getMaxAge());
-			groupModifiableEntity.setPrivateYn(modifyGroupDto.isPrivacyYn());
-			groupModifiableEntity.setDescription(modifyGroupDto.getDescription());
-			groupModifiableEntity.setCreatedDatetime(LocalDateTime.now());
-			groupModifiableEntity.setLatestYn(true);
+
+			GroupModifiableEntity groupModifiableEntity = GroupModifiableEntity.builder()
+					.groupId(groupEntity.getId())
+					.categoryTbId(categoryRepository.findByCategoryUuid(modifyGroupDto.getCategory()).getId())
+					.genderOptionsTbId(genderOptionsRepository.findByGenderUuid(modifyGroupDto.getGenderOptionsUuid()).getId())
+					.title(modifyGroupDto.getTitle())
+					.groupStartDatetime(modifyGroupDto.getGroupStartDatetime())
+					.maxParticipant(modifyGroupDto.getMaxParticipant())
+					.leaderUuid(modifyGroupDto.getLeaderUuid())
+					.privateYn(modifyGroupDto.isPrivacyYn())
+					.lat(modifyGroupDto.getLat())
+					.lng(modifyGroupDto.getLng())
+					.locationName(modifyGroupDto.getLocationName())
+					.locationAddress(modifyGroupDto.getLocationAddress())
+					.minAge(modifyGroupDto.getMinAge())
+					.maxAge(modifyGroupDto.getMaxAge())
+					.description(modifyGroupDto.getDescription())
+					.createdDatetime(LocalDateTime.now())
+					.latestYn(true)
+					.build();
+
 			groupModifiableRepository.save(groupModifiableEntity);
 
-			// chats한테 groupuuid, groupname, category
+			// chats한테 groupuuid, groupname, category 보내기
 		}
 	}
 
-	public void kickMember(KickDto kickDto){
+	public void kickMember(KickDto kickDto) {
 		GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(kickDto.getGroupUuid());
 
-		if(checkLeader(groupEntity.getId(), kickDto.getLeaderUuid())){
+		if (checkLeader(groupEntity.getId(), kickDto.getLeaderUuid())) {
 			GroupParticipantEntity kickedMember = groupParticipantRepository
-				.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), kickDto.getKickUuid());
+					.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), kickDto.getKickUuid());
 
-			GroupParticipantStatusEntity status = new GroupParticipantStatusEntity();
-			status.setId(kickedMember.getId());
-			status.setCreatedDatetime(LocalDateTime.now());
-			kickedMember.setGroupParticipantStatusEntity(status);
+			GroupParticipantStatusEntity status = GroupParticipantStatusEntity.builder()
+					.id(kickedMember.getId())
+					.createdDatetime(LocalDateTime.now())
+					.build();
+
 			groupParticipantStatusRepository.save(status);
-			groupParticipantRepository.save(kickedMember);
-
 			// groupuuid, memberuuid
 		}
 	}
@@ -232,48 +235,51 @@ public class GroupLeaderService {
 	public void confirmGroup(String groupUuid){
 		GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupUuid);
 
-		GroupConfirmEntity confirmEntity = new GroupConfirmEntity();
-		confirmEntity.setCreatedDatetime(LocalDateTime.now());
+		GroupConfirmEntity confirmEntity = GroupConfirmEntity.builder()
+				.createdDatetime(LocalDateTime.now())
+				.id(groupEntity.getId())
+				.build();
 
-		confirmEntity.setId(groupEntity.getId());
 		groupConfirmRepository.save(confirmEntity);
-		groupEntity.setGroupConfirm(confirmEntity);
-		groupDetailRepository.save(groupEntity);
 	}
 
-	public void acceptApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto){
+	public void acceptApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto) {
 		GroupApplicantEntity applicant = groupApplicantRepository
 				.findByGroupIdAndMemberUuidApplicantsWithNoStatus(groupDetailRepository
-						.findByGroupUuid(applicantAcceptRejectDto
-								.getGroupUuid()).getId(),
+								.findByGroupUuid(applicantAcceptRejectDto.getGroupUuid()).getId(),
 						applicantAcceptRejectDto.getMemberUuid());
 
-		GroupApplicantStatusEntity status = new GroupApplicantStatusEntity();
-		status.setId(applicant.getId());
-		status.setApplicantStatus(true);
-		status.setCreatedDatetime(LocalDateTime.now());
+		GroupApplicantStatusEntity status = GroupApplicantStatusEntity.builder()
+				.id(applicant.getId())
+				.applicantStatus(true)
+				.createdDatetime(LocalDateTime.now())
+				.build();
+
 		groupApplicantStatusRepository.save(status);
 
-		GroupParticipantEntity participant = new GroupParticipantEntity();
-		participant.setGroupId(applicant.getGroupId());
-		participant.setMemberUuid(applicant.getMemberUuid());
-		participant.setCreatedDatetime(LocalDateTime.now());
+		GroupParticipantEntity participant = GroupParticipantEntity.builder()
+				.groupId(applicant.getGroupId())
+				.memberUuid(applicant.getMemberUuid())
+				.createdDatetime(LocalDateTime.now())
+				.build();
+
 		groupParticipantRepository.save(participant);
 
 		// chat한테 groupuuid, memberuuid
 	}
 
-	public void rejectApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto){
+	public void rejectApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto) {
 		GroupApplicantEntity applicant = groupApplicantRepository
 				.findByGroupIdAndMemberUuidApplicantsWithNoStatus(groupDetailRepository
-								.findByGroupUuid(applicantAcceptRejectDto
-										.getGroupUuid()).getId(),
+								.findByGroupUuid(applicantAcceptRejectDto.getGroupUuid()).getId(),
 						applicantAcceptRejectDto.getMemberUuid());
 
-		GroupApplicantStatusEntity status = new GroupApplicantStatusEntity();
-		status.setId(applicant.getId());
-		status.setApplicantStatus(false);
-		status.setCreatedDatetime(LocalDateTime.now());
+		GroupApplicantStatusEntity status = GroupApplicantStatusEntity.builder()
+				.id(applicant.getId())
+				.applicantStatus(false)
+				.createdDatetime(LocalDateTime.now())
+				.build();
+
 		groupApplicantStatusRepository.save(status);
 	}
 }

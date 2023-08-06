@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Table(name = "category_tb")
 @Entity
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString

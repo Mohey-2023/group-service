@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Table(name = "group_delete_tb")
 @Entity
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupDeleteEntity {

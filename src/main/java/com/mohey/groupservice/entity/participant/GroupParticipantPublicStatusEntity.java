@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Table(name="group_participant_public_status_tb")
 @Entity
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupParticipantPublicStatusEntity {

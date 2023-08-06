@@ -13,7 +13,8 @@ import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 
 @Table(name = "group_tb")
 @Entity
-@Data
+@Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -28,13 +29,4 @@ public class GroupEntity {
 
     @Column(nullable = false)
     private LocalDateTime createdDatetime;
-
-    @OneToOne
-    @JoinColumn(name = "group_delete_tb.id")
-    private GroupDeleteEntity groupDelete;
-
-    @OneToOne
-    @JoinColumn(name = "group_confirm_tb.id")
-    private GroupConfirmEntity groupConfirm;
-
 }

@@ -12,7 +12,7 @@ import com.mohey.groupservice.entity.group.GroupEntity;
 @Table(name = "group_applicant_tb")
 @Entity
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")

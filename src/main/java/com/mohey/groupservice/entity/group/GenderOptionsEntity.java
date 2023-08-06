@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Table(name = "gender_options_tb")
 @Entity
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class GenderOptionsEntity {

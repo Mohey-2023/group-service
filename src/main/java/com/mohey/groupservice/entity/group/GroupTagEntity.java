@@ -11,7 +11,7 @@ import com.mohey.groupservice.entity.category.TagEntity;
 @Table(name = "group_tag_tb")
 @Entity
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupTagEntity {
@@ -29,7 +29,4 @@ public class GroupTagEntity {
     @Column(name = "created_datetime", nullable = false)
     private LocalDateTime createdDatetime;
 
-    @ManyToOne
-    @JoinColumn(name = "tab_tb_id", nullable = false)
-    private TagEntity tagEntity;
 }

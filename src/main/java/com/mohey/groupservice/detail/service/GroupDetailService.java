@@ -27,6 +27,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -101,23 +102,22 @@ public class GroupDetailService {
     public void deleteGroup(String groupUuid){
         GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupUuid);
 
-        GroupDeleteEntity deleteEntity = new GroupDeleteEntity();
-        deleteEntity.setCreatedDatetime(LocalDateTime.now());
-        deleteEntity.setId(groupEntity.getId());
+        GroupDeleteEntity deleteEntity = GroupDeleteEntity.builder()
+                .createdDatetime(LocalDateTime.now())
+                .id(groupEntity.getId())
+                .build();
+
         groupDeleteRepository.save(deleteEntity);
-        groupEntity.setGroupDelete(deleteEntity);
-        groupDetailRepository.save(groupEntity);
     }
 
     public void setGroupPublicStatus(PublicStatusDto publicStatus){
-        GroupParticipantPublicStatusEntity status = new GroupParticipantPublicStatusEntity();
-
-        status.setGroupParticipantId(groupParticipantRepository
-            .findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupDetailRepository
-                    .findByGroupUuid(publicStatus.getGroupUuid()).getId(),
-                publicStatus.getMemberUuid()).getId());
-        status.setCreatedDatetime(LocalDateTime.now());
-        status.setStatus(publicStatus.getPublicYn());
+        GroupParticipantPublicStatusEntity status = GroupParticipantPublicStatusEntity.builder()
+                .id(groupParticipantRepository.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(
+                        groupDetailRepository.findByGroupUuid(publicStatus.getGroupUuid()).getId(),
+                        publicStatus.getMemberUuid()).getId())
+                .createdDatetime(LocalDateTime.now())
+                .status(publicStatus.getPublicYn())
+                .build();
 
         groupParticipantPublicStatusRepository.save(status);
     }
@@ -161,13 +161,16 @@ public class GroupDetailService {
     }
 
     public void kickEverybody(List<GroupParticipantEntity> participants){
+        List<GroupParticipantStatusEntity> statuses = new ArrayList<>();
+
         participants.forEach(participant -> {
-            GroupParticipantStatusEntity status = new GroupParticipantStatusEntity();
-            status.setId(participant.getId());
-            status.setCreatedDatetime(LocalDateTime.now());
-            participant.setGroupParticipantStatusEntity(status);
-            groupParticipantStatusRepository.save(status);
-            groupParticipantRepository.save(participant);
+            GroupParticipantStatusEntity status = GroupParticipantStatusEntity.builder()
+                    .createdDatetime(LocalDateTime.now())
+                    .build();
+
+            statuses.add(status);
         });
+
+        groupParticipantStatusRepository.saveAll(statuses);
     }
 }

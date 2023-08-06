@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Table(name = "tag_tb")
 @Entity
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class TagEntity {

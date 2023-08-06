@@ -14,7 +14,7 @@ import com.mohey.groupservice.entity.group.GroupEntity;
 @Table(name="group_participant_tb")
 @Entity
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -33,8 +33,5 @@ public class GroupParticipantEntity {
     @Column(name = "created_datetime", nullable = false)
     private LocalDateTime createdDatetime;
 
-    @OneToOne
-    @JoinColumn(name = "id")
-    private GroupParticipantStatusEntity groupParticipantStatusEntity;
 
 }

@@ -8,15 +8,12 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.mohey.groupservice.entity.category.CategoryEntity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Table(name = "group_modifiable_tb")
 @Entity
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -75,4 +72,8 @@ public class GroupModifiableEntity {
 
 	@Column(nullable = false)
 	private LocalDateTime createdDatetime;
+
+	public void updateLatestYn(boolean latestYn) {
+		this.latestYn = latestYn;
+	}
 }

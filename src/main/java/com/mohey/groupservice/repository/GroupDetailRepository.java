@@ -19,21 +19,25 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
         "JOIN GroupModifiableEntity gm ON g.id = gm.groupId " +
             "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +
             "LEFT JOIN GroupParticipantStatusEntity gps ON gp.id = gps.id " +
+            "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+            "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
         "WHERE YEAR(gm.groupStartDatetime) = :year AND MONTH(gm.groupStartDatetime) = :month " +
             "AND gm.latestYn = true " +
         "AND gp.memberUuid = :memberUuid " +
         "AND gps.createdDatetime IS NULL " +
-        "AND g.groupDelete IS NULL " +
-        "AND g.groupConfirm IS NOT NULL")
+        "AND gc.createdDatetime IS NULL " +
+        "AND gd.createdDatetime IS NOT NULL")
     List<GroupEntity> findGroupsByYearAndMonthForParticipant(@Param("year") int year, @Param("month") int month, @Param("memberUuid") String memberUuid);
 
     @Query("SELECT g FROM GroupEntity g " +
         "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
         "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +
         "LEFT JOIN GroupParticipantStatusEntity gps ON gp.id = gps.id " +
-        "WHERE g.groupConfirm IS NOT NULL " +
+            "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+            "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
+        "WHERE gc.createdDatetime IS NOT NULL " +
             "AND gm.latestYn = true " +
-        "AND g.groupDelete IS NULL " +
+        "AND gd.createdDatetime IS NULL " +
         "AND gps.createdDatetime IS NULL " +
         "AND gp.memberUuid = :memberUuid " +
         "AND gm.groupStartDatetime > :currentDatetime")
@@ -41,9 +45,11 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
 
     @Query("SELECT g FROM GroupEntity g " +
             "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
+            "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+            "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
             "WHERE gm.latestYn = true " +
-            "AND g.groupConfirm IS NULL " +
-            "AND g.groupDelete IS NULL " +
+            "AND gc.createdDatetime IS NULL " +
+            "AND gd.createdDatetime IS NULL " +
         "AND gm.groupStartDatetime <= :deleteDatetime")
     List<GroupEntity> findGroupsToBeDeleted(@Param("deleteDatetime") LocalDateTime deleteDatetime);
 
@@ -51,17 +57,21 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
             "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
         "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +
         "LEFT JOIN GroupParticipantStatusEntity gps ON gp.id = gps.id " +
+            "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+            "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
             "WHERE gm.latestYn = true " +
-        "AND g.groupDelete IS NULL " +
+        "AND gd.createdDatetime IS NULL " +
         "AND gps.createdDatetime IS NULL " +
         "AND gp.memberUuid = :memberUuid")
     List<GroupEntity> findAllGroupsForParticipant(@Param("memberUuid") String memberUuid);
 
     @Query("SELECT g FROM GroupEntity g " +
             "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
+            "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+            "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
             "WHERE gm.latestYn = true " +
-        "AND g.groupConfirm IS NULL " +
-        "AND g.groupDelete IS NULL " +
+        "AND gc.createdDatetime IS NULL " +
+        "AND gd.createdDatetime IS NULL " +
         "AND gm.groupStartDatetime > :currentDatetime " +
         "AND gm.lat < :neLat AND gm.lat > :swLat " +
         "AND gm.lng < :neLng AND gm.lng > :swLng")

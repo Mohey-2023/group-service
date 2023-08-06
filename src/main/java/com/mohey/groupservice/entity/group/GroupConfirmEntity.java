@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 @Table(name = "group_confirm_tb")
 @Entity
 @Getter
-@Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupConfirmEntity {

@@ -3,6 +3,7 @@ package com.mohey.groupservice.participant.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.mohey.groupservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +16,6 @@ import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
 import com.mohey.groupservice.leader.dto.leader.DelegateDto;
 import com.mohey.groupservice.leader.service.GroupLeaderService;
 import com.mohey.groupservice.participant.dto.JoinLeaveDto;
-import com.mohey.groupservice.repository.CategoryRepository;
-import com.mohey.groupservice.repository.GenderOptionsRepository;
-import com.mohey.groupservice.repository.GroupApplicantRepository;
-import com.mohey.groupservice.repository.GroupDetailRepository;
-import com.mohey.groupservice.repository.GroupModifiableRepository;
-import com.mohey.groupservice.repository.GroupParticipantRepository;
-import com.mohey.groupservice.repository.GroupTagRepository;
 
 @Service
 public class GroupParticipantService {
@@ -34,6 +28,7 @@ public class GroupParticipantService {
     private final GroupApplicantRepository groupApplicantRepository;
     private final GroupLeaderService groupLeaderService;
     private final GroupDetailService groupDetailService;
+    private final GroupParticipantStatusRepository groupParticipantStatusRepository;
 
     @Autowired
     public GroupParticipantService(GroupDetailRepository groupDetailRepository,
@@ -44,7 +39,8 @@ public class GroupParticipantService {
         GroupApplicantRepository groupApplicantRepository,
         GenderOptionsRepository genderOptionsRepository,
         GroupLeaderService groupLeaderService,
-        GroupDetailService groupDetailService
+        GroupDetailService groupDetailService,
+        GroupParticipantStatusRepository groupParticipantStatusRepository
     ){
         this.groupDetailRepository = groupDetailRepository;
         this.groupModifiableRepository = groupModifiableRepository;
@@ -55,43 +51,42 @@ public class GroupParticipantService {
         this.groupApplicantRepository = groupApplicantRepository;
         this.groupLeaderService = groupLeaderService;
         this.groupDetailService = groupDetailService;
+        this.groupParticipantStatusRepository = groupParticipantStatusRepository;
     }
 
 
     public void joinGroup(JoinLeaveDto joinLeaveDto) {
         GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(joinLeaveDto.getGroupUuid());
 
-        GroupApplicantEntity groupApplicant = new GroupApplicantEntity();
-
-        groupApplicant.setGroupId(groupEntity.getId());
-        groupApplicant.setMemberUuid(joinLeaveDto.getMemberUuid());
-        groupApplicant.setCreatedDatetime(LocalDateTime.now());
+        GroupApplicantEntity groupApplicant = GroupApplicantEntity.builder()
+                .groupId(groupEntity.getId())
+                .memberUuid(joinLeaveDto.getMemberUuid())
+                .createdDatetime(LocalDateTime.now())
+                .build();
 
         groupApplicantRepository.save(groupApplicant);
-
     }
 
     public void leaveGroup(JoinLeaveDto joinLeaveDto) {
         GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(joinLeaveDto.getGroupUuid());
 
         GroupParticipantEntity leavingMember = groupParticipantRepository
-            .findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(),
-                joinLeaveDto.getMemberUuid());
+                .findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(),
+                        joinLeaveDto.getMemberUuid());
 
-        GroupParticipantStatusEntity status = new GroupParticipantStatusEntity();
+        GroupParticipantStatusEntity status = GroupParticipantStatusEntity.builder()
+                .id(leavingMember.getId())
+                .createdDatetime(LocalDateTime.now())
+                .build();
 
-        status.setId(leavingMember.getId());
-        status.setCreatedDatetime(LocalDateTime.now());
-        leavingMember.setGroupParticipantStatusEntity(status);
-
-        groupParticipantRepository.save(leavingMember);
+        groupParticipantStatusRepository.save(status);
 
         GroupModifiableEntity groupModifiableEntity = groupModifiableRepository.findLatestGroupModifiableByGroupId(
-            groupEntity.getId());
+                groupEntity.getId());
         List<GroupParticipantEntity> participantList = groupParticipantRepository
-            .findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId());
-        if(joinLeaveDto.getMemberUuid().equals(groupModifiableEntity.getLeaderUuid())){
-            if(participantList.size() > 0) {
+                .findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId());
+        if (joinLeaveDto.getMemberUuid().equals(groupModifiableEntity.getLeaderUuid())) {
+            if (participantList.size() > 0) {
                 DelegateDto dto = new DelegateDto();
                 dto.setGroupUuid(groupEntity.getGroupUuid());
                 dto.setLeaderUuid(joinLeaveDto.getMemberUuid());
@@ -101,12 +96,9 @@ public class GroupParticipantService {
                 groupDetailService.deleteGroup(groupEntity.getGroupUuid());
             }
         } else {
-            if(participantList.size() == 0) {
+            if (participantList.size() == 0) {
                 groupDetailService.deleteGroup(groupEntity.getGroupUuid());
             }
         }
-
-
-        // chat한테 groupuuid, memberuuid
     }
 }
