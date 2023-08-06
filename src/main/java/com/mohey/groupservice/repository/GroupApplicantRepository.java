@@ -11,9 +11,9 @@ import com.mohey.groupservice.entity.applicant.GroupApplicantEntity;
 
 @Repository
 public interface GroupApplicantRepository extends JpaRepository<GroupApplicantEntity, Long> {
-	@Query("SELECT ga FROM GroupApplicantEntity ga LEFT JOIN FETCH ga.applicantStatus status WHERE ga.groupId = :groupId AND status IS NULL")
+	@Query("SELECT ga FROM GroupApplicantEntity ga LEFT JOIN GroupApplicantStatusEntity ase ON ga.id = ase.id WHERE ga.groupId = :groupId AND ase.createdDatetime IS NULL")
 	List<GroupApplicantEntity> findByGroupIdApplicantsWithNoStatus(@Param("groupId") Long groupId);
 
-	@Query("SELECT ga FROM GroupApplicantEntity ga LEFT JOIN FETCH ga.applicantStatus status WHERE ga.groupId = :groupId AND ga.memberUuid = :memberUuid AND status IS NULL")
+	@Query("SELECT ga FROM GroupApplicantEntity ga WHERE ga.groupId = :groupId AND ga.memberUuid = :memberUuid AND NOT EXISTS (SELECT ase FROM GroupApplicantStatusEntity ase WHERE ga.id = ase.id)")
 	GroupApplicantEntity findByGroupIdAndMemberUuidApplicantsWithNoStatus(@Param("groupId") Long groupId, @Param("memberUuid") String memberUuid);
 }

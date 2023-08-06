@@ -1,4 +1,4 @@
-package com.mohey.groupservice.interprocess.dto;
+package com.mohey.groupservice.feign.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

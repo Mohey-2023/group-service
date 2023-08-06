@@ -1,14 +1,6 @@
-package com.mohey.groupservice.component;
+package com.mohey.groupservice.scheduler;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import com.mohey.groupservice.detail.service.GroupDetailService;
-import com.mohey.groupservice.entity.group.GroupEntity;
 
 @Component
 public class GroupScheduler {

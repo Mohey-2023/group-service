@@ -77,4 +77,6 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
         "AND gm.lng < :neLng AND gm.lng > :swLng")
     List<GroupEntity> findGroupsInMap(@Param("currentDatetime") LocalDateTime currentDatetime,
         @Param("swLng") Double swLng, @Param("swLat") Double swLat, @Param("neLng") Double neLng, @Param("neLat") Double neLat);
+
+
 }

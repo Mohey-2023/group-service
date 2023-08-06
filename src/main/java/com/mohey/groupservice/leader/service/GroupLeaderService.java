@@ -249,6 +249,7 @@ public class GroupLeaderService {
 								.findByGroupUuid(applicantAcceptRejectDto.getGroupUuid()).getId(),
 						applicantAcceptRejectDto.getMemberUuid());
 
+
 		GroupApplicantStatusEntity status = GroupApplicantStatusEntity.builder()
 				.id(applicant.getId())
 				.applicantStatus(true)

@@ -12,5 +12,4 @@ import com.mohey.groupservice.entity.group.GroupTagEntity;
 @Repository
 public interface GroupTagRepository extends JpaRepository<GroupTagEntity, Long> {
 
-	List<GroupTagEntity> findByGroupDescriptionTbIdAndCreatedDatetime(Long groupDescriptionTbId, LocalDateTime createdDatetime);
 }
