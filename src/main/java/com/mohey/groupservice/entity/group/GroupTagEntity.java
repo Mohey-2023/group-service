@@ -20,8 +20,8 @@ public class GroupTagEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "group_description_tb_id", nullable = false)
-    private Long groupDescriptionTbId;
+    @Column(name = "group_modifiable_tb_id", nullable = false)
+    private Long groupModifiableTbId;
 
     @Column(name = "tag_tb_id", nullable = false)
     private Long tagTbId;

@@ -8,10 +8,13 @@ import java.util.stream.Collectors;
 
 import com.mohey.groupservice.entity.applicant.GroupApplicantEntity;
 import com.mohey.groupservice.entity.applicant.GroupApplicantStatusEntity;
+import com.mohey.groupservice.entity.category.TagEntity;
 import com.mohey.groupservice.entity.group.GroupConfirmEntity;
+import com.mohey.groupservice.entity.group.GroupTagEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
+import com.mohey.groupservice.exception.NotGroupLeaderException;
 import com.mohey.groupservice.leader.dto.applicant.ApplicantAcceptRejectDto;
 import com.mohey.groupservice.leader.dto.applicant.GroupApplicantDto;
 import com.mohey.groupservice.leader.dto.applicant.GroupApplicantListDto;
@@ -35,6 +38,7 @@ public class GroupLeaderService {
 	private final GroupModifiableRepository groupModifiableRepository;
 	private final GroupConfirmRepository groupConfirmRepository;
 	private final GroupTagRepository groupTagRepository;
+	private final TagRepository tagRepository;
 	private final GroupParticipantRepository groupParticipantRepository;
 	private final CategoryRepository categoryRepository;
 	private final GenderOptionsRepository genderOptionsRepository;
@@ -54,7 +58,8 @@ public class GroupLeaderService {
 		GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository,
 	 	GroupApplicantStatusRepository groupApplicantStatusRepository,
 		GroupParticipantStatusRepository groupParticipantStatusRepository,
-							  GroupConfirmRepository groupConfirmRepository
+		GroupConfirmRepository groupConfirmRepository,
+		TagRepository tagRepository
 		){
 		this.groupDetailRepository = groupDetailRepository;
 		this.groupModifiableRepository = groupModifiableRepository;
@@ -67,6 +72,7 @@ public class GroupLeaderService {
 		this.groupApplicantStatusRepository = groupApplicantStatusRepository;
 		this.groupParticipantStatusRepository = groupParticipantStatusRepository;
 		this.groupConfirmRepository = groupConfirmRepository;
+		this.tagRepository = tagRepository;
 	}
 
 	public boolean checkLeader(Long groupId, String memberUuid){
@@ -75,8 +81,9 @@ public class GroupLeaderService {
 
 		if(memberUuid.equals(groupModifiableEntity.getLeaderUuid())){
 			return true;
+		} else {
+			throw new NotGroupLeaderException("권한이 없습니다.");
 		}
-		return false;
 	}
 
 	public void createGroup(CreateGroupDto groupDto){
@@ -114,6 +121,24 @@ public class GroupLeaderService {
 				.build();
 		groupParticipantRepository.save(leader);
 
+		groupDto.getTags()
+			.forEach(hashtag -> {
+				TagEntity tag = TagEntity.builder()
+					.tagName(hashtag)
+					.createdDatetime(LocalDateTime.now())
+					.build();
+
+				tagRepository.save(tag);
+
+				GroupTagEntity groupTag = GroupTagEntity.builder()
+					.tagTbId(tag.getId())
+					.groupModifiableTbId(groupModifiableEntity.getGroupId())
+					.createdDatetime(LocalDateTime.now())
+					.build();
+
+				groupTagRepository.save(groupTag);
+			});
+
 		GroupParticipantPublicStatusEntity groupParticipantPublicStatusEntity = GroupParticipantPublicStatusEntity.builder()
 				.groupParticipantId(groupParticipantRepository
 						.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), leader.getMemberUuid()).getId())
@@ -130,6 +155,9 @@ public class GroupLeaderService {
 
 		GroupModifiableEntity latest = groupModifiableRepository
 				.findLatestGroupModifiableByGroupId(groupEntity.getId());
+
+		checkLeader(groupEntity.getId(), delegateDto.getLeaderUuid());
+
 		latest.updateLatestYn(false);
 		groupModifiableRepository.save(latest);
 
@@ -153,7 +181,20 @@ public class GroupLeaderService {
 				.locationAddress(latest.getLocationAddress())
 				.build();
 
+
+
 		groupModifiableRepository.save(groupModifiableEntity);
+
+		List<GroupTagEntity> groupTagEntities = groupTagRepository.findByGroupModifiableTbId(latest.getId());
+		groupTagEntities.forEach(groupTagEntity -> {
+
+			GroupTagEntity newGroupTag = GroupTagEntity.builder()
+				.tagTbId(groupTagEntity.getTagTbId())
+				.groupModifiableTbId(latest.getGroupId())
+				.createdDatetime(LocalDateTime.now())
+				.build();
+			groupTagRepository.save(newGroupTag);
+		});
 	}
 
 	public GroupApplicantListDto getGroupApplicantList(GroupLeaderDto groupLeaderDto) {
@@ -181,6 +222,8 @@ public class GroupLeaderService {
 
 	public void modifyGroup(ModifyGroupDto modifyGroupDto) {
 		GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(modifyGroupDto.getGroupUuid());
+
+		checkLeader(groupEntity.getId(), modifyGroupDto.getLeaderUuid());
 
 		GroupModifiableEntity latest = groupModifiableRepository
 				.findLatestGroupModifiableByGroupId(groupEntity.getId());
@@ -211,6 +254,37 @@ public class GroupLeaderService {
 
 			groupModifiableRepository.save(groupModifiableEntity);
 
+			modifyGroupDto.getTags()
+				.forEach(hashtag -> {
+					if(tagRepository.findByTagName(hashtag) == null) {
+
+						TagEntity tag = TagEntity.builder()
+							.tagName(hashtag)
+							.createdDatetime(LocalDateTime.now())
+							.build();
+
+						tagRepository.save(tag);
+
+						GroupTagEntity groupTag = GroupTagEntity.builder()
+							.tagTbId(tag.getId())
+							.groupModifiableTbId(groupModifiableEntity.getGroupId())
+							.createdDatetime(LocalDateTime.now())
+							.build();
+
+						groupTagRepository.save(groupTag);
+					} else {
+						TagEntity tag = tagRepository.findByTagName(hashtag);
+
+						GroupTagEntity groupTag = GroupTagEntity.builder()
+							.tagTbId(tag.getId())
+							.groupModifiableTbId(groupModifiableEntity.getGroupId())
+							.createdDatetime(LocalDateTime.now())
+							.build();
+
+						groupTagRepository.save(groupTag);
+					}
+				});
+
 			// chats한테 groupuuid, groupname, category 보내기
 		}
 	}
@@ -232,8 +306,10 @@ public class GroupLeaderService {
 		}
 	}
 
-	public void confirmGroup(String groupUuid){
-		GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupUuid);
+	public void confirmGroup(GroupLeaderDto groupLeaderDto){
+		GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupLeaderDto.getGroupUuid());
+
+		checkLeader(groupEntity.getId(), groupLeaderDto.getLeaderUuid());
 
 		GroupConfirmEntity confirmEntity = GroupConfirmEntity.builder()
 				.createdDatetime(LocalDateTime.now())

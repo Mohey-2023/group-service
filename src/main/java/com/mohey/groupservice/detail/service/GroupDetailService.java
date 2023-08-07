@@ -12,6 +12,7 @@ import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
+import com.mohey.groupservice.exception.GroupNotFoundException;
 import com.mohey.groupservice.repository.CategoryRepository;
 import com.mohey.groupservice.repository.GenderOptionsRepository;
 import com.mohey.groupservice.repository.GroupDeleteRepository;
@@ -68,6 +69,11 @@ public class GroupDetailService {
 
     public  GroupDto getGroupDetailByGroupId(String groupId) {
         GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupId);
+
+        if (groupEntity == null) {
+            throw new GroupNotFoundException("잘못된 접근입니다.");
+        }
+
         GroupDto group = new GroupDto();
             GroupModifiableEntity groupModifiableEntity = groupModifiableRepository
                 .findLatestGroupModifiableByGroupId(groupEntity.getId());
@@ -141,6 +147,10 @@ public class GroupDetailService {
 
     public GroupParticipantListDto getGroupParticipantList(GroupParticipantRequestDto groupParticipantRequestDto){
         GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupParticipantRequestDto.getGroupUuid());
+
+        if (groupEntity == null) {
+            throw new GroupNotFoundException("잘못된 접근입니다.");
+        }
 
         GroupParticipantListDto participantList = new GroupParticipantListDto();
 

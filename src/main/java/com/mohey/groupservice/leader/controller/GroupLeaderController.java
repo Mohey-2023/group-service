@@ -76,8 +76,8 @@ public class GroupLeaderController {
 	}
 
 	@PostMapping("/confirm")
-	public ResponseEntity<Void> confirmGroup(@RequestBody String groupUuid) {
-		groupLeaderService.confirmGroup(groupUuid);
+	public ResponseEntity<Void> confirmGroup(@RequestBody GroupLeaderDto groupLeaderDto) {
+		groupLeaderService.confirmGroup(groupLeaderDto);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 }
