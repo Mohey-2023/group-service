@@ -13,6 +13,8 @@ import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
 import com.mohey.groupservice.exception.GroupNotFoundException;
+import com.mohey.groupservice.interprocess.dto.GroupNotificationDetailDto;
+import com.mohey.groupservice.interprocess.dto.GroupNotificationDto;
 import com.mohey.groupservice.repository.CategoryRepository;
 import com.mohey.groupservice.repository.GenderOptionsRepository;
 import com.mohey.groupservice.repository.GroupDeleteRepository;
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -197,7 +200,25 @@ public class GroupDetailService {
 
             statuses.add(status);
 
-            // 각 유저에게 알림 보내기
+            Optional<GroupEntity> group = groupDetailRepository.findById(participant.getId());
+
+            GroupNotificationDetailDto notificationDetailDto = new GroupNotificationDetailDto();
+            GroupNotificationDto notificationDto = new GroupNotificationDto();
+
+            group.ifPresent(groupEntity -> {
+                notificationDetailDto.setGroupUuid(groupEntity.getGroupUuid());
+                notificationDetailDto.setGroupName(groupModifiableRepository
+                    .findLatestGroupModifiableByGroupId(groupEntity.getId()).getTitle());
+
+                notificationDto.setSenderUuid(groupEntity.getGroupUuid());
+                notificationDto.setSenderName(groupModifiableRepository
+                    .findLatestGroupModifiableByGroupId(groupEntity.getId()).getTitle());
+            });
+            notificationDto.setTopic("group-kick");
+            notificationDto.setType("group");
+            notificationDto.setGroupNotificationDetailDto(notificationDetailDto);
+
+            // 유저
         });
 
         groupParticipantStatusRepository.saveAll(statuses);

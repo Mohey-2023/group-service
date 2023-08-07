@@ -2,8 +2,10 @@ package com.mohey.groupservice.list.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import com.mohey.groupservice.entity.group.GroupModifiableEntity;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mohey.groupservice.entity.group.GroupEntity;
+import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.list.dto.CalendarRequestDto;
 import com.mohey.groupservice.list.dto.CalendarResponseDto;
 import com.mohey.groupservice.list.dto.MapGroupListRequestDto;
@@ -119,6 +122,25 @@ public class GroupListService {
 				// myGroupListMainPageDto.setProfilePicture1();
 				// myGroupListMainPageDto.setProfilePicture2();
 				// myGroupListMainPageDto.setProfilePicture3();
+
+				List<GroupParticipantEntity> groupParticipantEntities = groupParticipantRepository
+					.findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId());
+
+				List<GroupParticipantEntity> selectedParticipants = new ArrayList<>();
+				int numToShow = Math.min(groupParticipantEntities.size(), 2); // 최대 2명까지 표시
+
+				if (numToShow == 1) {
+					selectedParticipants.add(groupParticipantEntities.get(0));
+				} else if (numToShow > 1) {
+					Random random = new Random();
+					List<GroupParticipantEntity> remainingParticipants = new ArrayList<>(groupParticipantEntities);
+
+					for (int i = 0; i < numToShow; i++) {
+						int randomIndex = random.nextInt(remainingParticipants.size());
+						selectedParticipants.add(remainingParticipants.get(randomIndex));
+						remainingParticipants.remove(randomIndex);
+					}
+				}
 
 
 				return myGroupListMainPageDto;

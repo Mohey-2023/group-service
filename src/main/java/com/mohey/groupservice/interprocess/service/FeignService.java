@@ -1,4 +1,4 @@
-package com.mohey.groupservice.feign.service;
+package com.mohey.groupservice.interprocess.service;
 
 import org.springframework.stereotype.Service;
 

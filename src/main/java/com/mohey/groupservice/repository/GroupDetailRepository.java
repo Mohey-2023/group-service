@@ -15,6 +15,8 @@ import java.util.Optional;
 public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> {
     GroupEntity findByGroupUuid(String groupUuid);
 
+    Optional<GroupEntity> findById(Long id);
+
     @Query("SELECT g FROM GroupEntity g " +
         "JOIN GroupModifiableEntity gm ON g.id = gm.groupId " +
             "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +

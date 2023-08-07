@@ -1,4 +1,4 @@
-package com.mohey.groupservice.feign.dto;
+package com.mohey.groupservice.interprocess.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MemberGroupDetailCommunicationDto {
-	private String profilePicture;
-	private Boolean isFavorite;
+public class MemberRequestDto {
+	private String senderUuid;
+	private String receiverUuid;
 }

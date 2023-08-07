@@ -24,7 +24,7 @@ import com.mohey.groupservice.leader.dto.leader.ModifyGroupDto;
 import com.mohey.groupservice.leader.service.GroupLeaderService;
 
 @RestController
-@RequestMapping("/groups")
+@RequestMapping("/groups/leader")
 public class GroupLeaderController {
 
 	private final GroupLeaderService groupLeaderService;
