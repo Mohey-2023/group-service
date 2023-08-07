@@ -66,17 +66,27 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
     List<GroupEntity> findAllGroupsForParticipant(@Param("memberUuid") String memberUuid);
 
     @Query("SELECT g FROM GroupEntity g " +
-            "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
-            "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
-            "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
-            "WHERE gm.latestYn = true " +
+        "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
+        "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+        "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
+        "WHERE gm.latestYn = true " +
         "AND gc.createdDatetime IS NULL " +
         "AND gd.createdDatetime IS NULL " +
         "AND gm.groupStartDatetime > :currentDatetime " +
         "AND gm.lat < :neLat AND gm.lat > :swLat " +
-        "AND gm.lng < :neLng AND gm.lng > :swLng")
+        "AND gm.lng < :neLng AND gm.lng > :swLng " +
+        "AND (:titleKeyword IS NULL OR gm.title LIKE %:titleKeyword%) " +
+        "AND (:genderOptionsUuid IS NULL OR gm.genderOptionsTbId = :genderOptionsUuid) " +
+        "AND (:categoryUuid IS NULL OR gm.categoryTbId = :categoryUuid) " +
+        "AND (:minAge IS NULL OR gm.minAge >= :minAge) " +
+        "AND (:maxAge IS NULL OR gm.maxAge <= :maxAge)")
     List<GroupEntity> findGroupsInMap(@Param("currentDatetime") LocalDateTime currentDatetime,
-        @Param("swLng") Double swLng, @Param("swLat") Double swLat, @Param("neLng") Double neLng, @Param("neLat") Double neLat);
-
+        @Param("swLng") Double swLng, @Param("swLat") Double swLat,
+        @Param("neLng") Double neLng, @Param("neLat") Double neLat,
+        @Param("titleKeyword") String titleKeyword,
+        @Param("genderOptionsUuid") String genderOptionsUuid,
+        @Param("categoryUuid") String categoryUuid,
+        @Param("minAge") Integer minAge,
+        @Param("maxAge") Integer maxAge);
 
 }

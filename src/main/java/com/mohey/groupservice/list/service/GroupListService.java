@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.mohey.groupservice.entity.group.GroupModifiableEntity;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mohey.groupservice.entity.group.GroupEntity;
-import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.list.dto.CalendarRequestDto;
 import com.mohey.groupservice.list.dto.CalendarResponseDto;
 import com.mohey.groupservice.list.dto.MapGroupListRequestDto;
@@ -195,73 +193,46 @@ public class GroupListService {
 	}
 
 	public List<MapGroupListResponseDto> getMapGroupList(MapGroupListRequestDto mapGroupListRequestDto){
-		List<GroupEntity> mapGroupList = groupDetailRepository.findGroupsInMap(LocalDateTime.now(),
-			mapGroupListRequestDto.getSwLng(), mapGroupListRequestDto.getSwLat(), mapGroupListRequestDto.getNeLng(),
-			mapGroupListRequestDto.getNeLat());
-
-
-		return mapGroupList.stream()
-			.map(groupEntity -> {
-
-				GroupModifiableEntity modifiable = groupModifiableRepository.findLatestGroupModifiableByGroupId(groupEntity.getId());
-
-				if(modifiable.getPrivateYn()){
-					return null;
-				}
-				MapGroupListResponseDto mapGroupListResponseDto = new MapGroupListResponseDto();
-				mapGroupListResponseDto.setGroupUuid(groupEntity.getGroupUuid());
-				mapGroupListResponseDto.setMaxParticipantNum(modifiable.getMaxParticipant());
-				mapGroupListResponseDto.setTitle(modifiable.getTitle());
-				mapGroupListResponseDto.setParticipantNum(groupParticipantRepository.findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId()).size());
-				mapGroupListResponseDto.setLng(modifiable.getLng());
-				mapGroupListResponseDto.setLat(modifiable.getLat());
-				mapGroupListResponseDto.setLocationAddress(modifiable.getLocationAddress());
-
-
-				categoryRepository
-					.findById(modifiable.getCategoryTbId())
-					.ifPresent(category -> mapGroupListResponseDto
-						.setCategory(category
-							.getCategoryName()));
-				mapGroupListResponseDto.setGroupStartDatetime(modifiable.getGroupStartDatetime());
-
-
-				return mapGroupListResponseDto;
-			}).filter(Objects::nonNull)
-			.collect(Collectors.toList());
-	}
-
-	public List<MapGroupListResponseDto> getMapFriendsGroupList(MapGroupListRequestDto mapGroupListRequestDto){
-		List<GroupEntity> mapGroupList = groupDetailRepository.findGroupsInMap(LocalDateTime.now(),
+		if(!mapGroupListRequestDto.getIsFriend()) {
+			List<GroupEntity> mapGroupList = groupDetailRepository.findGroupsInMap(LocalDateTime.now(),
 				mapGroupListRequestDto.getSwLng(), mapGroupListRequestDto.getSwLat(), mapGroupListRequestDto.getNeLng(),
-				mapGroupListRequestDto.getNeLat());
+				mapGroupListRequestDto.getNeLat(), mapGroupListRequestDto.getTitleKeyword(),
+				mapGroupListRequestDto.getGenderOptionsUuid(), mapGroupListRequestDto.getCategoryUuid(),
+				mapGroupListRequestDto.getMinAge(), mapGroupListRequestDto.getMaxAge());
 
-		// 친구 가져와서 친구의 그룹 보여줘야 함
-
-		return mapGroupList.stream()
+			return mapGroupList.stream()
 				.map(groupEntity -> {
+
+					GroupModifiableEntity modifiable = groupModifiableRepository.findLatestGroupModifiableByGroupId(
+						groupEntity.getId());
+
+					if (modifiable.getPrivateYn()) {
+						return null;
+					}
 					MapGroupListResponseDto mapGroupListResponseDto = new MapGroupListResponseDto();
-
 					mapGroupListResponseDto.setGroupUuid(groupEntity.getGroupUuid());
-					GroupModifiableEntity modifiable = groupModifiableRepository.findLatestGroupModifiableByGroupId(groupEntity.getId());
-
 					mapGroupListResponseDto.setMaxParticipantNum(modifiable.getMaxParticipant());
 					mapGroupListResponseDto.setTitle(modifiable.getTitle());
-					mapGroupListResponseDto.setParticipantNum(groupParticipantRepository.findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId()).size());
+					mapGroupListResponseDto.setParticipantNum(
+						groupParticipantRepository.findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId())
+							.size());
 					mapGroupListResponseDto.setLng(modifiable.getLng());
 					mapGroupListResponseDto.setLat(modifiable.getLat());
 					mapGroupListResponseDto.setLocationAddress(modifiable.getLocationAddress());
 
 					categoryRepository
-							.findById(modifiable.getCategoryTbId())
-							.ifPresent(category -> mapGroupListResponseDto
-									.setCategory(category
-											.getCategoryName()));
+						.findById(modifiable.getCategoryTbId())
+						.ifPresent(category -> mapGroupListResponseDto
+							.setCategory(category
+								.getCategoryName()));
 					mapGroupListResponseDto.setGroupStartDatetime(modifiable.getGroupStartDatetime());
 
-
 					return mapGroupListResponseDto;
-				})
+				}).filter(Objects::nonNull)
 				.collect(Collectors.toList());
+		} else {
+			// 친구 리스트 가져와서 그거에 맞춰서 보낼 필요 있음
+			return null;
+		}
 	}
 }

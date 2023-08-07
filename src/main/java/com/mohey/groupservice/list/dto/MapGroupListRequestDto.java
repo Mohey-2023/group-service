@@ -10,8 +10,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MapGroupListRequestDto {
-	Double neLat;
-	Double neLng;
-	Double swLat;
-	Double swLng;
+	private Double neLat;
+	private Double neLng;
+	private Double swLat;
+	private Double swLng;
+
+	private String titleKeyword;
+	private String genderOptionsUuid;
+	private String categoryUuid;
+	private Integer minAge;
+	private Integer maxAge;
+	private Boolean isFriend;
 }

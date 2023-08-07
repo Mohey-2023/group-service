@@ -4,6 +4,7 @@ package com.mohey.groupservice.detail.service;
 import com.mohey.groupservice.detail.dto.GroupDto;
 import com.mohey.groupservice.detail.dto.GroupParticipantDto;
 import com.mohey.groupservice.detail.dto.GroupParticipantListDto;
+import com.mohey.groupservice.detail.dto.GroupParticipantRequestDto;
 import com.mohey.groupservice.detail.dto.PublicStatusDto;
 import com.mohey.groupservice.entity.group.GroupDeleteEntity;
 import com.mohey.groupservice.entity.group.GroupEntity;
@@ -11,7 +12,6 @@ import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
-import com.mohey.groupservice.leader.dto.applicant.GroupApplicantListDto;
 import com.mohey.groupservice.repository.CategoryRepository;
 import com.mohey.groupservice.repository.GenderOptionsRepository;
 import com.mohey.groupservice.repository.GroupDeleteRepository;
@@ -23,13 +23,12 @@ import com.mohey.groupservice.repository.GroupParticipantStatusRepository;
 import com.mohey.groupservice.repository.GroupTagRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,7 +69,6 @@ public class GroupDetailService {
     public  GroupDto getGroupDetailByGroupId(String groupId) {
         GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupId);
         GroupDto group = new GroupDto();
-        if (groupEntity != null) {
             GroupModifiableEntity groupModifiableEntity = groupModifiableRepository
                 .findLatestGroupModifiableByGroupId(groupEntity.getId());
 
@@ -95,7 +93,26 @@ public class GroupDetailService {
             group.setLng(groupModifiableEntity.getLng());
             group.setMinAge(groupModifiableEntity.getMinAge());
             group.setMaxAge(groupModifiableEntity.getMaxAge());
+
+        List<GroupParticipantEntity> selectedParticipants = new ArrayList<>();
+        int numToShow = Math.min(groupParticipantEntities.size(), 2); // 최대 2명까지 표시
+
+        if (numToShow == 1) {
+            selectedParticipants.add(groupParticipantEntities.get(0));
+        } else if (numToShow > 1) {
+            Random random = new Random();
+            List<GroupParticipantEntity> remainingParticipants = new ArrayList<>(groupParticipantEntities);
+
+            for (int i = 0; i < numToShow; i++) {
+                int randomIndex = random.nextInt(remainingParticipants.size());
+                selectedParticipants.add(remainingParticipants.get(randomIndex));
+                remainingParticipants.remove(randomIndex);
+            }
         }
+
+        // 각 participant를 통해 member에게 프사 요청하기
+
+
         return group;
     }
 
@@ -122,8 +139,8 @@ public class GroupDetailService {
         groupParticipantPublicStatusRepository.save(status);
     }
 
-    public GroupParticipantListDto getGroupParticipantList(String groupUuid){
-        GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupUuid);
+    public GroupParticipantListDto getGroupParticipantList(GroupParticipantRequestDto groupParticipantRequestDto){
+        GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupParticipantRequestDto.getGroupUuid());
 
         GroupParticipantListDto participantList = new GroupParticipantListDto();
 
@@ -137,7 +154,7 @@ public class GroupDetailService {
                     return participantDto;
                 }).collect(Collectors.toList());
         participantList.setParticipants(participants);
-        participantList.setGroupUuid(groupUuid);
+        participantList.setGroupUuid(groupParticipantRequestDto.getGroupUuid());
 
         return participantList;
     }
@@ -169,6 +186,8 @@ public class GroupDetailService {
                     .build();
 
             statuses.add(status);
+
+            // 각 유저에게 알림 보내기
         });
 
         groupParticipantStatusRepository.saveAll(statuses);
