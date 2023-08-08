@@ -127,6 +127,31 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
         @Param("minAge") Integer minAge,
         @Param("maxAge") Integer maxAge);
 
+    @Query("SELECT g FROM GroupEntity g " +
+            "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
+            "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+            "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
+            "LEFT JOIN GroupTagEntity gt ON gt.groupModifiableTbId = gm.id " +
+            "WHERE gm.latestYn = true " +
+            "AND gc.createdDatetime IS NULL " +
+            "AND gd.createdDatetime IS NULL " +
+            "AND gm.groupStartDatetime > :currentDatetime " +
+            "AND gm.lat < :neLat AND gm.lat > :swLat " +
+            "AND gm.lng < :neLng AND gm.lng > :swLng " +
+            "AND gt.tagTbId = :tagId " +
+            "AND (:genderOptionsUuid IS NULL OR gm.genderOptionsTbId = :genderOptionsUuid) " +
+            "AND (:categoryUuid IS NULL OR gm.categoryTbId = :categoryUuid) " +
+            "AND (:minAge IS NULL OR gm.minAge >= :minAge) " +
+            "AND (:maxAge IS NULL OR gm.maxAge <= :maxAge)")
+    List<GroupEntity> findGroupsInMapByTag(@Param("currentDatetime") LocalDateTime currentDatetime,
+                                      @Param("swLng") Double swLng, @Param("swLat") Double swLat,
+                                      @Param("neLng") Double neLng, @Param("neLat") Double neLat,
+                                      @Param("tagId") Long tagId,
+                                      @Param("genderOptionsUuid") String genderOptionsUuid,
+                                      @Param("categoryUuid") String categoryUuid,
+                                      @Param("minAge") Integer minAge,
+                                      @Param("maxAge") Integer maxAge);
+
     @Query("SELECT DISTINCT g FROM GroupEntity g " +
             "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
             "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
@@ -148,6 +173,34 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
                                              @Param("swLng") Double swLng, @Param("swLat") Double swLat,
                                              @Param("neLng") Double neLng, @Param("neLat") Double neLat,
                                              @Param("titleKeyword") String titleKeyword,
+                                             @Param("genderOptionsUuid") String genderOptionsUuid,
+                                             @Param("categoryUuid") String categoryUuid,
+                                             @Param("minAge") Integer minAge,
+                                             @Param("maxAge") Integer maxAge,
+                                             @Param("friendUuids") List<String> friendUuids);
+
+    @Query("SELECT DISTINCT g FROM GroupEntity g " +
+            "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
+            "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+            "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
+            "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +
+            "LEFT JOIN GroupTagEntity gt ON gt.groupModifiableTbId = gm.id " +
+            "WHERE gm.latestYn = true " +
+            "AND gc.createdDatetime IS NULL " +
+            "AND gd.createdDatetime IS NULL " +
+            "AND gm.groupStartDatetime > :currentDatetime " +
+            "AND gm.lat < :neLat AND gm.lat > :swLat " +
+            "AND gm.lng < :neLng AND gm.lng > :swLng " +
+            "AND gt.tagTbId = :tagId " +
+            "AND (:genderOptionsUuid IS NULL OR gm.genderOptionsTbId = :genderOptionsUuid) " +
+            "AND (:categoryUuid IS NULL OR gm.categoryTbId = :categoryUuid) " +
+            "AND (:minAge IS NULL OR gm.minAge >= :minAge) " +
+            "AND (:maxAge IS NULL OR gm.maxAge <= :maxAge) " +
+            "AND gp.memberUuid IN :friendUuids")
+    List<GroupEntity> findFriendsGroupsInMapByTag(@Param("currentDatetime") LocalDateTime currentDatetime,
+                                             @Param("swLng") Double swLng, @Param("swLat") Double swLat,
+                                             @Param("neLng") Double neLng, @Param("neLat") Double neLat,
+                                                  @Param("tagId") Long tagId,
                                              @Param("genderOptionsUuid") String genderOptionsUuid,
                                              @Param("categoryUuid") String categoryUuid,
                                              @Param("minAge") Integer minAge,
