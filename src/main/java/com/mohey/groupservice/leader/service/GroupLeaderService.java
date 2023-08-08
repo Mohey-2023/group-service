@@ -164,7 +164,6 @@ public class GroupLeaderService {
 			.build();
 		groupParticipantPublicStatusRepository.save(groupParticipantPublicStatusEntity);
 
-		// chats한테 groupuuid, gruopname, category, memberuuid 보내기
 		ChatCommunicationDto chatCommunicationDto = new ChatCommunicationDto();
 		chatCommunicationDto.setGroupUuid(groupEntity.getGroupUuid());
 		chatCommunicationDto.setGroupName(groupDto.getTitle());
@@ -327,7 +326,6 @@ public class GroupLeaderService {
 				}
 			});
 
-		// chats한테 groupuuid, groupname, category 보내기
 		ChatCommunicationDto chatCommunicationDto = new ChatCommunicationDto();
 		chatCommunicationDto.setGroupUuid(groupEntity.getGroupUuid());
 		chatCommunicationDto.setGroupName(modifyGroupDto.getTitle());

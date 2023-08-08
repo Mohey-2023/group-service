@@ -11,7 +11,10 @@ public class MemberDetailResponseDto {
 	private String msg;
 	Data data;
 
-	@Getter
+	public List<MemberGroupDetailCommunicationDto> getMemberDetailList(){
+		return data.memberDetailList;
+	}
+
 	static class Data {
 		List<MemberGroupDetailCommunicationDto> memberDetailList;
 	}

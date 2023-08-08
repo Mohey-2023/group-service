@@ -2,15 +2,11 @@ package com.mohey.groupservice.interprocess.client;
 
 import java.util.List;
 
+import com.mohey.groupservice.interprocess.dto.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
-import com.mohey.groupservice.interprocess.dto.MemberFriendListResponseDto;
-import com.mohey.groupservice.interprocess.dto.MemberGroupDetailCommunicationDto;
-import com.mohey.groupservice.interprocess.dto.MemberNameResponseDto;
-import com.mohey.groupservice.interprocess.dto.MemberNotificationResponseDto;
 
 @org.springframework.cloud.openfeign.FeignClient(name = "member-service",url = "http://127.0.0.1:8098/members")
 public interface FeignClient {
@@ -18,7 +14,7 @@ public interface FeignClient {
 	MemberNotificationResponseDto getMemberNotificationDetail(@PathVariable String memberUuid);
 
 	@PostMapping("/members/info/getParticipantsDetail")
-	MemberGroupDetailCommunicationDto getProfilePicture(@RequestBody List<String> participantsUuid);
+	MemberDetailResponseDto getProfilePicture(@RequestBody List<String> participantsUuid);
 
 	@GetMapping("/fein/{memberUuid}")
 	MemberFriendListResponseDto getFriendsList(@PathVariable String memberUuid);
@@ -26,5 +22,11 @@ public interface FeignClient {
 	@GetMapping("/{memberUuid}/getUsername")
 	MemberNameResponseDto getMemberName(@PathVariable String memberUuid);
 
+	@GetMapping("/friendSearch/{memberUuid}")
+	MemberFriendDetailListResponseDto getFriendsDetailList(@PathVariable String memberUuid);
+
+	@GetMapping("/friendSearch/{memberUuId}/{friendNickname}")
+	MemberFriendDetailListResponseDto getFriendsDetailListBySearch(@PathVariable("memberUuId") String memberUuId,
+																   @PathVariable("friendNickname") String nickname);
 
 }
