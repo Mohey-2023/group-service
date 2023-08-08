@@ -15,7 +15,9 @@ import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
 import com.mohey.groupservice.exception.NotGroupLeaderException;
+import com.mohey.groupservice.interprocess.client.ChatFeginClient;
 import com.mohey.groupservice.interprocess.client.FeignClient;
+import com.mohey.groupservice.interprocess.dto.ChatCommunicationDto;
 import com.mohey.groupservice.interprocess.dto.GroupNotificationDetailDto;
 import com.mohey.groupservice.interprocess.dto.GroupNotificationDto;
 import com.mohey.groupservice.interprocess.dto.MemberNotificationDetailDto;
@@ -53,6 +55,7 @@ public class GroupLeaderService {
 	private final GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository;
 	private final FeignClient feignClient;
 	private final KafkaProducer kafkaProducer;
+	private final ChatFeginClient chatFeginClient;
 
 	@Autowired
 	public GroupLeaderService(GroupDetailRepository groupDetailRepository,
@@ -68,7 +71,8 @@ public class GroupLeaderService {
 		GroupConfirmRepository groupConfirmRepository,
 		TagRepository tagRepository,
 		FeignClient feignClient,
-		KafkaProducer kafkaProducer
+		KafkaProducer kafkaProducer,
+		ChatFeginClient chatFeginClient
 	) {
 		this.groupDetailRepository = groupDetailRepository;
 		this.groupModifiableRepository = groupModifiableRepository;
@@ -84,6 +88,7 @@ public class GroupLeaderService {
 		this.tagRepository = tagRepository;
 		this.feignClient = feignClient;
 		this.kafkaProducer = kafkaProducer;
+		this.chatFeginClient = chatFeginClient;
 	}
 
 	public boolean checkLeader(Long groupId, String memberUuid) {
@@ -160,6 +165,13 @@ public class GroupLeaderService {
 		groupParticipantPublicStatusRepository.save(groupParticipantPublicStatusEntity);
 
 		// chats한테 groupuuid, gruopname, category, memberuuid 보내기
+		ChatCommunicationDto chatCommunicationDto = new ChatCommunicationDto();
+		chatCommunicationDto.setGroupUuid(groupEntity.getGroupUuid());
+		chatCommunicationDto.setGroupName(groupDto.getTitle());
+		chatCommunicationDto.setMemberUuid(groupDto.getLeaderUuid());
+		chatCommunicationDto.setGroupType(groupDto.getCategoryUuid());
+
+		chatFeginClient.create(chatCommunicationDto);
 	}
 
 	public void delegateLeadership(DelegateDto delegateDto) {
@@ -316,6 +328,14 @@ public class GroupLeaderService {
 			});
 
 		// chats한테 groupuuid, groupname, category 보내기
+		ChatCommunicationDto chatCommunicationDto = new ChatCommunicationDto();
+		chatCommunicationDto.setGroupUuid(groupEntity.getGroupUuid());
+		chatCommunicationDto.setGroupName(modifyGroupDto.getTitle());
+		chatCommunicationDto.setMemberUuid("");
+		chatCommunicationDto.setGroupType(modifyGroupDto.getCategory());
+
+		chatFeginClient.create(chatCommunicationDto);
+
 		List<GroupParticipantEntity> participantList = groupParticipantRepository.findByGroupIdAndGroupParticipantStatusIsNull(
 			groupEntity.getId());
 
@@ -364,7 +384,6 @@ public class GroupLeaderService {
 				.build();
 
 			groupParticipantStatusRepository.save(status);
-			// groupuuid, memberuuid
 
 			MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(kickDto.getKickUuid());
 			MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
@@ -385,6 +404,12 @@ public class GroupLeaderService {
 			groupNotificationDto.setGroupNotificationDetailDto(groupNotificationDetailDto);
 			groupNotificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
 			kafkaProducer.send("group-kick", groupNotificationDto);
+
+			ChatCommunicationDto chatCommunicationDto = new ChatCommunicationDto();
+			chatCommunicationDto.setGroupUuid(groupEntity.getGroupUuid());
+			chatCommunicationDto.setMemberUuid(kickDto.getKickUuid());
+
+			chatFeginClient.create(chatCommunicationDto);
 		}
 	}
 
@@ -546,6 +571,12 @@ public class GroupLeaderService {
 		groupNotificationDto.setGroupNotificationDetailDto(groupNotificationDetailDto);
 		groupNotificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
 		kafkaProducer.send("group-affirm", groupNotificationDto);
+
+		ChatCommunicationDto chatCommunicationDto = new ChatCommunicationDto();
+		chatCommunicationDto.setGroupUuid(applicantAcceptRejectDto.getGroupUuid());
+		chatCommunicationDto.setMemberUuid(applicantAcceptRejectDto.getMemberUuid());
+
+		chatFeginClient.create(chatCommunicationDto);
 	}
 
 	public void rejectApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto) {

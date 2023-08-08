@@ -13,8 +13,11 @@ import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
 import com.mohey.groupservice.exception.GroupNotFoundException;
+import com.mohey.groupservice.interprocess.client.ChatFeginClient;
+import com.mohey.groupservice.interprocess.dto.ChatCommunicationDto;
 import com.mohey.groupservice.interprocess.dto.GroupNotificationDetailDto;
 import com.mohey.groupservice.interprocess.dto.GroupNotificationDto;
+import com.mohey.groupservice.participant.dto.DeletedGroupsParticipantsDto;
 import com.mohey.groupservice.repository.CategoryRepository;
 import com.mohey.groupservice.repository.GenderOptionsRepository;
 import com.mohey.groupservice.repository.GroupDeleteRepository;
@@ -46,6 +49,7 @@ public class GroupDetailService {
     private final GroupParticipantStatusRepository groupParticipantStatusRepository;
     private final GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository;
     private final GroupDeleteRepository groupDeleteRepository;
+    private final ChatFeginClient chatFeginClient;
 
 
 
@@ -58,7 +62,8 @@ public class GroupDetailService {
         CategoryRepository categoryRepository,
         GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository,
         GroupDeleteRepository groupDeleteRepository,
-        GroupParticipantStatusRepository groupParticipantStatusRepository){
+        GroupParticipantStatusRepository groupParticipantStatusRepository,
+        ChatFeginClient chatFeginClient){
         this.groupDetailRepository = groupDetailRepository;
         this.groupModifiableRepository = groupModifiableRepository;
         this.groupTagRepository = groupTagRepository;
@@ -68,6 +73,7 @@ public class GroupDetailService {
         this.groupParticipantPublicStatusRepository = groupParticipantPublicStatusRepository;
         this.groupDeleteRepository = groupDeleteRepository;
         this.groupParticipantStatusRepository = groupParticipantStatusRepository;
+        this.chatFeginClient = chatFeginClient;
     }
 
     public  GroupDto getGroupDetailByGroupId(String groupId) {
@@ -163,18 +169,28 @@ public class GroupDetailService {
                 List<GroupParticipantEntity> participants = groupParticipantRepository
                     .findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId());
 
-                return participants;
+                DeletedGroupsParticipantsDto dto = new DeletedGroupsParticipantsDto();
+                dto.setParticipants(participants);
+                dto.setGroupUuid(groupEntity.getGroupUuid());
+
+                return dto;
             })
             .collect(Collectors.toList())
-            .forEach(participantsList -> {
-                kickEverybody(participantsList);
+            .forEach(dto -> {
+                kickEverybody(dto);
             });
     }
 
-    public void kickEverybody(List<GroupParticipantEntity> participants){
+    public void kickEverybody(DeletedGroupsParticipantsDto dto){
         List<GroupParticipantStatusEntity> statuses = new ArrayList<>();
 
-        participants.forEach(participant -> {
+        dto.getParticipants().forEach(participant -> {
+
+            ChatCommunicationDto chatCommunicationDto = new ChatCommunicationDto();
+            chatCommunicationDto.setGroupUuid(dto.getGroupUuid());
+            chatCommunicationDto.setMemberUuid(participant.getMemberUuid());
+            chatFeginClient.create(chatCommunicationDto);
+
             GroupParticipantStatusEntity status = GroupParticipantStatusEntity.builder()
                     .createdDatetime(LocalDateTime.now())
                     .build();
@@ -198,8 +214,6 @@ public class GroupDetailService {
             notificationDto.setTopic("group-kick");
             notificationDto.setType("group");
             notificationDto.setGroupNotificationDetailDto(notificationDetailDto);
-
-            // 유저
         });
 
         groupParticipantStatusRepository.saveAll(statuses);

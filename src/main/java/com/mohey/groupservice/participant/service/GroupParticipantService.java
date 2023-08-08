@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mohey.groupservice.interprocess.client.ChatFeginClient;
 import com.mohey.groupservice.interprocess.client.FeignClient;
+import com.mohey.groupservice.interprocess.dto.ChatCommunicationDto;
 import com.mohey.groupservice.interprocess.dto.GroupNotificationDetailDto;
 import com.mohey.groupservice.interprocess.dto.GroupNotificationDto;
 import com.mohey.groupservice.interprocess.dto.MemberNotificationDetailDto;
@@ -24,6 +26,8 @@ import com.mohey.groupservice.leader.dto.leader.DelegateDto;
 import com.mohey.groupservice.leader.service.GroupLeaderService;
 import com.mohey.groupservice.participant.dto.JoinLeaveDto;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
 public class GroupParticipantService {
     private final GroupDetailRepository groupDetailRepository;
@@ -38,6 +42,7 @@ public class GroupParticipantService {
     private final GroupParticipantStatusRepository groupParticipantStatusRepository;
     private final FeignClient feignClient;
     private final KafkaProducer kafkaProducer;
+    private final ChatFeginClient chatFeginClient;
 
     @Autowired
     public GroupParticipantService(GroupDetailRepository groupDetailRepository,
@@ -51,7 +56,8 @@ public class GroupParticipantService {
         GroupDetailService groupDetailService,
         GroupParticipantStatusRepository groupParticipantStatusRepository,
         FeignClient feignClient,
-        KafkaProducer kafkaProducer
+        KafkaProducer kafkaProducer,
+        ChatFeginClient chatFeginClient
     ){
         this.groupDetailRepository = groupDetailRepository;
         this.groupModifiableRepository = groupModifiableRepository;
@@ -65,6 +71,7 @@ public class GroupParticipantService {
         this.groupParticipantStatusRepository = groupParticipantStatusRepository;
         this.feignClient = feignClient;
         this.kafkaProducer = kafkaProducer;
+        this.chatFeginClient = chatFeginClient;
     }
 
 
@@ -136,5 +143,11 @@ public class GroupParticipantService {
                 groupDetailService.deleteGroup(groupEntity.getGroupUuid());
             }
         }
+
+        ChatCommunicationDto chatCommunicationDto = new ChatCommunicationDto();
+        chatCommunicationDto.setGroupUuid(joinLeaveDto.getGroupUuid());
+        chatCommunicationDto.setMemberUuid(joinLeaveDto.getMemberUuid());
+
+        chatFeginClient.create(chatCommunicationDto);
     }
 }
