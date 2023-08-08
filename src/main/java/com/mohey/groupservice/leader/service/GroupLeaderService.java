@@ -19,7 +19,7 @@ import com.mohey.groupservice.interprocess.client.FeignClient;
 import com.mohey.groupservice.interprocess.dto.GroupNotificationDetailDto;
 import com.mohey.groupservice.interprocess.dto.GroupNotificationDto;
 import com.mohey.groupservice.interprocess.dto.MemberNotificationDetailDto;
-import com.mohey.groupservice.interprocess.dto.MemberNotificationRequestDto;
+import com.mohey.groupservice.interprocess.dto.MemberNotificationResponseDto;
 import com.mohey.groupservice.kafka.KafkaProducer;
 import com.mohey.groupservice.leader.dto.applicant.ApplicantAcceptRejectDto;
 import com.mohey.groupservice.leader.dto.applicant.GroupApplicantDto;
@@ -206,9 +206,9 @@ public class GroupLeaderService {
 			groupTagRepository.save(newGroupTag);
 		});
 
-		MemberNotificationRequestDto requestDto = feignClient.getMemberNotificationDetail(
+		MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(
 			delegateDto.getDelegatedUuid());
-		MemberNotificationRequestDto requestLeaderDto = feignClient.getMemberNotificationDetail(
+		MemberNotificationResponseDto requestLeaderDto = feignClient.getMemberNotificationDetail(
 			delegateDto.getLeaderUuid());
 		MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
 		memberNotificationDetailDto.setReceiverUuid(delegateDto.getDelegatedUuid());
@@ -322,7 +322,7 @@ public class GroupLeaderService {
 		List<MemberNotificationDetailDto> memberNotificationList = new ArrayList<>();
 
 		participantList.forEach(participant -> {
-			MemberNotificationRequestDto requestDto = feignClient.getMemberNotificationDetail(
+			MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(
 				participant.getMemberUuid());
 
 			MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
@@ -338,7 +338,7 @@ public class GroupLeaderService {
 		groupNotificationDetailDto.setGroupUuid(groupEntity.getGroupUuid());
 		groupNotificationDetailDto.setGroupName(groupModifiableEntity.getTitle());
 
-		MemberNotificationRequestDto requestDto = feignClient.getMemberNotificationDetail(
+		MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(
 			groupModifiableEntity.getLeaderUuid());
 
 		GroupNotificationDto groupNotificationDto = new GroupNotificationDto();
@@ -366,7 +366,7 @@ public class GroupLeaderService {
 			groupParticipantStatusRepository.save(status);
 			// groupuuid, memberuuid
 
-			MemberNotificationRequestDto requestDto = feignClient.getMemberNotificationDetail(kickDto.getKickUuid());
+			MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(kickDto.getKickUuid());
 			MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
 			memberNotificationDetailDto.setReceiverUuid(kickDto.getKickUuid());
 			memberNotificationDetailDto.setReceiverName(requestDto.getReceiverName());
@@ -406,7 +406,7 @@ public class GroupLeaderService {
 		List<MemberNotificationDetailDto> memberNotificationList = new ArrayList<>();
 
 		participantList.forEach(participant -> {
-			MemberNotificationRequestDto requestDto = feignClient.getMemberNotificationDetail(
+			MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(
 				participant.getMemberUuid());
 
 			MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
@@ -418,14 +418,12 @@ public class GroupLeaderService {
 		});
 
 		GroupNotificationDetailDto groupNotificationDetailDto = new GroupNotificationDetailDto();
-		GroupEntity group = groupDetailRepository
-			.findByGroupUuid(groupLeaderDto.getGroupUuid());
 
-		groupNotificationDetailDto.setGroupUuid(group.getGroupUuid());
+		groupNotificationDetailDto.setGroupUuid(groupEntity.getGroupUuid());
 		groupNotificationDetailDto.setGroupName(groupModifiableRepository
-			.findLatestGroupModifiableByGroupId(group.getId()).getTitle());
+			.findLatestGroupModifiableByGroupId(groupEntity.getId()).getTitle());
 
-		MemberNotificationRequestDto requestDto = feignClient.getMemberNotificationDetail(
+		MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(
 			groupLeaderDto.getLeaderUuid());
 
 		GroupNotificationDto groupNotificationDto = new GroupNotificationDto();
@@ -436,6 +434,73 @@ public class GroupLeaderService {
 		groupNotificationDto.setGroupNotificationDetailDto(groupNotificationDetailDto);
 		groupNotificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
 		kafkaProducer.send("group-confirm", groupNotificationDto);
+	}
+
+	public void alertLeaderToConfirm(LocalDateTime tenMinsBefore, LocalDateTime oneHourBefore){
+		List<GroupEntity> groupsNeedConfirm = groupDetailRepository.findGroupsNeedConfirm(tenMinsBefore, oneHourBefore);
+
+		groupsNeedConfirm
+			.forEach(groupEntity -> {
+				GroupModifiableEntity modifiable = groupModifiableRepository.findLatestGroupModifiableByGroupId(groupEntity.getId());
+
+				MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(modifiable.getLeaderUuid());
+				MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
+				memberNotificationDetailDto.setReceiverUuid(modifiable.getLeaderUuid());
+				memberNotificationDetailDto.setReceiverName(requestDto.getReceiverName());
+				memberNotificationDetailDto.setDeviceTokenList(requestDto.getReceiverToken());
+				List<MemberNotificationDetailDto> memberNotificationList = new ArrayList<>();
+				memberNotificationList.add(memberNotificationDetailDto);
+				GroupNotificationDetailDto groupNotificationDetailDto = new GroupNotificationDetailDto();
+				groupNotificationDetailDto.setGroupUuid(groupEntity.getGroupUuid());
+				groupNotificationDetailDto.setGroupName(modifiable.getTitle());
+				GroupNotificationDto groupNotificationDto = new GroupNotificationDto();
+				groupNotificationDto.setTopic("group-remind-leader");
+				groupNotificationDto.setType("group");
+				groupNotificationDto.setSenderUuid("");
+				groupNotificationDto.setSenderName("");
+				groupNotificationDto.setGroupNotificationDetailDto(groupNotificationDetailDto);
+				groupNotificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
+				kafkaProducer.send("group-remind-leader", groupNotificationDto);
+			});
+	}
+
+	public void alertParticipantRealTimeLocation(LocalDateTime thirtyMinsBefore){
+		List<GroupEntity> groupsRealTimeLocation = groupDetailRepository.findGroupsRealTimeLocation(thirtyMinsBefore);
+
+		groupsRealTimeLocation.forEach(groupEntity -> {
+			List<GroupParticipantEntity> participantList = groupParticipantRepository.findByGroupIdAndGroupParticipantStatusIsNull(
+				groupEntity.getId());
+
+			List<MemberNotificationDetailDto> memberNotificationList = new ArrayList<>();
+
+			participantList.forEach(participant -> {
+				MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(
+					participant.getMemberUuid());
+
+				MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
+				memberNotificationDetailDto.setReceiverUuid(participant.getMemberUuid());
+				memberNotificationDetailDto.setReceiverName(requestDto.getReceiverName());
+				memberNotificationDetailDto.setDeviceTokenList(requestDto.getReceiverToken());
+
+				memberNotificationList.add(memberNotificationDetailDto);
+			});
+
+			GroupNotificationDetailDto groupNotificationDetailDto = new GroupNotificationDetailDto();
+
+			groupNotificationDetailDto.setGroupUuid(groupEntity.getGroupUuid());
+			groupNotificationDetailDto.setGroupName(groupModifiableRepository
+				.findLatestGroupModifiableByGroupId(groupEntity.getId()).getTitle());
+
+
+			GroupNotificationDto groupNotificationDto = new GroupNotificationDto();
+			groupNotificationDto.setTopic("group-remind");
+			groupNotificationDto.setType("group");
+			groupNotificationDto.setSenderUuid("");
+			groupNotificationDto.setSenderName("");
+			groupNotificationDto.setGroupNotificationDetailDto(groupNotificationDetailDto);
+			groupNotificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
+			kafkaProducer.send("group-remind", groupNotificationDto);
+		});
 	}
 
 	public void acceptApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto) {
@@ -460,7 +525,7 @@ public class GroupLeaderService {
 
 		groupParticipantRepository.save(participant);
 
-		MemberNotificationRequestDto requestDto = feignClient.getMemberNotificationDetail(participant.getMemberUuid());
+		MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(participant.getMemberUuid());
 		MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
 		memberNotificationDetailDto.setReceiverUuid(applicant.getMemberUuid());
 		memberNotificationDetailDto.setReceiverName(requestDto.getReceiverName());
@@ -497,7 +562,7 @@ public class GroupLeaderService {
 
 		groupApplicantStatusRepository.save(status);
 
-		MemberNotificationRequestDto requestDto = feignClient.getMemberNotificationDetail(applicant.getMemberUuid());
+		MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(applicant.getMemberUuid());
 		MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
 		memberNotificationDetailDto.setReceiverUuid(applicant.getMemberUuid());
 		memberNotificationDetailDto.setReceiverName(requestDto.getReceiverName());

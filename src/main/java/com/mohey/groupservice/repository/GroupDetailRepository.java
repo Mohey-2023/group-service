@@ -46,6 +46,21 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
     List<GroupEntity> findFutureConfirmedGroupsForParticipant(@Param("memberUuid") String memberUuid, @Param("currentDatetime") LocalDateTime currentDatetime);
 
     @Query("SELECT g FROM GroupEntity g " +
+        "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
+        "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +
+        "LEFT JOIN GroupParticipantStatusEntity gps ON gp.id = gps.id " +
+        "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+        "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
+        "WHERE gc.createdDatetime IS NULL " +
+        "AND gm.latestYn = true " +
+        "AND gd.createdDatetime IS NULL " +
+        "AND gps.createdDatetime IS NULL " +
+        "AND gp.memberUuid = :memberUuid " +
+        "AND gm.groupStartDatetime > :currentDatetime")
+    List<GroupEntity> findFutureNotConfirmedGroupsForParticipant(@Param("memberUuid") String memberUuid, @Param("currentDatetime") LocalDateTime currentDatetime);
+
+
+    @Query("SELECT g FROM GroupEntity g " +
             "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
             "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
             "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
@@ -54,6 +69,27 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
             "AND gd.createdDatetime IS NULL " +
         "AND gm.groupStartDatetime <= :deleteDatetime")
     List<GroupEntity> findGroupsToBeDeleted(@Param("deleteDatetime") LocalDateTime deleteDatetime);
+
+    @Query("SELECT g FROM GroupEntity g " +
+        "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
+        "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+        "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
+        "WHERE gm.latestYn = true " +
+        "AND gc.createdDatetime IS NOT NULL " +
+        "AND gd.createdDatetime IS NULL " +
+        "AND gm.groupStartDatetime <= :thirtyMinsBefore")
+    List<GroupEntity> findGroupsRealTimeLocation(@Param("thirtyMinsBefore") LocalDateTime thirtyMinsBefore);
+
+    @Query("SELECT g FROM GroupEntity g " +
+        "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
+        "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+        "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
+        "WHERE gm.latestYn = true " +
+        "AND gc.createdDatetime IS NULL " +
+        "AND gd.createdDatetime IS NULL " +
+        "AND gm.groupStartDatetime <= :tenMinsBefore " +
+        "AND gm.groupStartDatetime > :deleteDatetime")
+    List<GroupEntity> findGroupsNeedConfirm(@Param("tenMinsBefore") LocalDateTime tenMinsBefore, @Param("deleteDatetime") LocalDateTime oneHourBefore);
 
     @Query("SELECT g FROM GroupEntity g " +
             "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+

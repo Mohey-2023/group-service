@@ -8,7 +8,7 @@ import com.mohey.groupservice.interprocess.client.FeignClient;
 import com.mohey.groupservice.interprocess.dto.GroupNotificationDetailDto;
 import com.mohey.groupservice.interprocess.dto.GroupNotificationDto;
 import com.mohey.groupservice.interprocess.dto.MemberNotificationDetailDto;
-import com.mohey.groupservice.interprocess.dto.MemberNotificationRequestDto;
+import com.mohey.groupservice.interprocess.dto.MemberNotificationResponseDto;
 import com.mohey.groupservice.kafka.KafkaProducer;
 import com.mohey.groupservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,8 +82,8 @@ public class GroupParticipantService {
 
         groupApplicantRepository.save(groupApplicant);
 
-        MemberNotificationRequestDto requestDto = feignClient.getMemberNotificationDetail(modifiableEntity.getLeaderUuid());
-        MemberNotificationRequestDto requestSenderDto = feignClient.getMemberNotificationDetail(joinLeaveDto.getMemberUuid());
+        MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(modifiableEntity.getLeaderUuid());
+        MemberNotificationResponseDto requestSenderDto = feignClient.getMemberNotificationDetail(joinLeaveDto.getMemberUuid());
         MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
         memberNotificationDetailDto.setReceiverUuid(modifiableEntity.getLeaderUuid());
         memberNotificationDetailDto.setReceiverName(requestDto.getReceiverName());

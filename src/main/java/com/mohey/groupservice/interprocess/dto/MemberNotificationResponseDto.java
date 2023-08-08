@@ -8,7 +8,7 @@ import lombok.ToString;
 
 @ToString
 @Data
-public class MemberNotificationRequestDto<T> {
+public class MemberNotificationResponseDto<T> {
 	private Integer code;
 	private String msg;
 	Data data;
