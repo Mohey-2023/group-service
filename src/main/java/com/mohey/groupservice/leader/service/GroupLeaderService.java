@@ -20,6 +20,7 @@ import com.mohey.groupservice.interprocess.dto.GroupNotificationDetailDto;
 import com.mohey.groupservice.interprocess.dto.GroupNotificationDto;
 import com.mohey.groupservice.interprocess.dto.MemberNotificationDetailDto;
 import com.mohey.groupservice.interprocess.dto.MemberNotificationRequestDto;
+import com.mohey.groupservice.kafka.KafkaProducer;
 import com.mohey.groupservice.leader.dto.applicant.ApplicantAcceptRejectDto;
 import com.mohey.groupservice.leader.dto.applicant.GroupApplicantDto;
 import com.mohey.groupservice.leader.dto.applicant.GroupApplicantListDto;
@@ -50,6 +51,7 @@ public class GroupLeaderService {
 	private final GroupParticipantStatusRepository groupParticipantStatusRepository;
 	private final GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository;
 	private final FeignClient feignClient;
+	private final KafkaProducer kafkaProducer;
 
 	@Autowired
 	public GroupLeaderService(GroupDetailRepository groupDetailRepository,
@@ -64,7 +66,8 @@ public class GroupLeaderService {
 		GroupParticipantStatusRepository groupParticipantStatusRepository,
 		GroupConfirmRepository groupConfirmRepository,
 		TagRepository tagRepository,
-		FeignClient feignClient
+		FeignClient feignClient,
+		KafkaProducer kafkaProducer
 		){
 		this.groupDetailRepository = groupDetailRepository;
 		this.groupModifiableRepository = groupModifiableRepository;
@@ -79,6 +82,7 @@ public class GroupLeaderService {
 		this.groupConfirmRepository = groupConfirmRepository;
 		this.tagRepository = tagRepository;
 		this.feignClient = feignClient;
+		this.kafkaProducer = kafkaProducer;
 	}
 
 	public boolean checkLeader(Long groupId, String memberUuid){
@@ -350,12 +354,13 @@ public class GroupLeaderService {
 		MemberNotificationRequestDto requestDto = feignClient.getMemberNotificationDetail(groupLeaderDto.getLeaderUuid());
 
 		GroupNotificationDto groupNotificationDto = new GroupNotificationDto();
-		groupNotificationDto.setTopic("group-confirm ");
+		groupNotificationDto.setTopic("group-confirm");
 		groupNotificationDto.setType("group");
 		groupNotificationDto.setSenderUuid(groupLeaderDto.getLeaderUuid());
 		groupNotificationDto.setSenderName(requestDto.getReceiverName());
 		groupNotificationDto.setGroupNotificationDetailDto(groupNotificationDetailDto);
 		groupNotificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
+		kafkaProducer.send("group-confirm", groupNotificationDto);
 	}
 
 	public void acceptApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto) {
@@ -409,6 +414,7 @@ public class GroupLeaderService {
 		groupNotificationDto.setSenderName("");
 		groupNotificationDto.setGroupNotificationDetailDto(groupNotificationDetailDto);
 		groupNotificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
+		kafkaProducer.send("group-affirm", groupNotificationDto);
 	}
 
 	public void rejectApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto) {
