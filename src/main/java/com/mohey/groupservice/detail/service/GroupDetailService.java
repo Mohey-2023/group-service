@@ -103,25 +103,6 @@ public class GroupDetailService {
             group.setMinAge(groupModifiableEntity.getMinAge());
             group.setMaxAge(groupModifiableEntity.getMaxAge());
 
-        List<GroupParticipantEntity> selectedParticipants = new ArrayList<>();
-        int numToShow = Math.min(groupParticipantEntities.size(), 2); // 최대 2명까지 표시
-
-        if (numToShow == 1) {
-            selectedParticipants.add(groupParticipantEntities.get(0));
-        } else if (numToShow > 1) {
-            Random random = new Random();
-            List<GroupParticipantEntity> remainingParticipants = new ArrayList<>(groupParticipantEntities);
-
-            for (int i = 0; i < numToShow; i++) {
-                int randomIndex = random.nextInt(remainingParticipants.size());
-                selectedParticipants.add(remainingParticipants.get(randomIndex));
-                remainingParticipants.remove(randomIndex);
-            }
-        }
-
-        // 각 participant를 통해 member에게 프사 요청하기
-
-
         return group;
     }
 

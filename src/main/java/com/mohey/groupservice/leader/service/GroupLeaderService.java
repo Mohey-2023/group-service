@@ -1,8 +1,8 @@
 package com.mohey.groupservice.leader.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -15,6 +15,11 @@ import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
 import com.mohey.groupservice.exception.NotGroupLeaderException;
+import com.mohey.groupservice.interprocess.client.FeignClient;
+import com.mohey.groupservice.interprocess.dto.GroupNotificationDetailDto;
+import com.mohey.groupservice.interprocess.dto.GroupNotificationDto;
+import com.mohey.groupservice.interprocess.dto.MemberNotificationDetailDto;
+import com.mohey.groupservice.interprocess.dto.MemberNotificationRequestDto;
 import com.mohey.groupservice.leader.dto.applicant.ApplicantAcceptRejectDto;
 import com.mohey.groupservice.leader.dto.applicant.GroupApplicantDto;
 import com.mohey.groupservice.leader.dto.applicant.GroupApplicantListDto;
@@ -23,8 +28,6 @@ import com.mohey.groupservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mohey.groupservice.entity.category.CategoryEntity;
-import com.mohey.groupservice.entity.group.GenderOptionsEntity;
 import com.mohey.groupservice.entity.group.GroupEntity;
 import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 import com.mohey.groupservice.leader.dto.leader.CreateGroupDto;
@@ -46,6 +49,7 @@ public class GroupLeaderService {
 	private final GroupApplicantStatusRepository groupApplicantStatusRepository;
 	private final GroupParticipantStatusRepository groupParticipantStatusRepository;
 	private final GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository;
+	private final FeignClient feignClient;
 
 	@Autowired
 	public GroupLeaderService(GroupDetailRepository groupDetailRepository,
@@ -59,7 +63,8 @@ public class GroupLeaderService {
 	 	GroupApplicantStatusRepository groupApplicantStatusRepository,
 		GroupParticipantStatusRepository groupParticipantStatusRepository,
 		GroupConfirmRepository groupConfirmRepository,
-		TagRepository tagRepository
+		TagRepository tagRepository,
+		FeignClient feignClient
 		){
 		this.groupDetailRepository = groupDetailRepository;
 		this.groupModifiableRepository = groupModifiableRepository;
@@ -73,6 +78,7 @@ public class GroupLeaderService {
 		this.groupParticipantStatusRepository = groupParticipantStatusRepository;
 		this.groupConfirmRepository = groupConfirmRepository;
 		this.tagRepository = tagRepository;
+		this.feignClient = feignClient;
 	}
 
 	public boolean checkLeader(Long groupId, String memberUuid){
@@ -317,6 +323,39 @@ public class GroupLeaderService {
 				.build();
 
 		groupConfirmRepository.save(confirmEntity);
+
+		List<GroupParticipantEntity> participantList = groupParticipantRepository.findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId());
+
+		List<MemberNotificationDetailDto> memberNotificationList = new ArrayList<>();
+
+		participantList.forEach(participant -> {
+			MemberNotificationRequestDto requestDto = feignClient.getMemberNotificationDetail(participant.getMemberUuid());
+
+			MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
+			memberNotificationDetailDto.setReceiverUuid(participant.getMemberUuid());
+			memberNotificationDetailDto.setReceiverName(requestDto.getReceiverName());
+			memberNotificationDetailDto.setDeviceTokenList(requestDto.getReceiverToken());
+
+			memberNotificationList.add(memberNotificationDetailDto);
+		});
+
+		GroupNotificationDetailDto groupNotificationDetailDto = new GroupNotificationDetailDto();
+		GroupEntity group = groupDetailRepository
+			.findByGroupUuid(groupLeaderDto.getGroupUuid());
+
+		groupNotificationDetailDto.setGroupUuid(group.getGroupUuid());
+		groupNotificationDetailDto.setGroupName(groupModifiableRepository
+			.findLatestGroupModifiableByGroupId(group.getId()).getTitle());
+
+		MemberNotificationRequestDto requestDto = feignClient.getMemberNotificationDetail(groupLeaderDto.getLeaderUuid());
+
+		GroupNotificationDto groupNotificationDto = new GroupNotificationDto();
+		groupNotificationDto.setTopic("group-confirm ");
+		groupNotificationDto.setType("group");
+		groupNotificationDto.setSenderUuid(groupLeaderDto.getLeaderUuid());
+		groupNotificationDto.setSenderName(requestDto.getReceiverName());
+		groupNotificationDto.setGroupNotificationDetailDto(groupNotificationDetailDto);
+		groupNotificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
 	}
 
 	public void acceptApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto) {
@@ -342,7 +381,34 @@ public class GroupLeaderService {
 
 		groupParticipantRepository.save(participant);
 
-		// chat한테 groupuuid, memberuuid
+		MemberNotificationRequestDto requestDto = feignClient.getMemberNotificationDetail(participant.getMemberUuid());
+
+		MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
+		memberNotificationDetailDto.setReceiverUuid(applicant.getMemberUuid());
+		memberNotificationDetailDto.setReceiverName(requestDto.getReceiverName());
+		memberNotificationDetailDto.setDeviceTokenList(requestDto.getReceiverToken());
+
+		List<MemberNotificationDetailDto> memberNotificationList = new ArrayList<>();
+		memberNotificationList.add(memberNotificationDetailDto);
+
+		GroupNotificationDetailDto groupNotificationDetailDto = new GroupNotificationDetailDto();
+
+		GroupEntity group = groupDetailRepository
+			.findByGroupUuid(applicantAcceptRejectDto.getGroupUuid());
+
+
+		groupNotificationDetailDto.setGroupUuid(group.getGroupUuid());
+		groupNotificationDetailDto.setGroupName(groupModifiableRepository
+			.findLatestGroupModifiableByGroupId(group.getId()).getTitle());
+
+
+		GroupNotificationDto groupNotificationDto = new GroupNotificationDto();
+		groupNotificationDto.setTopic("group-affirm");
+		groupNotificationDto.setType("group");
+		groupNotificationDto.setSenderUuid("");
+		groupNotificationDto.setSenderName("");
+		groupNotificationDto.setGroupNotificationDetailDto(groupNotificationDetailDto);
+		groupNotificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
 	}
 
 	public void rejectApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto) {

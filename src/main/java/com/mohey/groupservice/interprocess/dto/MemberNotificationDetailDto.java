@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberNotificationDetailDto {
-	private String senderName;
+	private String receiverUuid;
 	private String receiverName;
 	private List<String> deviceTokenList;
 }
