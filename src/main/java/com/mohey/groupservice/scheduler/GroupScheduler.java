@@ -11,10 +11,11 @@ import com.mohey.groupservice.leader.service.GroupLeaderService;
 
 @Component
 public class GroupScheduler {
-
 	@Autowired
 	private GroupDetailService groupDetailService;
+	@Autowired
 	private GroupLeaderService groupLeaderService;
+
 
 	@Scheduled(fixedRate = 30000)
 	public void explodeGroup(){

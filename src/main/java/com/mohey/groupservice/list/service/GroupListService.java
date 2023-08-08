@@ -264,8 +264,44 @@ public class GroupListService {
 				}).filter(Objects::nonNull)
 				.collect(Collectors.toList());
 		} else {
-			// 친구 리스트 가져와서 그거에 맞춰서 보낼 필요 있음
-			return null;
+			List<String> friendList = feignClient.getFriendsList(mapGroupListRequestDto.getMemberUuid()).getFriendList();
+
+			List<GroupEntity> mapGroupList = groupDetailRepository.findFriendsGroupsInMap(LocalDateTime.now(),
+					mapGroupListRequestDto.getSwLng(), mapGroupListRequestDto.getSwLat(), mapGroupListRequestDto.getNeLng(),
+					mapGroupListRequestDto.getNeLat(), mapGroupListRequestDto.getTitleKeyword(),
+					mapGroupListRequestDto.getGenderOptionsUuid(), mapGroupListRequestDto.getCategoryUuid(),
+					mapGroupListRequestDto.getMinAge(), mapGroupListRequestDto.getMaxAge(), friendList);
+
+			return mapGroupList.stream()
+					.map(groupEntity -> {
+
+						GroupModifiableEntity modifiable = groupModifiableRepository.findLatestGroupModifiableByGroupId(
+								groupEntity.getId());
+
+						if (modifiable.getPrivateYn()) {
+							return null;
+						}
+						MapGroupListResponseDto mapGroupListResponseDto = new MapGroupListResponseDto();
+						mapGroupListResponseDto.setGroupUuid(groupEntity.getGroupUuid());
+						mapGroupListResponseDto.setMaxParticipantNum(modifiable.getMaxParticipant());
+						mapGroupListResponseDto.setTitle(modifiable.getTitle());
+						mapGroupListResponseDto.setParticipantNum(
+								groupParticipantRepository.findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId())
+										.size());
+						mapGroupListResponseDto.setLng(modifiable.getLng());
+						mapGroupListResponseDto.setLat(modifiable.getLat());
+						mapGroupListResponseDto.setLocationAddress(modifiable.getLocationAddress());
+
+						categoryRepository
+								.findById(modifiable.getCategoryTbId())
+								.ifPresent(category -> mapGroupListResponseDto
+										.setCategory(category
+												.getCategoryName()));
+						mapGroupListResponseDto.setGroupStartDatetime(modifiable.getGroupStartDatetime());
+
+						return mapGroupListResponseDto;
+					}).filter(Objects::nonNull)
+					.collect(Collectors.toList());
 		}
 	}
 

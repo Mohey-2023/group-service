@@ -21,4 +21,5 @@ public class MapGroupListRequestDto {
 	private Integer minAge;
 	private Integer maxAge;
 	private Boolean isFriend;
+	private String memberUuid;
 }
