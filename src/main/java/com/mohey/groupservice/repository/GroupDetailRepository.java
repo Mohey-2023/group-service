@@ -67,8 +67,9 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
             "WHERE gm.latestYn = true " +
             "AND gc.createdDatetime IS NULL " +
             "AND gd.createdDatetime IS NULL " +
-        "AND FUNCTION('DATE_TRUNC', 'minute', gm.groupStartDatetime) = FUNCTION('DATE_TRUNC', 'minute', :deleteDatetime)")
-    List<GroupEntity> findGroupsToBeDeleted(@Param("deleteDatetime") LocalDateTime deleteDatetime);
+            "AND gm.groupStartDatetime < :endTime " +
+            "AND gm.groupStartDatetime >= :startTime")
+    List<GroupEntity> findGroupsToBeDeleted(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
     @Query("SELECT g FROM GroupEntity g " +
         "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
@@ -77,8 +78,9 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
         "WHERE gm.latestYn = true " +
         "AND gc.createdDatetime IS NOT NULL " +
         "AND gd.createdDatetime IS NULL " +
-        "AND FUNCTION('DATE_TRUNC', 'minute', gm.groupStartDatetime) = FUNCTION('DATE_TRUNC', 'minute', :thirtyMinsBefore)")
-    List<GroupEntity> findGroupsRealTimeLocation(@Param("thirtyMinsBefore") LocalDateTime thirtyMinsBefore);
+        "AND gm.groupStartDatetime < :endTime " +
+        "AND gm.groupStartDatetime >= :startTime")
+    List<GroupEntity> findGroupsRealTimeLocation(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
     @Query("SELECT g FROM GroupEntity g " +
         "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
@@ -87,8 +89,9 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
         "WHERE gm.latestYn = true " +
         "AND gc.createdDatetime IS NULL " +
         "AND gd.createdDatetime IS NULL " +
-        "AND FUNCTION('DATE_TRUNC', 'minute', gm.groupStartDatetime) = FUNCTION('DATE_TRUNC', 'minute', :tenMinsBefore)")
-    List<GroupEntity> findGroupsNeedConfirm(@Param("tenMinsBefore") LocalDateTime tenMinsBefore);
+        "AND gm.groupStartDatetime < :endTime " +
+        "AND gm.groupStartDatetime >= :startTime")
+    List<GroupEntity> findGroupsNeedConfirm(@Param("startTime") LocalDateTime startTime, @Param("endTime") LocalDateTime endTime);
 
     @Query("SELECT g FROM GroupEntity g " +
             "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+

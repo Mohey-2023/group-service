@@ -471,8 +471,8 @@ public class GroupLeaderService {
 		kafkaProducer.send("group-confirm", groupNotificationDto);
 	}
 
-	public void alertLeaderToConfirm(LocalDateTime tenMinsBefore){
-		List<GroupEntity> groupsNeedConfirm = groupDetailRepository.findGroupsNeedConfirm(tenMinsBefore);
+	public void alertLeaderToConfirm(LocalDateTime startTime, LocalDateTime endTime){
+		List<GroupEntity> groupsNeedConfirm = groupDetailRepository.findGroupsNeedConfirm(startTime, endTime);
 
 		groupsNeedConfirm
 			.forEach(groupEntity -> {
@@ -499,8 +499,8 @@ public class GroupLeaderService {
 			});
 	}
 
-	public void alertParticipantRealTimeLocation(LocalDateTime thirtyMinsBefore){
-		List<GroupEntity> groupsRealTimeLocation = groupDetailRepository.findGroupsRealTimeLocation(thirtyMinsBefore);
+	public void alertParticipantRealTimeLocation(LocalDateTime startTime, LocalDateTime endTime){
+		List<GroupEntity> groupsRealTimeLocation = groupDetailRepository.findGroupsRealTimeLocation(startTime, endTime);
 
 		groupsRealTimeLocation.forEach(groupEntity -> {
 			List<GroupParticipantEntity> participantList = groupParticipantRepository.findByGroupIdAndGroupParticipantStatusIsNull(

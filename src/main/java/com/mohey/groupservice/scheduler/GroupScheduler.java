@@ -20,24 +20,27 @@ public class GroupScheduler {
 	@Scheduled(fixedRate = 60000)
 	public void explodeGroup(){
 		LocalDateTime currentDateTime = LocalDateTime.now();
-		LocalDateTime oneHourBefore = currentDateTime.plusHours(1);
+		LocalDateTime startTime = currentDateTime.plusHours(1);
+		LocalDateTime endTime = startTime.plusMinutes(1);
 
-		groupDetailService.deleteNotConfirmedGroups(oneHourBefore);
+		groupDetailService.deleteNotConfirmedGroups(startTime, endTime);
 	}
 
 	@Scheduled(fixedRate = 60000)
 	public void alertLeaderToConfirm(){
 		LocalDateTime currentDateTime = LocalDateTime.now();
-		LocalDateTime tenMinsBefore = currentDateTime.plusHours(1).plusMinutes(10);
+		LocalDateTime startTime = currentDateTime.plusHours(1).plusMinutes(10);
+		LocalDateTime endTime = startTime.plusMinutes(1);
 
-		groupLeaderService.alertLeaderToConfirm(tenMinsBefore);
+		groupLeaderService.alertLeaderToConfirm(startTime, endTime);
 	}
 
 	@Scheduled(fixedRate = 60000)
 	public void alertGroupRealTimeLocation(){
 		LocalDateTime currentDateTime = LocalDateTime.now();
-		LocalDateTime thirtyMinsBefore = currentDateTime.plusMinutes(30);
+		LocalDateTime startTime = currentDateTime.plusMinutes(30);
+		LocalDateTime endTime = startTime.plusMinutes(1);
 
-		groupLeaderService.alertParticipantRealTimeLocation(thirtyMinsBefore);
+		groupLeaderService.alertParticipantRealTimeLocation(startTime, endTime);
 	}
 }

@@ -166,8 +166,8 @@ public class GroupDetailService {
         return participantList;
     }
 
-    public void deleteNotConfirmedGroups(LocalDateTime oneHourBefore) {
-        List<GroupEntity> groupsToBeDeleted = groupDetailRepository.findGroupsToBeDeleted(oneHourBefore);
+    public void deleteNotConfirmedGroups(LocalDateTime startTime, LocalDateTime endTime) {
+        List<GroupEntity> groupsToBeDeleted = groupDetailRepository.findGroupsToBeDeleted(startTime, endTime);
 
         groupsToBeDeleted.stream()
                 .map(groupEntity -> {
