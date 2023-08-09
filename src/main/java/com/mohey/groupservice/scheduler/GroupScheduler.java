@@ -17,27 +17,27 @@ public class GroupScheduler {
 	private GroupLeaderService groupLeaderService;
 
 
-	@Scheduled(fixedRate = 30000)
+	@Scheduled(fixedRate = 60000)
 	public void explodeGroup(){
 		LocalDateTime currentDateTime = LocalDateTime.now();
-		LocalDateTime oneHourBefore = currentDateTime.minusHours(1);
+		LocalDateTime oneHourBefore = currentDateTime.plusHours(1);
 
 		groupDetailService.deleteNotConfirmedGroups(oneHourBefore);
 	}
 
-	@Scheduled(fixedRate = 30000)
+	@Scheduled(fixedRate = 60000)
 	public void alertLeaderToConfirm(){
 		LocalDateTime currentDateTime = LocalDateTime.now();
-		LocalDateTime oneHourBefore = currentDateTime.minusHours(1);
-		LocalDateTime tenMinsBefore = currentDateTime.minusHours(1).minusMinutes(10);
+		LocalDateTime oneHourBefore = currentDateTime.plusHours(1);
+		LocalDateTime tenMinsBefore = currentDateTime.plusHours(1).plusMinutes(10);
 
 		groupLeaderService.alertLeaderToConfirm(tenMinsBefore, oneHourBefore);
 	}
 
-	@Scheduled(fixedRate = 30000)
+	@Scheduled(fixedRate = 60000)
 	public void alertGroupRealTimeLocation(){
 		LocalDateTime currentDateTime = LocalDateTime.now();
-		LocalDateTime thirtyMinsBefore = currentDateTime.minusMinutes(30);
+		LocalDateTime thirtyMinsBefore = currentDateTime.plusMinutes(30);
 
 		groupLeaderService.alertParticipantRealTimeLocation(thirtyMinsBefore);
 	}
