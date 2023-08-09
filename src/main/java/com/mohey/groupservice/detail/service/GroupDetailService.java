@@ -202,35 +202,25 @@ public class GroupDetailService {
 
             GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(dto.getGroupUuid());
 
-            GroupNotificationDetailDto notificationDetailDto = new GroupNotificationDetailDto();
+            MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(dto.getGroupUuid());
             MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
-
-
+            memberNotificationDetailDto.setReceiverUuid(dto.getGroupUuid());
+            memberNotificationDetailDto.setReceiverName(requestDto.getReceiverName());
+            memberNotificationDetailDto.setDeviceTokenList(requestDto.getReceiverToken());
             List<MemberNotificationDetailDto> memberNotificationList = new ArrayList<>();
-
-            MemberNotificationResponseDto memberNotificationResponseDto = feignClient.getMemberNotificationDetail(participant.getMemberUuid());
-            memberNotificationDetailDto.setReceiverUuid(participant.getMemberUuid());
-            memberNotificationDetailDto.setReceiverName(memberNotificationResponseDto.getReceiverName());
-            memberNotificationDetailDto.setDeviceTokenList(memberNotificationResponseDto.getReceiverToken());
-
             memberNotificationList.add(memberNotificationDetailDto);
-
-            GroupNotificationDto notificationDto = new GroupNotificationDto();
-
-            notificationDetailDto.setGroupUuid(groupEntity.getGroupUuid());
-            notificationDetailDto.setGroupName(groupModifiableRepository
+            GroupNotificationDetailDto groupNotificationDetailDto = new GroupNotificationDetailDto();
+            groupNotificationDetailDto.setGroupUuid(groupEntity.getGroupUuid());
+            groupNotificationDetailDto.setGroupName(groupModifiableRepository
                 .findLatestGroupModifiableByGroupId(groupEntity.getId()).getTitle());
-
-            notificationDto.setSenderUuid(groupEntity.getGroupUuid());
-            notificationDto.setSenderName(groupModifiableRepository
-                .findLatestGroupModifiableByGroupId(groupEntity.getId()).getTitle());
-
-            notificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
-
-            notificationDto.setTopic("group-kick");
-            notificationDto.setType("group");
-            notificationDto.setGroupNotificationDetailDto(notificationDetailDto);
-            kafkaProducer.send("group-kick", notificationDto);
+            GroupNotificationDto groupNotificationDto = new GroupNotificationDto();
+            groupNotificationDto.setTopic("group-kick");
+            groupNotificationDto.setType("group");
+            groupNotificationDto.setSenderUuid("");
+            groupNotificationDto.setSenderName("");
+            groupNotificationDto.setGroupNotificationDetailDto(groupNotificationDetailDto);
+            groupNotificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
+            kafkaProducer.send("group-kick", groupNotificationDto);
 
             groupParticipantStatusRepository.save(status);
         });
