@@ -170,7 +170,7 @@ public class GroupDetailService {
         List<GroupEntity> groupsToBeDeleted = groupDetailRepository.findGroupsToBeDeleted(startTime, endTime);
 
         groupsToBeDeleted.stream()
-                .map(groupEntity -> {
+            .forEach(groupEntity -> {
                     deleteGroup(groupEntity.getGroupUuid());
 
                     List<GroupParticipantEntity> participants = groupParticipantRepository
@@ -180,18 +180,14 @@ public class GroupDetailService {
                     dto.setParticipants(participants);
                     dto.setGroupUuid(groupEntity.getGroupUuid());
 
-                    return dto;
-                })
-                .collect(Collectors.toList())
-                .forEach(dto -> {
-                    kickEverybody(dto);
+                kickEverybody(dto);
                 });
     }
 
     public void kickEverybody(DeletedGroupsParticipantsDto dto) {
-        List<GroupParticipantStatusEntity> statuses = new ArrayList<>();
 
         dto.getParticipants().forEach(participant -> {
+
 
             ChatCommunicationDto chatCommunicationDto = new ChatCommunicationDto();
             chatCommunicationDto.setGroupUuid(dto.getGroupUuid());
@@ -200,9 +196,9 @@ public class GroupDetailService {
 
             GroupParticipantStatusEntity status = GroupParticipantStatusEntity.builder()
                     .createdDatetime(LocalDateTime.now())
+                .id(participant.getId())
                     .build();
 
-            statuses.add(status);
 
             Optional<GroupEntity> group = groupDetailRepository.findById(participant.getId());
 
@@ -221,9 +217,10 @@ public class GroupDetailService {
             notificationDto.setTopic("group-kick");
             notificationDto.setType("group");
             notificationDto.setGroupNotificationDetailDto(notificationDetailDto);
-        });
+            kafkaProducer.send("group-kick", notificationDto);
 
-        groupParticipantStatusRepository.saveAll(statuses);
+            groupParticipantStatusRepository.save(status);
+        });
     }
 
     public List<MemberFriendDetailListDto> getFriendsList(String memberUuid) {

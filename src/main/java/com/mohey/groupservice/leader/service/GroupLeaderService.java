@@ -496,6 +496,8 @@ public class GroupLeaderService {
 				groupNotificationDto.setGroupNotificationDetailDto(groupNotificationDetailDto);
 				groupNotificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
 				kafkaProducer.send("group-remind-leader", groupNotificationDto);
+
+				System.out.println("찍힘");
 			});
 	}
 
