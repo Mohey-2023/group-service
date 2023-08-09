@@ -203,7 +203,7 @@ public class GroupDetailService {
             MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(
                 participant.getMemberUuid());
             MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
-            memberNotificationDetailDto.setReceiverUuid(dto.getGroupUuid());
+            memberNotificationDetailDto.setReceiverUuid(participant.getMemberUuid());
             memberNotificationDetailDto.setReceiverName(requestDto.getReceiverName());
             memberNotificationDetailDto.setDeviceTokenList(requestDto.getReceiverToken());
             List<MemberNotificationDetailDto> memberNotificationList = new ArrayList<>();
