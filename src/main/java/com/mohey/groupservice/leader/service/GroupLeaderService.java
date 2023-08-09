@@ -164,6 +164,9 @@ public class GroupLeaderService {
 			.status(true)
 			.createdDatetime(LocalDateTime.now())
 			.build();
+
+
+
 		groupParticipantPublicStatusRepository.save(groupParticipantPublicStatusEntity);
 
 		ChatCommunicationDto chatCommunicationDto = new ChatCommunicationDto();
@@ -171,6 +174,7 @@ public class GroupLeaderService {
 		chatCommunicationDto.setGroupName(groupDto.getTitle());
 		chatCommunicationDto.setMemberUuid(groupDto.getLeaderUuid());
 		chatCommunicationDto.setGroupType(groupDto.getCategoryUuid());
+		chatCommunicationDto.setDeviceTokenList(feignClient.getMemberNotificationDetail(groupDto.getLeaderUuid()).getReceiverToken());
 
 		chatFeginClient.create(chatCommunicationDto);
 	}
@@ -581,6 +585,7 @@ public class GroupLeaderService {
 		ChatCommunicationDto chatCommunicationDto = new ChatCommunicationDto();
 		chatCommunicationDto.setGroupUuid(applicantAcceptRejectDto.getGroupUuid());
 		chatCommunicationDto.setMemberUuid(applicantAcceptRejectDto.getMemberUuid());
+		chatCommunicationDto.setDeviceTokenList(requestDto.getReceiverToken());
 
 		chatFeginClient.create(chatCommunicationDto);
 	}
