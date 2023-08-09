@@ -152,6 +152,12 @@ public class GroupDetailService {
                     GroupParticipantDto participantDto = new GroupParticipantDto();
                     participantDto.setMemberUuid(groupParticipantEntity.getMemberUuid());
                     // 유저랑 통신해서 프사랑 즐찾 가져와야됨
+                    MemberGroupDetailCommunicationDto groupDetailCommunicationDto = feignClient.getProfilePicture(groupParticipantEntity.getMemberUuid()).getMemberDetailList();
+                    participantDto.setBirthDate(groupDetailCommunicationDto.getBirthDate());
+                    participantDto.setMemberName(groupDetailCommunicationDto.getMemberName());
+                    participantDto.setMemberGender(groupDetailCommunicationDto.getMemberGender());
+                    participantDto.setProfilePicture(groupDetailCommunicationDto.getProfilePicture());
+
                     return participantDto;
                 }).collect(Collectors.toList());
         participantList.setParticipants(participants);

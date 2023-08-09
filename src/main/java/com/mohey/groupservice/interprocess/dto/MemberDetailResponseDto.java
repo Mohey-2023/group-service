@@ -11,11 +11,11 @@ public class MemberDetailResponseDto {
 	private String msg;
 	Data data;
 
-	public List<MemberGroupDetailCommunicationDto> getMemberDetailList(){
+	public MemberGroupDetailCommunicationDto getMemberDetailList(){
 		return data.memberDetailList;
 	}
 
 	static class Data {
-		List<MemberGroupDetailCommunicationDto> memberDetailList;
+		MemberGroupDetailCommunicationDto memberDetailList;
 	}
 }

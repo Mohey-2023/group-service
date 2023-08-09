@@ -20,6 +20,8 @@ import com.mohey.groupservice.interprocess.client.FeignClient;
 import com.mohey.groupservice.interprocess.dto.ChatCommunicationDto;
 import com.mohey.groupservice.interprocess.dto.GroupNotificationDetailDto;
 import com.mohey.groupservice.interprocess.dto.GroupNotificationDto;
+import com.mohey.groupservice.interprocess.dto.MemberDetailResponseDto;
+import com.mohey.groupservice.interprocess.dto.MemberGroupDetailCommunicationDto;
 import com.mohey.groupservice.interprocess.dto.MemberNotificationDetailDto;
 import com.mohey.groupservice.interprocess.dto.MemberNotificationResponseDto;
 import com.mohey.groupservice.kafka.KafkaProducer;
@@ -254,6 +256,12 @@ public class GroupLeaderService {
 				GroupApplicantDto applicantDto = new GroupApplicantDto();
 				applicantDto.setMemberUuid(groupApplicantEntity.getMemberUuid());
 				// 유저랑 통신해서 프사랑 즐찾 가져와야됨
+				MemberGroupDetailCommunicationDto memberDetailList = feignClient.getProfilePicture(groupApplicantEntity.getMemberUuid()).getMemberDetailList();
+				applicantDto.setBirthDate(memberDetailList.getBirthDate());
+				applicantDto.setMemberName(memberDetailList.getMemberName());
+				applicantDto.setMemberGender(memberDetailList.getMemberGender());
+				applicantDto.setProfilePicture(memberDetailList.getProfilePicture());
+
 				return applicantDto;
 			}).collect(Collectors.toList());
 		applicantList.setApplicants(applicants);

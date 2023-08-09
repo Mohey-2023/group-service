@@ -14,7 +14,7 @@ public interface FeignClient {
 	MemberNotificationResponseDto getMemberNotificationDetail(@PathVariable String memberUuid);
 
 	@PostMapping("/members/info/getParticipantsDetail")
-	MemberDetailResponseDto getProfilePicture(@RequestBody List<String> participantsUuid);
+	MemberDetailResponseDto getProfilePicture(@RequestBody String participantsUuid);
 
 	@GetMapping("/fein/{memberUuid}")
 	MemberFriendListResponseDto getFriendsList(@PathVariable String memberUuid);
