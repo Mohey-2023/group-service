@@ -200,20 +200,33 @@ public class GroupDetailService {
                     .build();
 
 
-            Optional<GroupEntity> group = groupDetailRepository.findById(participant.getId());
+            GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(dto.getGroupUuid());
 
             GroupNotificationDetailDto notificationDetailDto = new GroupNotificationDetailDto();
+            MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
+
+
+            List<MemberNotificationDetailDto> memberNotificationList = new ArrayList<>();
+
+            MemberNotificationResponseDto memberNotificationResponseDto = feignClient.getMemberNotificationDetail(participant.getMemberUuid());
+            memberNotificationDetailDto.setReceiverUuid(participant.getMemberUuid());
+            memberNotificationDetailDto.setReceiverName(memberNotificationResponseDto.getReceiverName());
+            memberNotificationDetailDto.setDeviceTokenList(memberNotificationResponseDto.getReceiverToken());
+
+            memberNotificationList.add(memberNotificationDetailDto);
+
             GroupNotificationDto notificationDto = new GroupNotificationDto();
 
-            group.ifPresent(groupEntity -> {
-                notificationDetailDto.setGroupUuid(groupEntity.getGroupUuid());
-                notificationDetailDto.setGroupName(groupModifiableRepository
-                        .findLatestGroupModifiableByGroupId(groupEntity.getId()).getTitle());
+            notificationDetailDto.setGroupUuid(groupEntity.getGroupUuid());
+            notificationDetailDto.setGroupName(groupModifiableRepository
+                .findLatestGroupModifiableByGroupId(groupEntity.getId()).getTitle());
 
-                notificationDto.setSenderUuid(groupEntity.getGroupUuid());
-                notificationDto.setSenderName(groupModifiableRepository
-                        .findLatestGroupModifiableByGroupId(groupEntity.getId()).getTitle());
-            });
+            notificationDto.setSenderUuid(groupEntity.getGroupUuid());
+            notificationDto.setSenderName(groupModifiableRepository
+                .findLatestGroupModifiableByGroupId(groupEntity.getId()).getTitle());
+
+            notificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
+
             notificationDto.setTopic("group-kick");
             notificationDto.setType("group");
             notificationDto.setGroupNotificationDetailDto(notificationDetailDto);
