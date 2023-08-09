@@ -1,5 +1,7 @@
 package com.mohey.groupservice.interprocess.dto;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,4 +16,5 @@ public class ChatCommunicationDto {
 	private String groupName;  //생성, 수정
 	private String groupType;  //생성, 수정
 	private String memberUuid;  //생성, 가입, 퇴장
+	private List<String> deviceTokenList;
 }

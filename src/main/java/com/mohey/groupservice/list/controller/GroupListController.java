@@ -2,6 +2,8 @@ package com.mohey.groupservice.list.controller;
 
 import java.util.List;
 
+import javax.ws.rs.Path;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mohey.groupservice.entity.group.GroupEntity;
 import com.mohey.groupservice.list.dto.CalendarRequestDto;
 import com.mohey.groupservice.list.dto.CalendarResponseDto;
+import com.mohey.groupservice.list.dto.FriendGroupDto;
 import com.mohey.groupservice.list.dto.MapGroupListRequestDto;
 import com.mohey.groupservice.list.dto.MapGroupListResponseDto;
 import com.mohey.groupservice.list.dto.MyGroupListMainPageDto;
@@ -68,5 +71,10 @@ public class GroupListController {
 	public ResponseEntity<List<MapGroupListResponseDto>> getMapGroupList(@RequestBody MapGroupListRequestDto mapGroupListRequestDto) {
 		List<MapGroupListResponseDto> mapGroupList = groupListService.getMapGroupList(mapGroupListRequestDto);
 		return new ResponseEntity<>(mapGroupList, HttpStatus.OK);
+	}
+
+	@GetMapping("/friend-group/{memberUuid}")
+	public ResponseEntity<List<FriendGroupDto>> getFriendGroupList(@PathVariable String memberUuid){
+		return new ResponseEntity<>(groupListService.getFriendsGroupList(memberUuid), HttpStatus.OK);
 	}
 }

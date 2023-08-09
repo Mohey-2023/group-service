@@ -2,23 +2,31 @@ package com.mohey.groupservice.interprocess.client;
 
 import java.util.List;
 
+import com.mohey.groupservice.interprocess.dto.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import com.mohey.groupservice.interprocess.dto.MemberGroupDetailCommunicationDto;
-import com.mohey.groupservice.interprocess.dto.MemberRequestDto;
-import com.mohey.groupservice.interprocess.dto.MemberNotificationDetailDto;
-
-@org.springframework.cloud.openfeign.FeignClient(name = "member-service")
+@org.springframework.cloud.openfeign.FeignClient(name = "member-service",url = "http://127.0.0.1:8098/members")
 public interface FeignClient {
+	@GetMapping("/device/getToken/{memberUuid}")
+	MemberNotificationResponseDto getMemberNotificationDetail(@PathVariable String memberUuid);
 
-	@PostMapping()
-	MemberNotificationDetailDto getMemberNotificationDetail(@RequestBody String memberUuid);
+	@PostMapping("/members/info/getParticipantsDetail")
+	MemberDetailResponseDto getProfilePicture(@RequestBody String participantsUuid);
 
-	@PostMapping()
-	MemberGroupDetailCommunicationDto getProfilePictureAndFavorite(@RequestBody MemberRequestDto memberGroupDetailRequestDto);
+	@GetMapping("/fein/{memberUuid}")
+	MemberFriendListResponseDto getFriendsList(@PathVariable String memberUuid);
 
-	@PostMapping()
-	List<String> getFriendsList(@RequestBody String memberUuid);
+	@GetMapping("/{memberUuid}/getUsername")
+	MemberNameResponseDto getMemberName(@PathVariable String memberUuid);
+
+	@GetMapping("/friendSearch/{memberUuid}")
+	MemberFriendDetailListResponseDto getFriendsDetailList(@PathVariable String memberUuid);
+
+	@GetMapping("/friendSearch/{memberUuId}/{friendNickname}")
+	MemberFriendDetailListResponseDto getFriendsDetailListBySearch(@PathVariable("memberUuId") String memberUuId,
+																   @PathVariable("friendNickname") String nickname);
 
 }

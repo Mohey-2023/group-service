@@ -9,8 +9,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupApplicantDto {
-
     private String memberUuid;
+    private String memberName;
+    private String memberGender;
+    private String birthDate;
     private String profilePicture;
-    private boolean isFavorite;
 }

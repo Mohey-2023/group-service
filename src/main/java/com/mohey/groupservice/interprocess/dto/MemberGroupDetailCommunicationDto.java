@@ -10,6 +10,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberGroupDetailCommunicationDto {
+	private String memberName;
+	private String memberGender;
+	private String birthDate;
 	private String profilePicture;
-	private Boolean isFavorite;
 }
