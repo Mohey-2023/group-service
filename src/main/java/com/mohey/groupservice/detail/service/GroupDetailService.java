@@ -187,8 +187,6 @@ public class GroupDetailService {
     public void kickEverybody(DeletedGroupsParticipantsDto dto) {
 
         dto.getParticipants().forEach(participant -> {
-
-
             ChatCommunicationDto chatCommunicationDto = new ChatCommunicationDto();
             chatCommunicationDto.setGroupUuid(dto.getGroupUuid());
             chatCommunicationDto.setMemberUuid(participant.getMemberUuid());
@@ -202,7 +200,8 @@ public class GroupDetailService {
 
             GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(dto.getGroupUuid());
 
-            MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(dto.getGroupUuid());
+            MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(
+                participant.getMemberUuid());
             MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
             memberNotificationDetailDto.setReceiverUuid(dto.getGroupUuid());
             memberNotificationDetailDto.setReceiverName(requestDto.getReceiverName());
