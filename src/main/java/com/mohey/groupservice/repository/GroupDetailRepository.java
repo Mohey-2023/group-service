@@ -67,7 +67,7 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
             "WHERE gm.latestYn = true " +
             "AND gc.createdDatetime IS NULL " +
             "AND gd.createdDatetime IS NULL " +
-        "AND gm.groupStartDatetime = :deleteDatetime")
+        "AND FUNCTION('DATE_TRUNC', 'minute', gm.groupStartDatetime) = FUNCTION('DATE_TRUNC', 'minute', :deleteDatetime)")
     List<GroupEntity> findGroupsToBeDeleted(@Param("deleteDatetime") LocalDateTime deleteDatetime);
 
     @Query("SELECT g FROM GroupEntity g " +
@@ -77,7 +77,7 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
         "WHERE gm.latestYn = true " +
         "AND gc.createdDatetime IS NOT NULL " +
         "AND gd.createdDatetime IS NULL " +
-        "AND gm.groupStartDatetime = :thirtyMinsBefore")
+        "AND FUNCTION('DATE_TRUNC', 'minute', gm.groupStartDatetime) = FUNCTION('DATE_TRUNC', 'minute', :thirtyMinsBefore)")
     List<GroupEntity> findGroupsRealTimeLocation(@Param("thirtyMinsBefore") LocalDateTime thirtyMinsBefore);
 
     @Query("SELECT g FROM GroupEntity g " +
@@ -87,7 +87,7 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
         "WHERE gm.latestYn = true " +
         "AND gc.createdDatetime IS NULL " +
         "AND gd.createdDatetime IS NULL " +
-        "AND gm.groupStartDatetime = :tenMinsBefore")
+        "AND FUNCTION('DATE_TRUNC', 'minute', gm.groupStartDatetime) = FUNCTION('DATE_TRUNC', 'minute', :tenMinsBefore)")
     List<GroupEntity> findGroupsNeedConfirm(@Param("tenMinsBefore") LocalDateTime tenMinsBefore);
 
     @Query("SELECT g FROM GroupEntity g " +
