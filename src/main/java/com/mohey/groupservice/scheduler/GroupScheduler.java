@@ -31,7 +31,7 @@ public class GroupScheduler {
 		LocalDateTime oneHourBefore = currentDateTime.plusHours(1);
 		LocalDateTime tenMinsBefore = currentDateTime.plusHours(1).plusMinutes(10);
 
-		groupLeaderService.alertLeaderToConfirm(tenMinsBefore, oneHourBefore);
+		groupLeaderService.alertLeaderToConfirm(tenMinsBefore);
 	}
 
 	@Scheduled(fixedRate = 60000)
