@@ -21,7 +21,4 @@ public class MyGroupListMainPageDto {
 	private Double Lat;
 	private Integer participantNum;
 	private Long remainingSecond;
-	private String profilePicture1;
-	private String profilePicture2;
-	private String profilePicture3;
 }

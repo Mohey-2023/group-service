@@ -3,6 +3,7 @@ package com.mohey.groupservice.participant.controller;
 import com.mohey.groupservice.participant.dto.JoinLeaveDto;
 import com.mohey.groupservice.participant.service.GroupParticipantService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,14 +19,14 @@ public class GroupParticipantController {
     }
 
      @PostMapping("/join")
-     public ResponseEntity<String> joinGroup(@RequestBody JoinLeaveDto joinLeaveDto) {
+     public ResponseEntity<Void> joinGroup(@RequestBody JoinLeaveDto joinLeaveDto) {
          groupParticipantService.joinGroup(joinLeaveDto);
-         return ResponseEntity.ok("Successfully joined the group.");
+         return new ResponseEntity<>(HttpStatus.OK);
      }
 
      @PostMapping("/leave")
-     public ResponseEntity<String> leaveGroup(@RequestBody JoinLeaveDto joinLeaveDto) {
+     public ResponseEntity<Void> leaveGroup(@RequestBody JoinLeaveDto joinLeaveDto) {
          groupParticipantService.leaveGroup(joinLeaveDto);
-         return ResponseEntity.ok("Successfully left the group.");
+         return new ResponseEntity<>(HttpStatus.OK);
      }
 }

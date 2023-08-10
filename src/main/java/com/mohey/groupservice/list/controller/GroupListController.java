@@ -35,57 +35,51 @@ public class GroupListController {
 		this.groupListService = groupListService;
 	}
 
-	@GetMapping("/list/{memberUuid}")
-	public ResponseEntity<List<GroupEntity>> getMemberGroupList(@PathVariable String memberUuid) {
-		List<GroupEntity> memberGroupList = groupListService.getMemberGroupList(memberUuid);
-		return new ResponseEntity<>(memberGroupList, HttpStatus.OK);
-	}
-
-	@PostMapping("/calendar")
+	@PostMapping(value = "/calendar", produces = "application/json;charset=UTF-8")
 	public ResponseEntity<List<CalendarResponseDto>> getCalendarGroupList(@RequestBody CalendarRequestDto calendarRequestDto) {
 		List<CalendarResponseDto> calendarGroupList = groupListService.getCalendarGroupList(calendarRequestDto);
 		return new ResponseEntity<>(calendarGroupList, HttpStatus.OK);
 	}
 
-	@GetMapping("/main-page/{memberUuid}")
+	@GetMapping(value = "/main-page/{memberUuid}", produces = "application/json;charset=UTF-8")
 	public ResponseEntity<List<MyGroupListMainPageDto>> getMyMainPageGroupList(@PathVariable String memberUuid) {
 		List<MyGroupListMainPageDto> myMainPageGroupList = groupListService.getMyMainPageGroupList(memberUuid);
 		return new ResponseEntity<>(myMainPageGroupList, HttpStatus.OK);
 	}
 
-	@GetMapping("/my-page/{memberUuid}/upcoming")
+	@GetMapping(value = "/my-page/{memberUuid}/upcoming", produces = "application/json;charset=UTF-8")
 	public ResponseEntity<List<MyFutureGroupListMyPageDto>> getMyPageUpcomingGroupList(@PathVariable String memberUuid) {
 		List<MyFutureGroupListMyPageDto> myPageGroupList = groupListService.getMyPageUpcomingGroupList(memberUuid);
 		return new ResponseEntity<>(myPageGroupList, HttpStatus.OK);
 	}
 
-	@GetMapping("/my-page/{memberUuid}/completed")
+	@GetMapping(value = "/my-page/{memberUuid}/completed", produces = "application/json;charset=UTF-8")
 	public ResponseEntity<List<MyPastGroupListMyPageDto>> getMyPageCompletedGroupList(@PathVariable String memberUuid){
 		List<MyPastGroupListMyPageDto> myPageGroupList = groupListService.getMyPageCompletedGroupList(memberUuid);
 		return new ResponseEntity<>(myPageGroupList, HttpStatus.OK);
 	}
 
-	@GetMapping("/your-page/{memberUuid}/upcoming")
+	@GetMapping(value = "/your-page/{memberUuid}/upcoming", produces = "application/json;charset=UTF-8")
 	public ResponseEntity<List<YourGroupListDto>> getYourPageUpcomingGroupList(@PathVariable String memberUuid) {
 		List<YourGroupListDto> yourPageGroupList = groupListService.getYourPageUpcomingConfirmedGroupList(memberUuid);
 
 		return new ResponseEntity<>(yourPageGroupList, HttpStatus.OK);
 	}
 
-	@GetMapping("/your-page/{memberUuid}/completed")
+	@GetMapping(value = "/your-page/{memberUuid}/completed", produces = "application/json;charset=UTF-8")
 	public ResponseEntity<List<YourGroupListDto>> getYourPageCompletedGroupList(@PathVariable String memberUuid) {
 		List<YourGroupListDto> yourPageGroupList = groupListService.getYourPageCompletedGroupList(memberUuid);
 
 		return new ResponseEntity<>(yourPageGroupList, HttpStatus.OK);
 	}
 
-	@PostMapping("/map")
+	@PostMapping(value = "/map", produces = "application/json;charset=UTF-8")
 	public ResponseEntity<List<MapGroupListResponseDto>> getMapGroupList(@RequestBody MapGroupListRequestDto mapGroupListRequestDto) {
 		List<MapGroupListResponseDto> mapGroupList = groupListService.getMapGroupList(mapGroupListRequestDto);
 		return new ResponseEntity<>(mapGroupList, HttpStatus.OK);
 	}
 
-	@GetMapping("/friend-group/{memberUuid}")
+	@GetMapping(value = "/friend-group/{memberUuid}", produces = "application/json;charset=UTF-8")
 	public ResponseEntity<List<FriendGroupDto>> getFriendGroupList(@PathVariable String memberUuid){
 		return new ResponseEntity<>(groupListService.getFriendsGroupList(memberUuid), HttpStatus.OK);
 	}

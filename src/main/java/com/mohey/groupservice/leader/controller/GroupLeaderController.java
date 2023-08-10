@@ -24,7 +24,7 @@ import com.mohey.groupservice.leader.dto.leader.ModifyGroupDto;
 import com.mohey.groupservice.leader.service.GroupLeaderService;
 
 @RestController
-@RequestMapping("/groups/leader")
+@RequestMapping(value = "/groups/leader")
 public class GroupLeaderController {
 
 	private final GroupLeaderService groupLeaderService;
@@ -46,7 +46,7 @@ public class GroupLeaderController {
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 	}
 
-	@PostMapping("/applicants")
+	@PostMapping(value = "/applicants", produces = "application/json;charset=UTF-8")
 	public ResponseEntity<GroupApplicantListDto> getGroupApplicants(@RequestBody GroupLeaderDto groupLeaderDto) {
 		return new ResponseEntity<>(groupLeaderService.getGroupApplicantList(groupLeaderDto), HttpStatus.OK);
 	}

@@ -225,18 +225,6 @@ public class GroupDetailService {
         });
     }
 
-    public List<MemberFriendDetailListDto> getFriendsList(String memberUuid) {
-        MemberFriendDetailListResponseDto memberFriendDetailListResponseDto = feignClient.getFriendsDetailList(memberUuid);
-
-        return memberFriendDetailListResponseDto.getMemberFriendDetailList();
-    }
-
-    public List<MemberFriendDetailListDto> getFriendsListBySearch(String memberUuid, String keyword){
-        MemberFriendDetailListResponseDto memberFriendDetailListResponseDto = feignClient.getFriendsDetailListBySearch(memberUuid, keyword);
-
-        return memberFriendDetailListResponseDto.getMemberFriendDetailList();
-    }
-
     public void inviteFriend(GroupInviteDto groupInviteDto){
         GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupInviteDto.getGroupUuid());
         MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(groupInviteDto.getReceiverUuid());

@@ -25,7 +25,7 @@ public class GroupDetailController {
         this.groupDetailService = groupDetailService;
     }
 
-    @GetMapping("/{groupUuid}")
+    @GetMapping(value = "/{groupUuid}", produces = "application/json;charset=UTF-8")
     public ResponseEntity<GroupDto> getGroupDetail(@PathVariable String groupUuid) {
         GroupDto group = groupDetailService.getGroupDetailByGroupId(groupUuid);
         if (group != null) {
@@ -35,7 +35,7 @@ public class GroupDetailController {
         }
     }
 
-    @PostMapping("/participants")
+    @PostMapping(value = "/participants", produces = "application/json;charset=UTF-8")
     public ResponseEntity<GroupParticipantListDto> getGroupParticipants(@RequestBody GroupParticipantRequestDto groupParticipantRequestDto) {
         return new ResponseEntity<>(groupDetailService.getGroupParticipantList(groupParticipantRequestDto), HttpStatus.OK);
     }
@@ -52,18 +52,8 @@ public class GroupDetailController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/friendList/{memberUuid}")
-    public ResponseEntity<List<MemberFriendDetailListDto>> getFriendList(@PathVariable String memberUuid){
-        return new ResponseEntity<>(groupDetailService.getFriendsList(memberUuid), HttpStatus.OK);
-    }
 
-    @GetMapping("/friendList/{memberUuid}/{keyword}")
-    public ResponseEntity<List<MemberFriendDetailListDto>> getFriendListBySearch(@PathVariable String memberUuid,
-                                                                                 @PathVariable String keyword){
-        return new ResponseEntity<>(groupDetailService.getFriendsListBySearch(memberUuid, keyword), HttpStatus.OK);
-    }
-
-    @PostMapping("/friendList/invite")
+    @PostMapping("/invite")
     public ResponseEntity<Void> inviteFriend(@RequestBody GroupInviteDto groupInviteDto){
         groupDetailService.inviteFriend(groupInviteDto);
 

@@ -71,10 +71,6 @@ public class GroupListService {
 		this.groupConfirmRepository = groupConfirmRepository;
 	}
 
-	public List<GroupEntity> getMemberGroupList(String memberUuid) {
-		return groupDetailRepository
-			.findAllGroupsForParticipant(memberUuid);
-	}
 
 	public List<CalendarResponseDto> getCalendarGroupList(CalendarRequestDto calendarRequestDto) {
 		List<GroupEntity> groupList = groupDetailRepository

@@ -25,7 +25,4 @@ public class GroupDto {
     private Integer minAge;
     private Integer maxAge;
     private List<String> tags;
-    private String profilePicture1;
-    private String profilePicture2;
-    private String profilePicture3;
 }

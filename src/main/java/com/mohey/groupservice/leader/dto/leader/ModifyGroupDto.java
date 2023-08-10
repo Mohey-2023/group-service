@@ -14,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class ModifyGroupDto {
 	private String groupUuid;
-	private String category;
+	private String categoryUuid;
 	private String title;
 	private String description;
 	private List<String> tags;

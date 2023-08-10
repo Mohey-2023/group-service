@@ -287,7 +287,7 @@ public class GroupLeaderService {
 
 		GroupModifiableEntity groupModifiableEntity = GroupModifiableEntity.builder()
 			.groupId(groupEntity.getId())
-			.categoryTbId(categoryRepository.findByCategoryUuid(modifyGroupDto.getCategory()).getId())
+			.categoryTbId(categoryRepository.findByCategoryUuid(modifyGroupDto.getCategoryUuid()).getId())
 			.genderOptionsTbId(genderOptionsRepository.findByGenderUuid(modifyGroupDto.getGenderOptionsUuid()).getId())
 			.title(modifyGroupDto.getTitle())
 			.groupStartDatetime(modifyGroupDto.getGroupStartDatetime())
@@ -342,7 +342,7 @@ public class GroupLeaderService {
 		chatCommunicationDto.setGroupUuid(groupEntity.getGroupUuid());
 		chatCommunicationDto.setGroupName(modifyGroupDto.getTitle());
 		chatCommunicationDto.setMemberUuid("");
-		chatCommunicationDto.setGroupType(modifyGroupDto.getCategory());
+		chatCommunicationDto.setGroupType(modifyGroupDto.getCategoryUuid());
 
 		chatFeginClient.create(chatCommunicationDto);
 
