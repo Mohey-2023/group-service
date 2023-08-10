@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MyGroupListMyPageDto {
+public class MyPastGroupListMyPageDto {
 	private String groupUuid;
 	private String title;
 	private String category;
@@ -19,5 +19,5 @@ public class MyGroupListMyPageDto {
 	private String locationAddress;
 	private Double lat;
 	private Double Lng;
-	private Boolean isPrivate;
+	private Boolean isPublic;
 }

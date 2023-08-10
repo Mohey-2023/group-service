@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import com.mohey.groupservice.entity.category.TagEntity;
 import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 
+import com.mohey.groupservice.list.dto.MyPastGroupListMyPageDto;
 import com.mohey.groupservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,7 @@ import com.mohey.groupservice.list.dto.FriendListDto;
 import com.mohey.groupservice.list.dto.MapGroupListRequestDto;
 import com.mohey.groupservice.list.dto.MapGroupListResponseDto;
 import com.mohey.groupservice.list.dto.MyGroupListMainPageDto;
-import com.mohey.groupservice.list.dto.MyGroupListMyPageDto;
+import com.mohey.groupservice.list.dto.MyFutureGroupListMyPageDto;
 import com.mohey.groupservice.list.dto.YourGroupListDto;
 
 @Service
@@ -42,6 +43,7 @@ public class GroupListService {
 	private final GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository;
 	private final FeignClient feignClient;
 	private final TagRepository tagRepository;
+	private final GroupConfirmRepository groupConfirmRepository;
 
 	@Autowired
 	public GroupListService(GroupDetailRepository groupDetailRepository,
@@ -53,7 +55,8 @@ public class GroupListService {
 		GroupApplicantRepository groupApplicantRepository,
 		GroupParticipantPublicStatusRepository groupParticipantPublicStatusRepository,
 		FeignClient feignClient,
-		TagRepository tagRepository
+		TagRepository tagRepository,
+		GroupConfirmRepository groupConfirmRepository
 	) {
 		this.groupDetailRepository = groupDetailRepository;
 		this.groupModifiableRepository = groupModifiableRepository;
@@ -65,6 +68,7 @@ public class GroupListService {
 		this.groupParticipantPublicStatusRepository = groupParticipantPublicStatusRepository;
 		this.feignClient = feignClient;
 		this.tagRepository = tagRepository;
+		this.groupConfirmRepository = groupConfirmRepository;
 	}
 
 	public List<GroupEntity> getMemberGroupList(String memberUuid) {
@@ -153,12 +157,12 @@ public class GroupListService {
 			.collect(Collectors.toList());
 	}
 
-	public List<MyGroupListMyPageDto> getMyPageGroupList(String memberUuid) {
-		List<GroupEntity> myGroupList = groupDetailRepository.findAllGroupsForParticipant(memberUuid);
+	public List<MyFutureGroupListMyPageDto> getMyPageUpcomingGroupList(String memberUuid) {
+		List<GroupEntity> myGroupList = groupDetailRepository.findAllFutureGroupsForParticipant(memberUuid, LocalDateTime.now());
 
 		return myGroupList.stream()
 			.map(groupEntity -> {
-				MyGroupListMyPageDto myGroupListMyPageDto = new MyGroupListMyPageDto();
+				MyFutureGroupListMyPageDto myGroupListMyPageDto = new MyFutureGroupListMyPageDto();
 
 				myGroupListMyPageDto.setGroupUuid(groupEntity.getGroupUuid());
 				GroupModifiableEntity modifiable = groupModifiableRepository.findLatestGroupModifiableByGroupId(
@@ -168,13 +172,20 @@ public class GroupListService {
 				myGroupListMyPageDto.setLat(modifiable.getLat());
 				myGroupListMyPageDto.setLocationAddress(modifiable.getLocationAddress());
 
+				// 확정 여부 추가
+				if(groupConfirmRepository.findById(groupEntity.getId()).isPresent()){
+					myGroupListMyPageDto.setIsConfirmed(true);
+				} else {
+					myGroupListMyPageDto.setIsConfirmed(false);
+				}
+
 				categoryRepository
 					.findById(modifiable.getCategoryTbId())
 					.ifPresent(category -> myGroupListMyPageDto
 						.setCategory(category
 							.getCategoryName()));
 				myGroupListMyPageDto.setGroupStartDatetime(modifiable.getGroupStartDatetime());
-				myGroupListMyPageDto.setIsPrivate(groupParticipantPublicStatusRepository
+				myGroupListMyPageDto.setIsPublic(groupParticipantPublicStatusRepository
 					.findFirstByGroupParticipantIdOrderByCreatedDatetimeDesc(groupParticipantRepository
 						.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), memberUuid)
 						.getId())
@@ -185,14 +196,86 @@ public class GroupListService {
 			.collect(Collectors.toList());
 	}
 
-	public List<YourGroupListDto> getYourPageGroupList(String memberUuid) {
-		List<GroupEntity> yourGroupList = groupDetailRepository.findAllGroupsForParticipant(memberUuid);
+	public List<MyPastGroupListMyPageDto> getMyPageCompletedGroupList(String memberUuid) {
+		List<GroupEntity> myGroupList = groupDetailRepository.findMyPastGroups(memberUuid, LocalDateTime.now());
+
+		return myGroupList.stream()
+			.map(groupEntity -> {
+				MyPastGroupListMyPageDto myGroupListMyPageDto = new MyPastGroupListMyPageDto();
+
+				myGroupListMyPageDto.setGroupUuid(groupEntity.getGroupUuid());
+				GroupModifiableEntity modifiable = groupModifiableRepository.findLatestGroupModifiableByGroupId(
+					groupEntity.getId());
+				myGroupListMyPageDto.setTitle(modifiable.getTitle());
+				myGroupListMyPageDto.setLng(modifiable.getLng());
+				myGroupListMyPageDto.setLat(modifiable.getLat());
+				myGroupListMyPageDto.setLocationAddress(modifiable.getLocationAddress());
+
+
+				categoryRepository
+					.findById(modifiable.getCategoryTbId())
+					.ifPresent(category -> myGroupListMyPageDto
+						.setCategory(category
+							.getCategoryName()));
+				myGroupListMyPageDto.setGroupStartDatetime(modifiable.getGroupStartDatetime());
+				myGroupListMyPageDto.setIsPublic(groupParticipantPublicStatusRepository
+					.findFirstByGroupParticipantIdOrderByCreatedDatetimeDesc(groupParticipantRepository
+						.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), memberUuid)
+						.getId())
+					.getStatus());
+
+				return myGroupListMyPageDto;
+			})
+			.collect(Collectors.toList());
+	}
+
+	public List<YourGroupListDto> getYourPageUpcomingConfirmedGroupList(String memberUuid) {
+		List<GroupEntity> yourGroupList = groupDetailRepository.findFutureConfirmedGroupsForParticipant(memberUuid, LocalDateTime.now());
 
 		return yourGroupList.stream()
 			.map(groupEntity -> {
 				YourGroupListDto yourGroupListDto = new YourGroupListDto();
 
-				Boolean status = groupParticipantPublicStatusRepository
+
+				GroupModifiableEntity modifiable = groupModifiableRepository.findLatestGroupModifiableByGroupId(
+					groupEntity.getId());
+
+				Boolean isPublic = groupParticipantPublicStatusRepository
+					.findFirstByGroupParticipantIdOrderByCreatedDatetimeDesc(groupParticipantRepository
+						.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), memberUuid)
+						.getId())
+					.getStatus();
+
+				if (modifiable.getPrivateYn() || !isPublic) {
+					return null;
+				}
+				yourGroupListDto.setGroupUuid(groupEntity.getGroupUuid());
+				yourGroupListDto.setTitle(modifiable.getTitle());
+				yourGroupListDto.setLng(modifiable.getLng());
+				yourGroupListDto.setLat(modifiable.getLat());
+				yourGroupListDto.setLocationAddress(modifiable.getLocationAddress());
+				yourGroupListDto.setGroupStartDatetime(modifiable.getGroupStartDatetime());
+
+				categoryRepository
+					.findById(modifiable.getCategoryTbId())
+					.ifPresent(category -> yourGroupListDto
+						.setCategory(category
+							.getCategoryName()));
+
+				return yourGroupListDto;
+			})
+			.filter(Objects::nonNull)
+			.collect(Collectors.toList());
+	}
+
+	public List<YourGroupListDto> getYourPageCompletedGroupList(String memberUuid) {
+		List<GroupEntity> yourGroupList = groupDetailRepository.findOthersPastGroups(memberUuid, LocalDateTime.now());
+
+		return yourGroupList.stream()
+			.map(groupEntity -> {
+				YourGroupListDto yourGroupListDto = new YourGroupListDto();
+
+				Boolean isPublic = groupParticipantPublicStatusRepository
 					.findFirstByGroupParticipantIdOrderByCreatedDatetimeDesc(groupParticipantRepository
 						.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), memberUuid)
 						.getId())
@@ -200,7 +283,7 @@ public class GroupListService {
 
 				GroupModifiableEntity modifiable = groupModifiableRepository.findLatestGroupModifiableByGroupId(
 					groupEntity.getId());
-				if (!status || modifiable.getPrivateYn()) {
+				if (modifiable.getPrivateYn() || !isPublic) {
 					return null;
 				}
 				yourGroupListDto.setGroupUuid(groupEntity.getGroupUuid());
