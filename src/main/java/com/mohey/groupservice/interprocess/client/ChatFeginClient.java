@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.mohey.groupservice.interprocess.dto.ChatCommunicationDto;
 
-@org.springframework.cloud.openfeign.FeignClient(name = "chat-service",url = "http://127.0.0.1:8881/chats")
+@org.springframework.cloud.openfeign.FeignClient(name = "chat-service",url = "http://${my.config.url}:8000/chats")
 public interface ChatFeginClient {
 	@PostMapping("/create")
 	public ResponseEntity<String> create(@RequestBody ChatCommunicationDto receive);

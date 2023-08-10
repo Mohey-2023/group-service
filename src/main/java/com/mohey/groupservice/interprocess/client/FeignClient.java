@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@org.springframework.cloud.openfeign.FeignClient(name = "member-service",url = "http://127.0.0.1:8098/members")
+@org.springframework.cloud.openfeign.FeignClient(name = "member-service",url = "http://${my.config.url}:8000/members")
 public interface FeignClient {
 	@GetMapping("/device/getToken/{memberUuid}")
 	MemberNotificationResponseDto getMemberNotificationDetail(@PathVariable String memberUuid);
@@ -16,7 +16,7 @@ public interface FeignClient {
 	@PostMapping("/members/info/getParticipantsDetail")
 	MemberDetailResponseDto getProfilePicture(@RequestBody String participantsUuid);
 
-	@GetMapping("/fein/{memberUuid}")
+	@GetMapping("/friendSearch/{memberUuid}")
 	MemberFriendListResponseDto getFriendsList(@PathVariable String memberUuid);
 
 	@GetMapping("/{memberUuid}/getUsername")
