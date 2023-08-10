@@ -42,7 +42,8 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
         "AND gd.createdDatetime IS NULL " +
         "AND gps.createdDatetime IS NULL " +
         "AND gp.memberUuid = :memberUuid " +
-        "AND gm.groupStartDatetime > :currentDatetime")
+        "AND gm.groupStartDatetime > :currentDatetime " +
+        "ORDER BY gm.groupStartDatetime DESC")
     List<GroupEntity> findFutureConfirmedGroupsForParticipant(@Param("memberUuid") String memberUuid, @Param("currentDatetime") LocalDateTime currentDatetime);
 
     @Query("SELECT g FROM GroupEntity g " +
@@ -56,8 +57,22 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
         "AND gd.createdDatetime IS NULL " +
         "AND gps.createdDatetime IS NULL " +
         "AND gp.memberUuid = :memberUuid " +
-        "AND gm.groupStartDatetime > :currentDatetime")
+        "AND gm.groupStartDatetime > :currentDatetime " +
+        "ORDER BY gm.groupStartDatetime DESC")
     List<GroupEntity> findFutureNotConfirmedGroupsForParticipant(@Param("memberUuid") String memberUuid, @Param("currentDatetime") LocalDateTime currentDatetime);
+
+    @Query("SELECT g FROM GroupEntity g " +
+        "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
+        "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +
+        "LEFT JOIN GroupParticipantStatusEntity gps ON gp.id = gps.id " +
+        "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
+        "WHERE gm.latestYn = true " +
+        "AND gd.createdDatetime IS NULL " +
+        "AND gps.createdDatetime IS NULL " +
+        "AND gp.memberUuid = :memberUuid " +
+        "AND gm.groupStartDatetime > :currentDatetime " +
+        "ORDER BY gm.groupStartDatetime DESC")
+    List<GroupEntity> findAllFutureGroupsForParticipant(@Param("memberUuid") String memberUuid, @Param("currentDatetime") LocalDateTime currentDatetime);
 
 
     @Query("SELECT g FROM GroupEntity g " +
@@ -102,8 +117,42 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
             "WHERE gm.latestYn = true " +
         "AND gd.createdDatetime IS NULL " +
         "AND gps.createdDatetime IS NULL " +
-        "AND gp.memberUuid = :memberUuid")
+        "AND gp.memberUuid = :memberUuid " +
+        "ORDER BY gm.groupStartDatetime DESC")
     List<GroupEntity> findAllGroupsForParticipant(@Param("memberUuid") String memberUuid);
+
+    @Query("SELECT g FROM GroupEntity g " +
+        "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
+        "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +
+        "LEFT JOIN GroupParticipantStatusEntity gps ON gp.id = gps.id " +
+        "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+        "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
+        "WHERE gm.latestYn = true " +
+        "AND gc.createdDatetime IS NOT NULL " +
+        "AND gd.createdDatetime IS NULL " +
+        "AND gps.createdDatetime IS NULL " +
+        "AND gp.memberUuid = :memberUuid " +
+        "AND gm.groupStartDatetime < :currentDatetime " +
+        "ORDER BY gm.groupStartDatetime DESC")
+    List<GroupEntity> findMyPastGroups(@Param("memberUuid") String memberUuid,
+        @Param("currentDatetime")LocalDateTime currentDatetime);
+
+    @Query("SELECT g FROM GroupEntity g " +
+        "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
+        "LEFT JOIN GroupParticipantEntity gp ON g.id = gp.groupId " +
+        "LEFT JOIN GroupParticipantStatusEntity gps ON gp.id = gps.id " +
+        "LEFT JOIN GroupConfirmEntity gc ON g.id = gc.id " +
+        "LEFT JOIN GroupDeleteEntity gd ON g.id = gd.id " +
+        "WHERE gm.latestYn = true " +
+        "AND gm.privateYn = true " +
+        "AND gc.createdDatetime IS NOT NULL " +
+        "AND gd.createdDatetime IS NULL " +
+        "AND gps.createdDatetime IS NULL " +
+        "AND gp.memberUuid = :memberUuid " +
+        "AND gm.groupStartDatetime < :currentDatetime " +
+        "ORDER BY gm.groupStartDatetime DESC")
+    List<GroupEntity> findOthersPastGroups(@Param("memberUuid") String memberUuid,
+        @Param("currentDatetime")LocalDateTime currentDatetime);
 
     @Query("SELECT g FROM GroupEntity g " +
         "JOIN GroupModifiableEntity gm ON g.id = gm.groupId "+
