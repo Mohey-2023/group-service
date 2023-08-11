@@ -9,20 +9,20 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupDto {
-    private Long groupId;
+    private String groupUuid;
     private Integer participantsNum;
     private String description;
     private String category;
     private String title;
-    private LocalDateTime groupStartDatetime;
+    private LocalDateTime startDatetime;
     private Integer maxParticipant;
-    private String leaderUuid;
+    private String leaderName;
     private String locationName;
     private String locationAddress;
     private double lng;
     private double lat;
     private String genderOptions;
-    private Integer minAge;
-    private Integer maxAge;
     private List<String> tags;
+    private Boolean isMember;
+    private Boolean isLeader;
 }
