@@ -16,8 +16,8 @@ public class MapGroupListRequestDto {
 	private Double swLng;
 
 	private String titleKeyword;
-	private String genderOptionsUuid;
-	private String categoryUuid;
+	private String genderOptions;
+	private String category;
 	private Integer minAge;
 	private Integer maxAge;
 	private Boolean isFriend;

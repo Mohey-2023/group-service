@@ -17,9 +17,6 @@ public class GenderOptionsEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "gender_uuid", length = 36)
-    private String genderUuid;
-
     @Column(name = "gender_description", length = 255)
     private String genderDescription;
 

@@ -7,5 +7,5 @@ import com.mohey.groupservice.entity.category.CategoryEntity;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
-	CategoryEntity findByCategoryUuid(String categoryUuid);
+	CategoryEntity findByCategoryName(String categoryUuid);
 }

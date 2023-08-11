@@ -126,7 +126,7 @@ public class GroupDetailService {
 
     public void setGroupPublicStatus(PublicStatusDto publicStatus) {
         GroupParticipantPublicStatusEntity status = GroupParticipantPublicStatusEntity.builder()
-                .id(groupParticipantRepository.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(
+                .groupParticipantId(groupParticipantRepository.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(
                         groupDetailRepository.findByGroupUuid(publicStatus.getGroupUuid()).getId(),
                         publicStatus.getMemberUuid()).getId())
                 .createdDatetime(LocalDateTime.now())
