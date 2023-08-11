@@ -280,7 +280,7 @@ public class GroupDetailService {
 
     public List<String> getInvitedHistory(String groupUuid, String memberUuid){
         return groupInvitationRepository
-                .findByGroupUuidANAndInviterMemberUuid(groupUuid, memberUuid)
+                .findByGroupUuidAnAndInviterMemberUuid(groupUuid, memberUuid)
                 .stream()
                 .map(groupInvitationEntity -> {
                     return groupInvitationEntity.getInvitedMemberUuid();
