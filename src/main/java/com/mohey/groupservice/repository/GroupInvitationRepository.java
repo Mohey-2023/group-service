@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface GroupInvitationRepository extends JpaRepository<GroupInvitationEntity, Long> {
-    List<GroupInvitationEntity> findByGroupUuidANAndInviterMemberUuid(String groupUuid, String inviterMemberUuid);
+    List<GroupInvitationEntity> findByGroupUuidAnAndInviterMemberUuid(String groupUuid, String inviterMemberUuid);
 }
