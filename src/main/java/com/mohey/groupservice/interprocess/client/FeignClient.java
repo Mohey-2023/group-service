@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@org.springframework.cloud.openfeign.FeignClient(name = "member-service",url = "http://${my.config.url}:8000/members")
+@org.springframework.cloud.openfeign.FeignClient(name = "member-service",url = "http://${my.config.url}/members")
 public interface FeignClient {
 	@GetMapping("/device/getToken/{memberUuid}")
 	MemberNotificationResponseDto getMemberNotificationDetail(@PathVariable String memberUuid);
