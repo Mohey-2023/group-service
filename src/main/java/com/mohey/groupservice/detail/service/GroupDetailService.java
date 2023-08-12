@@ -173,12 +173,14 @@ public class GroupDetailService {
         groupParticipantPublicStatusRepository.save(status);
     }
 
-    public GroupParticipantListDto getGroupParticipantList(GroupParticipantRequestDto groupParticipantRequestDto) {
-        GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupParticipantRequestDto.getGroupUuid());
+    public GroupParticipantListDto getGroupParticipantList(String groupUuid) {
+        GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupUuid);
 
         if (groupEntity == null) {
             throw new GroupNotFoundException("잘못된 접근입니다.");
         }
+
+        GroupModifiableEntity modifiable = groupModifiableRepository.findLatestGroupModifiableByGroupId(groupEntity.getId());
 
         GroupParticipantListDto participantList = new GroupParticipantListDto();
 
@@ -195,10 +197,16 @@ public class GroupDetailService {
                     participantDto.setMemberGender(groupDetailCommunicationDto.getMemberGender());
                     participantDto.setProfilePicture(groupDetailCommunicationDto.getProfilePicture());
 
+                    if(modifiable.getLeaderUuid().equals(groupParticipantEntity.getMemberUuid())){
+                        participantDto.setIsLeader(true);
+                    } else {
+                        participantDto.setIsLeader(false);
+                    }
+
                     return participantDto;
                 }).collect(Collectors.toList());
         participantList.setParticipants(participants);
-        participantList.setGroupUuid(groupParticipantRequestDto.getGroupUuid());
+        participantList.setGroupUuid(groupUuid);
 
         return participantList;
     }

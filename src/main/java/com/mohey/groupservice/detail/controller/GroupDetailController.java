@@ -40,9 +40,9 @@ public class GroupDetailController {
         return new ResponseEntity<>(groupDetailService.getInvitedHistory(groupUuid, memberUuid), HttpStatus.OK);
     }
 
-    @PostMapping(value = "/participants", produces = "application/json;charset=UTF-8")
-    public ResponseEntity<GroupParticipantListDto> getGroupParticipants(@RequestBody GroupParticipantRequestDto groupParticipantRequestDto) {
-        return new ResponseEntity<>(groupDetailService.getGroupParticipantList(groupParticipantRequestDto), HttpStatus.OK);
+    @GetMapping(value = "/participants/{groupUuid}", produces = "application/json;charset=UTF-8")
+    public ResponseEntity<GroupParticipantListDto> getGroupParticipants(@PathVariable String groupUuid) {
+        return new ResponseEntity<>(groupDetailService.getGroupParticipantList(groupUuid), HttpStatus.OK);
     }
 
     @PostMapping("/delete")
