@@ -193,7 +193,6 @@ public class GroupDetailService {
                     participantDto.setMemberUuid(groupParticipantEntity.getMemberUuid());
                     // 유저랑 통신해서 프사랑 즐찾 가져와야됨
                     MemberGroupDetailCommunicationDto groupDetailCommunicationDto = feignClient.getProfilePicture(groupParticipantEntity.getMemberUuid()).getMemberDetailList();
-                    System.out.println(groupDetailCommunicationDto);
                     participantDto.setBirthDate(groupDetailCommunicationDto.getBirthDate());
                     participantDto.setMemberName(groupDetailCommunicationDto.getMemberName());
                     participantDto.setMemberGender(groupDetailCommunicationDto.getMemberGender());
