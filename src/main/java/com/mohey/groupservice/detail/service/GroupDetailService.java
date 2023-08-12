@@ -42,6 +42,7 @@ public class GroupDetailService {
     private final TagRepository tagRepository;
     private final GroupInvitationRepository groupInvitationRepository;
     private final GroupRealtimeRepository groupRealtimeRepository;
+    private final GroupConfirmRepository groupConfirmRepository;
 
 
     @Autowired
@@ -59,7 +60,8 @@ public class GroupDetailService {
                               KafkaProducer kafkaProducer,
                               TagRepository tagRepository,
                               GroupInvitationRepository groupInvitationRepository,
-                              GroupRealtimeRepository groupRealtimeRepository) {
+                              GroupRealtimeRepository groupRealtimeRepository,
+                              GroupConfirmRepository groupConfirmRepository) {
         this.groupDetailRepository = groupDetailRepository;
         this.groupModifiableRepository = groupModifiableRepository;
         this.groupTagRepository = groupTagRepository;
@@ -75,6 +77,7 @@ public class GroupDetailService {
         this.tagRepository = tagRepository;
         this.groupInvitationRepository = groupInvitationRepository;
         this.groupRealtimeRepository = groupRealtimeRepository;
+        this.groupConfirmRepository = groupConfirmRepository;
     }
 
     public GroupDto getGroupDetailByGroupId(String groupId, String memberUuid) {
@@ -136,6 +139,12 @@ public class GroupDetailService {
             group.setIsRealtimePossible(true);
         } else {
             group.setIsRealtimePossible(false);
+        }
+
+        if(groupConfirmRepository.existsById(groupEntity.getId())){
+            group.setIsConfirmed(true);
+        } else {
+            group.setIsConfirmed(false);
         }
 
         return group;
