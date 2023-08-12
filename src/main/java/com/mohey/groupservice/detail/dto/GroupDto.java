@@ -25,4 +25,5 @@ public class GroupDto {
     private List<String> tags;
     private Boolean isMember;
     private Boolean isLeader;
+    private Boolean isRealtimePossible;
 }

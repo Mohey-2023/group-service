@@ -41,6 +41,7 @@ public class GroupDetailService {
     private final KafkaProducer kafkaProducer;
     private final TagRepository tagRepository;
     private final GroupInvitationRepository groupInvitationRepository;
+    private final GroupRealtimeRepository groupRealtimeRepository;
 
 
     @Autowired
@@ -57,7 +58,8 @@ public class GroupDetailService {
                               FeignClient feignClient,
                               KafkaProducer kafkaProducer,
                               TagRepository tagRepository,
-                              GroupInvitationRepository groupInvitationRepository) {
+                              GroupInvitationRepository groupInvitationRepository,
+                              GroupRealtimeRepository groupRealtimeRepository) {
         this.groupDetailRepository = groupDetailRepository;
         this.groupModifiableRepository = groupModifiableRepository;
         this.groupTagRepository = groupTagRepository;
@@ -72,6 +74,7 @@ public class GroupDetailService {
         this.kafkaProducer = kafkaProducer;
         this.tagRepository = tagRepository;
         this.groupInvitationRepository = groupInvitationRepository;
+        this.groupRealtimeRepository = groupRealtimeRepository;
     }
 
     public GroupDto getGroupDetailByGroupId(String groupId, String memberUuid) {
@@ -127,6 +130,12 @@ public class GroupDetailService {
             group.setIsLeader(true);
         } else {
             group.setIsLeader(false);
+        }
+
+        if(groupRealtimeRepository.existsById(groupEntity.getId())){
+            group.setIsRealtimePossible(true);
+        } else {
+            group.setIsRealtimePossible(false);
         }
 
         return group;

@@ -9,8 +9,7 @@ import java.util.stream.Collectors;
 import com.mohey.groupservice.entity.applicant.GroupApplicantEntity;
 import com.mohey.groupservice.entity.applicant.GroupApplicantStatusEntity;
 import com.mohey.groupservice.entity.category.TagEntity;
-import com.mohey.groupservice.entity.group.GroupConfirmEntity;
-import com.mohey.groupservice.entity.group.GroupTagEntity;
+import com.mohey.groupservice.entity.group.*;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
@@ -34,8 +33,6 @@ import com.mohey.groupservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mohey.groupservice.entity.group.GroupEntity;
-import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 import com.mohey.groupservice.leader.dto.leader.CreateGroupDto;
 import com.mohey.groupservice.leader.dto.leader.GroupLeaderDto;
 import com.mohey.groupservice.leader.dto.leader.KickDto;
@@ -58,6 +55,7 @@ public class GroupLeaderService {
 	private final FeignClient feignClient;
 	private final KafkaProducer kafkaProducer;
 	private final ChatFeginClient chatFeginClient;
+	private final GroupRealtimeRepository groupRealtimeRepository;
 
 	@Autowired
 	public GroupLeaderService(GroupDetailRepository groupDetailRepository,
@@ -74,7 +72,8 @@ public class GroupLeaderService {
 		TagRepository tagRepository,
 		FeignClient feignClient,
 		KafkaProducer kafkaProducer,
-		ChatFeginClient chatFeginClient
+		ChatFeginClient chatFeginClient,
+							  GroupRealtimeRepository groupRealtimeRepository
 	) {
 		this.groupDetailRepository = groupDetailRepository;
 		this.groupModifiableRepository = groupModifiableRepository;
@@ -91,6 +90,7 @@ public class GroupLeaderService {
 		this.feignClient = feignClient;
 		this.kafkaProducer = kafkaProducer;
 		this.chatFeginClient = chatFeginClient;
+		this.groupRealtimeRepository = groupRealtimeRepository;
 	}
 
 	public boolean checkLeader(Long groupId, String memberUuid) {
@@ -507,6 +507,13 @@ public class GroupLeaderService {
 		groupsRealTimeLocation.forEach(groupEntity -> {
 			List<GroupParticipantEntity> participantList = groupParticipantRepository.findByGroupIdAndGroupParticipantStatusIsNull(
 				groupEntity.getId());
+
+			GroupRealtimeEntity groupRealtime = GroupRealtimeEntity.builder()
+					.id(groupEntity.getId())
+					.createdDatetime(LocalDateTime.now())
+					.build();
+
+			groupRealtimeRepository.save(groupRealtime);
 
 			List<MemberNotificationDetailDto> memberNotificationList = new ArrayList<>();
 
