@@ -13,7 +13,7 @@ public interface FeignClient {
 	@GetMapping("/device/getToken/{memberUuid}")
 	MemberNotificationResponseDto getMemberNotificationDetail(@PathVariable String memberUuid);
 
-	@PostMapping("/members/info/getParticipantsDetail")
+	@PostMapping("/info/getParticipantsDetail")
 	MemberDetailResponseDto getProfilePicture(@RequestBody String participantsUuid);
 
 	@GetMapping("/friendSearch/{memberUuid}")
