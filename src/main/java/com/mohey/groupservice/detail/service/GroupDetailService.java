@@ -42,6 +42,7 @@ public class GroupDetailService {
     private final TagRepository tagRepository;
     private final GroupInvitationRepository groupInvitationRepository;
     private final GroupRealtimeRepository groupRealtimeRepository;
+    private final GroupConfirmRepository groupConfirmRepository;
 
 
     @Autowired
@@ -59,7 +60,8 @@ public class GroupDetailService {
                               KafkaProducer kafkaProducer,
                               TagRepository tagRepository,
                               GroupInvitationRepository groupInvitationRepository,
-                              GroupRealtimeRepository groupRealtimeRepository) {
+                              GroupRealtimeRepository groupRealtimeRepository,
+                              GroupConfirmRepository groupConfirmRepository) {
         this.groupDetailRepository = groupDetailRepository;
         this.groupModifiableRepository = groupModifiableRepository;
         this.groupTagRepository = groupTagRepository;
@@ -75,6 +77,7 @@ public class GroupDetailService {
         this.tagRepository = tagRepository;
         this.groupInvitationRepository = groupInvitationRepository;
         this.groupRealtimeRepository = groupRealtimeRepository;
+        this.groupConfirmRepository = groupConfirmRepository;
     }
 
     public GroupDto getGroupDetailByGroupId(String groupId, String memberUuid) {
@@ -138,6 +141,12 @@ public class GroupDetailService {
             group.setIsRealtimePossible(false);
         }
 
+        if(groupConfirmRepository.existsById(groupEntity.getId())){
+            group.setIsConfirmed(true);
+        } else {
+            group.setIsConfirmed(false);
+        }
+
         return group;
     }
 
@@ -164,12 +173,14 @@ public class GroupDetailService {
         groupParticipantPublicStatusRepository.save(status);
     }
 
-    public GroupParticipantListDto getGroupParticipantList(GroupParticipantRequestDto groupParticipantRequestDto) {
-        GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupParticipantRequestDto.getGroupUuid());
+    public GroupParticipantListDto getGroupParticipantList(String groupUuid) {
+        GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupUuid);
 
         if (groupEntity == null) {
             throw new GroupNotFoundException("잘못된 접근입니다.");
         }
+
+        GroupModifiableEntity modifiable = groupModifiableRepository.findLatestGroupModifiableByGroupId(groupEntity.getId());
 
         GroupParticipantListDto participantList = new GroupParticipantListDto();
 
@@ -186,10 +197,16 @@ public class GroupDetailService {
                     participantDto.setMemberGender(groupDetailCommunicationDto.getMemberGender());
                     participantDto.setProfilePicture(groupDetailCommunicationDto.getProfilePicture());
 
+                    if(modifiable.getLeaderUuid().equals(groupParticipantEntity.getMemberUuid())){
+                        participantDto.setIsLeader(true);
+                    } else {
+                        participantDto.setIsLeader(false);
+                    }
+
                     return participantDto;
                 }).collect(Collectors.toList());
         participantList.setParticipants(participants);
-        participantList.setGroupUuid(groupParticipantRequestDto.getGroupUuid());
+        participantList.setGroupUuid(groupUuid);
 
         return participantList;
     }

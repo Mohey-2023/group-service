@@ -16,4 +16,5 @@ public class GroupParticipantDto {
     private String memberGender;
     private String birthDate;
     private String profilePicture;
+    private Boolean isLeader;
 }
