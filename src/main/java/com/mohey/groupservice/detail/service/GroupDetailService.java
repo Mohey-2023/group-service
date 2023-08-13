@@ -18,6 +18,7 @@ import com.mohey.groupservice.kafka.KafkaProducer;
 import com.mohey.groupservice.participant.dto.DeletedGroupsParticipantsDto;
 import com.mohey.groupservice.repository.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
