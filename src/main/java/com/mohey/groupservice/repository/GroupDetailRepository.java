@@ -27,8 +27,8 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
             "AND gm.latestYn = true " +
         "AND gp.memberUuid = :memberUuid " +
         "AND gps.createdDatetime IS NULL " +
-        "AND gc.createdDatetime IS NULL " +
-        "AND gd.createdDatetime IS NOT NULL")
+        "AND gc.createdDatetime IS NOT NULL " +
+        "AND gd.createdDatetime IS NULL")
     List<GroupEntity> findGroupsByYearAndMonthForParticipant(@Param("year") int year, @Param("month") int month, @Param("memberUuid") String memberUuid);
 
     @Query("SELECT g FROM GroupEntity g " +
