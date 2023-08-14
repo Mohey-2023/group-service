@@ -14,7 +14,7 @@ public class GroupParticipantDto {
     private String memberUuid;
     private String memberName;
     private String memberGender;
-    private String birthDate;
+    private Integer age;
     private String profilePicture;
     private Boolean isLeader;
 }

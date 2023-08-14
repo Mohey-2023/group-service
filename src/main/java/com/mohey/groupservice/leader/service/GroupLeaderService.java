@@ -248,6 +248,22 @@ public class GroupLeaderService {
 		kafkaProducer.send("group-delegate", groupNotificationDto);
 	}
 
+	public static int calculateAge(LocalDateTime birthDate) {
+		LocalDateTime currentDate = LocalDateTime.now();
+		int age = currentDate.getYear() - birthDate.getYear();
+
+		int month1 = currentDate.getMonthValue();
+		int month2 = birthDate.getMonthValue();
+		int day1 = currentDate.getDayOfMonth();
+		int day2 = birthDate.getDayOfMonth();
+
+		if (month1 < month2 || (month1 == month2 && day1 < day2)) {
+			age--;
+		}
+
+		return age;
+	}
+
 	public GroupApplicantListDto getGroupApplicantList(GroupLeaderDto groupLeaderDto) {
 		GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupLeaderDto.getGroupUuid());
 
@@ -263,7 +279,8 @@ public class GroupLeaderService {
 				applicantDto.setMemberUuid(groupApplicantEntity.getMemberUuid());
 				// 유저랑 통신해서 프사랑 즐찾 가져와야됨
 				MemberGroupDetailCommunicationDto memberDetailList = feignClient.getProfilePicture(groupApplicantEntity.getMemberUuid()).getMemberDetailList();
-				applicantDto.setBirthDate(memberDetailList.getBirthDate());
+				
+				applicantDto.setAge(calculateAge(memberDetailList.getBirthDate()));
 				applicantDto.setMemberName(memberDetailList.getMemberName());
 				applicantDto.setMemberGender(memberDetailList.getMemberGender());
 				applicantDto.setProfilePicture(memberDetailList.getProfilePicture());

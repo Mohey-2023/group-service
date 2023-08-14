@@ -12,6 +12,6 @@ public class GroupApplicantDto {
     private String memberUuid;
     private String memberName;
     private String memberGender;
-    private String birthDate;
+    private int age;
     private String profilePicture;
 }

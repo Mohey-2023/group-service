@@ -174,6 +174,22 @@ public class GroupDetailService {
         groupParticipantPublicStatusRepository.save(status);
     }
 
+    public static int calculateAge(LocalDateTime birthDate) {
+        LocalDateTime currentDate = LocalDateTime.now();
+        int age = currentDate.getYear() - birthDate.getYear();
+
+        int month1 = currentDate.getMonthValue();
+        int month2 = birthDate.getMonthValue();
+        int day1 = currentDate.getDayOfMonth();
+        int day2 = birthDate.getDayOfMonth();
+
+        if (month1 < month2 || (month1 == month2 && day1 < day2)) {
+            age--;
+        }
+
+        return age;
+    }
+
     public GroupParticipantListDto getGroupParticipantList(String groupUuid) {
         GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupUuid);
 
@@ -193,7 +209,8 @@ public class GroupDetailService {
                     participantDto.setMemberUuid(groupParticipantEntity.getMemberUuid());
                     // 유저랑 통신해서 프사랑 즐찾 가져와야됨
                     MemberGroupDetailCommunicationDto groupDetailCommunicationDto = feignClient.getProfilePicture(groupParticipantEntity.getMemberUuid()).getMemberDetailList();
-                    participantDto.setBirthDate(groupDetailCommunicationDto.getBirthDate());
+
+                    participantDto.setAge(calculateAge(groupDetailCommunicationDto.getBirthDate()));
                     participantDto.setMemberName(groupDetailCommunicationDto.getMemberName());
                     participantDto.setMemberGender(groupDetailCommunicationDto.getMemberGender());
                     participantDto.setProfilePicture(groupDetailCommunicationDto.getProfilePicture());
