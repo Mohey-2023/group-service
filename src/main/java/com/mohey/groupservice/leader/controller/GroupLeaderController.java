@@ -35,9 +35,8 @@ public class GroupLeaderController {
 	}
 
 	@PostMapping("/create")
-	public ResponseEntity<Void> createGroup(@RequestBody CreateGroupDto groupDto) {
-		groupLeaderService.createGroup(groupDto);
-		return new ResponseEntity<>(HttpStatus.CREATED);
+	public ResponseEntity<String> createGroup(@RequestBody CreateGroupDto groupDto) {
+		return new ResponseEntity<>(groupLeaderService.createGroup(groupDto), HttpStatus.CREATED);
 	}
 
 	@PostMapping("/delegate")

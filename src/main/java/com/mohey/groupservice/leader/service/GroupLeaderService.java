@@ -104,12 +104,12 @@ public class GroupLeaderService {
 		}
 	}
 
-	public void createGroup(CreateGroupDto groupDto) {
+	public String createGroup(CreateGroupDto groupDto) {
 		GroupEntity groupEntity = GroupEntity.builder()
 			.groupUuid(UUID.randomUUID().toString())
 			.createdDatetime(LocalDateTime.now())
 			.build();
-		groupDetailRepository.save(groupEntity);
+		GroupEntity group = groupDetailRepository.save(groupEntity);
 
 		GroupModifiableEntity groupModifiableEntity = GroupModifiableEntity.builder()
 			.groupId(groupDetailRepository.findByGroupUuid(groupEntity.getGroupUuid()).getId())
@@ -177,6 +177,8 @@ public class GroupLeaderService {
 		chatCommunicationDto.setDeviceTokenList(feignClient.getMemberNotificationDetail(groupDto.getLeaderUuid()).getReceiverToken());
 
 		chatFeginClient.create(chatCommunicationDto);
+
+		return group.getGroupUuid();
 	}
 
 	public void delegateLeadership(DelegateDto delegateDto) {
