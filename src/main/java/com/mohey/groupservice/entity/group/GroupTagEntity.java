@@ -20,13 +20,13 @@ public class GroupTagEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "group_modifiable_tb_id", nullable = false)
+    @Column(name = "group_modifiable_tb_id")
     private Long groupModifiableTbId;
 
-    @Column(name = "tag_tb_id", nullable = false)
+    @Column(name = "tag_tb_id")
     private Long tagTbId;
 
-    @Column(name = "created_datetime", nullable = false)
+    @Column(name = "created_datetime")
     private LocalDateTime createdDatetime;
 
 }

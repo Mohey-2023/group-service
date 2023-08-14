@@ -13,14 +13,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateGroupDto {
-	private String categoryUuid;
+	private String category;
 	private String title;
 	private String description;
 	private List<String> tags;
 	private LocalDateTime groupStartDatetime;
 	private boolean privacyYn;
 	private Integer maxParticipant;
-	private String genderOptionsUuid;
+	private String genderOptions;
 	private Integer minAge;
 	private Integer maxAge;
 	private String locationName;

@@ -7,6 +7,6 @@ import com.mohey.groupservice.entity.group.GenderOptionsEntity;
 
 @Repository
 public interface GenderOptionsRepository extends JpaRepository<GenderOptionsEntity, Long> {
-	GenderOptionsEntity findByGenderUuid(String genderUuid);
+	GenderOptionsEntity findByGenderDescription(String genderDescription);
 
 }

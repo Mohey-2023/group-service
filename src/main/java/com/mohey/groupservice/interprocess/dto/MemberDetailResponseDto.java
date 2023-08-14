@@ -4,18 +4,16 @@ import java.util.List;
 
 import lombok.Data;
 import lombok.Getter;
+import lombok.ToString;
 
 @Data
 public class MemberDetailResponseDto {
-	private Integer code;
-	private String msg;
-	Data data;
+    private Integer code;
+    private String msg;
+    private MemberGroupDetailCommunicationDto data;
 
-	public MemberGroupDetailCommunicationDto getMemberDetailList(){
-		return data.memberDetailList;
-	}
+    public MemberGroupDetailCommunicationDto getMemberDetailList() {
+        return data;
+    }
 
-	static class Data {
-		MemberGroupDetailCommunicationDto memberDetailList;
-	}
 }

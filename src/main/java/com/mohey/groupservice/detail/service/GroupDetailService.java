@@ -2,8 +2,10 @@ package com.mohey.groupservice.detail.service;
 
 
 import com.mohey.groupservice.detail.dto.*;
+import com.mohey.groupservice.entity.category.TagEntity;
 import com.mohey.groupservice.entity.group.GroupDeleteEntity;
 import com.mohey.groupservice.entity.group.GroupEntity;
+import com.mohey.groupservice.entity.group.GroupInvitationEntity;
 import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
@@ -14,24 +16,14 @@ import com.mohey.groupservice.interprocess.client.FeignClient;
 import com.mohey.groupservice.interprocess.dto.*;
 import com.mohey.groupservice.kafka.KafkaProducer;
 import com.mohey.groupservice.participant.dto.DeletedGroupsParticipantsDto;
-import com.mohey.groupservice.repository.CategoryRepository;
-import com.mohey.groupservice.repository.GenderOptionsRepository;
-import com.mohey.groupservice.repository.GroupDeleteRepository;
-import com.mohey.groupservice.repository.GroupDetailRepository;
-import com.mohey.groupservice.repository.GroupModifiableRepository;
-import com.mohey.groupservice.repository.GroupParticipantPublicStatusRepository;
-import com.mohey.groupservice.repository.GroupParticipantRepository;
-import com.mohey.groupservice.repository.GroupParticipantStatusRepository;
-import com.mohey.groupservice.repository.GroupTagRepository;
+import com.mohey.groupservice.repository.*;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,6 +40,10 @@ public class GroupDetailService {
     private final ChatFeginClient chatFeginClient;
     private final FeignClient feignClient;
     private final KafkaProducer kafkaProducer;
+    private final TagRepository tagRepository;
+    private final GroupInvitationRepository groupInvitationRepository;
+    private final GroupRealtimeRepository groupRealtimeRepository;
+    private final GroupConfirmRepository groupConfirmRepository;
 
 
     @Autowired
@@ -62,7 +58,11 @@ public class GroupDetailService {
                               GroupParticipantStatusRepository groupParticipantStatusRepository,
                               ChatFeginClient chatFeginClient,
                               FeignClient feignClient,
-                              KafkaProducer kafkaProducer) {
+                              KafkaProducer kafkaProducer,
+                              TagRepository tagRepository,
+                              GroupInvitationRepository groupInvitationRepository,
+                              GroupRealtimeRepository groupRealtimeRepository,
+                              GroupConfirmRepository groupConfirmRepository) {
         this.groupDetailRepository = groupDetailRepository;
         this.groupModifiableRepository = groupModifiableRepository;
         this.groupTagRepository = groupTagRepository;
@@ -75,9 +75,13 @@ public class GroupDetailService {
         this.chatFeginClient = chatFeginClient;
         this.feignClient = feignClient;
         this.kafkaProducer = kafkaProducer;
+        this.tagRepository = tagRepository;
+        this.groupInvitationRepository = groupInvitationRepository;
+        this.groupRealtimeRepository = groupRealtimeRepository;
+        this.groupConfirmRepository = groupConfirmRepository;
     }
 
-    public GroupDto getGroupDetailByGroupId(String groupId) {
+    public GroupDto getGroupDetailByGroupId(String groupId, String memberUuid) {
         GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupId);
 
         if (groupEntity == null) {
@@ -91,7 +95,7 @@ public class GroupDetailService {
         List<GroupParticipantEntity> groupParticipantEntities = groupParticipantRepository
                 .findByGroupIdAndGroupParticipantStatusIsNull(groupEntity.getId());
 
-        group.setGroupId(groupEntity.getId());
+        group.setGroupUuid(groupEntity.getGroupUuid());
         categoryRepository.findById(groupModifiableEntity.getCategoryTbId())
                 .ifPresent(category -> group.setCategory(category.getCategoryName()));
 
@@ -100,15 +104,49 @@ public class GroupDetailService {
         group.setParticipantsNum(groupParticipantEntities.size());
         group.setTitle(groupModifiableEntity.getTitle());
         group.setDescription(groupModifiableEntity.getDescription());
-        group.setGroupStartDatetime(groupModifiableEntity.getGroupStartDatetime());
+        group.setStartDatetime(groupModifiableEntity.getGroupStartDatetime());
         group.setMaxParticipant(groupModifiableEntity.getMaxParticipant());
-        group.setLeaderUuid(groupModifiableEntity.getLeaderUuid());
+        group.setLeaderName(feignClient.getMemberName(groupModifiableEntity.getLeaderUuid()).getMemberName());
         group.setLocationName(groupModifiableEntity.getLocationName());
         group.setLocationAddress(groupModifiableEntity.getLocationAddress());
         group.setLat(groupModifiableEntity.getLat());
         group.setLng(groupModifiableEntity.getLng());
-        group.setMinAge(groupModifiableEntity.getMinAge());
-        group.setMaxAge(groupModifiableEntity.getMaxAge());
+        group.setTags(groupTagRepository.findByGroupModifiableTbId(groupModifiableEntity.getId())
+                .stream()
+                .map(groupTagEntity -> {
+                    TagEntity tagEntity = tagRepository.findById(groupTagEntity.getTagTbId()).orElse(null);
+                    if (tagEntity != null) {
+                        return tagEntity.getTagName();
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()));
+
+        if(groupParticipantRepository
+                .findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(groupEntity.getId(), memberUuid) != null){
+            group.setIsMember(true);
+        } else {
+            group.setIsMember(false);
+        }
+
+        if(groupModifiableEntity.getLeaderUuid().equals(memberUuid)){
+            group.setIsLeader(true);
+        } else {
+            group.setIsLeader(false);
+        }
+
+        if(groupRealtimeRepository.existsById(groupEntity.getId())){
+            group.setIsRealtimePossible(true);
+        } else {
+            group.setIsRealtimePossible(false);
+        }
+
+        if(groupConfirmRepository.existsById(groupEntity.getId())){
+            group.setIsConfirmed(true);
+        } else {
+            group.setIsConfirmed(false);
+        }
 
         return group;
     }
@@ -126,7 +164,7 @@ public class GroupDetailService {
 
     public void setGroupPublicStatus(PublicStatusDto publicStatus) {
         GroupParticipantPublicStatusEntity status = GroupParticipantPublicStatusEntity.builder()
-                .id(groupParticipantRepository.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(
+                .groupParticipantId(groupParticipantRepository.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(
                         groupDetailRepository.findByGroupUuid(publicStatus.getGroupUuid()).getId(),
                         publicStatus.getMemberUuid()).getId())
                 .createdDatetime(LocalDateTime.now())
@@ -136,12 +174,14 @@ public class GroupDetailService {
         groupParticipantPublicStatusRepository.save(status);
     }
 
-    public GroupParticipantListDto getGroupParticipantList(GroupParticipantRequestDto groupParticipantRequestDto) {
-        GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupParticipantRequestDto.getGroupUuid());
+    public GroupParticipantListDto getGroupParticipantList(String groupUuid) {
+        GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupUuid);
 
         if (groupEntity == null) {
             throw new GroupNotFoundException("잘못된 접근입니다.");
         }
+
+        GroupModifiableEntity modifiable = groupModifiableRepository.findLatestGroupModifiableByGroupId(groupEntity.getId());
 
         GroupParticipantListDto participantList = new GroupParticipantListDto();
 
@@ -158,10 +198,16 @@ public class GroupDetailService {
                     participantDto.setMemberGender(groupDetailCommunicationDto.getMemberGender());
                     participantDto.setProfilePicture(groupDetailCommunicationDto.getProfilePicture());
 
+                    if(modifiable.getLeaderUuid().equals(groupParticipantEntity.getMemberUuid())){
+                        participantDto.setIsLeader(true);
+                    } else {
+                        participantDto.setIsLeader(false);
+                    }
+
                     return participantDto;
                 }).collect(Collectors.toList());
         participantList.setParticipants(participants);
-        participantList.setGroupUuid(groupParticipantRequestDto.getGroupUuid());
+        participantList.setGroupUuid(groupUuid);
 
         return participantList;
     }
@@ -227,6 +273,16 @@ public class GroupDetailService {
 
     public void inviteFriend(GroupInviteDto groupInviteDto){
         GroupEntity groupEntity = groupDetailRepository.findByGroupUuid(groupInviteDto.getGroupUuid());
+
+        GroupInvitationEntity groupInvitation = GroupInvitationEntity.builder()
+                .groupUuid(groupInviteDto.getGroupUuid())
+                .inviterMemberUuid(groupInviteDto.getSenderUuid())
+                .invitedMemberUuid(groupInviteDto.getReceiverUuid())
+                .invitationTime(LocalDateTime.now())
+                .build();
+
+        groupInvitationRepository.save(groupInvitation);
+
         MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(groupInviteDto.getReceiverUuid());
         MemberNotificationResponseDto requestSenderDto = feignClient.getMemberNotificationDetail(groupInviteDto.getSenderUuid());
         MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();
@@ -247,5 +303,15 @@ public class GroupDetailService {
         groupNotificationDto.setGroupNotificationDetailDto(groupNotificationDetailDto);
         groupNotificationDto.setMemberNotificationDetailDtoList(memberNotificationList);
         kafkaProducer.send("group-invite", groupNotificationDto);
+    }
+
+    public List<String> getInvitedHistory(String groupUuid, String memberUuid){
+        return groupInvitationRepository
+                .findByGroupUuidAndInviterMemberUuid(groupUuid, memberUuid)
+                .stream()
+                .map(groupInvitationEntity -> {
+                    return groupInvitationEntity.getInvitedMemberUuid();
+                })
+                .collect(Collectors.toList());
     }
 }

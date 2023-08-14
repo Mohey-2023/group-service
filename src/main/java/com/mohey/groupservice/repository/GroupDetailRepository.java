@@ -27,8 +27,8 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
             "AND gm.latestYn = true " +
         "AND gp.memberUuid = :memberUuid " +
         "AND gps.createdDatetime IS NULL " +
-        "AND gc.createdDatetime IS NULL " +
-        "AND gd.createdDatetime IS NOT NULL")
+        "AND gc.createdDatetime IS NOT NULL " +
+        "AND gd.createdDatetime IS NULL")
     List<GroupEntity> findGroupsByYearAndMonthForParticipant(@Param("year") int year, @Param("month") int month, @Param("memberUuid") String memberUuid);
 
     @Query("SELECT g FROM GroupEntity g " +
@@ -165,16 +165,16 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
         "AND gm.lat < :neLat AND gm.lat > :swLat " +
         "AND gm.lng < :neLng AND gm.lng > :swLng " +
         "AND (:titleKeyword IS NULL OR gm.title LIKE %:titleKeyword%) " +
-        "AND (:genderOptionsUuid IS NULL OR gm.genderOptionsTbId = :genderOptionsUuid) " +
-        "AND (:categoryUuid IS NULL OR gm.categoryTbId = :categoryUuid) " +
+        "AND (:genderOptionsTbId IS NULL OR gm.genderOptionsTbId = :genderOptionsTbId) " +
+        "AND (:categoryTbId IS NULL OR gm.categoryTbId = :categoryTbId) " +
         "AND (:minAge IS NULL OR gm.minAge >= :minAge) " +
         "AND (:maxAge IS NULL OR gm.maxAge <= :maxAge)")
     List<GroupEntity> findGroupsInMap(@Param("currentDatetime") LocalDateTime currentDatetime,
         @Param("swLng") Double swLng, @Param("swLat") Double swLat,
         @Param("neLng") Double neLng, @Param("neLat") Double neLat,
         @Param("titleKeyword") String titleKeyword,
-        @Param("genderOptionsUuid") String genderOptionsUuid,
-        @Param("categoryUuid") String categoryUuid,
+        @Param("genderOptionsTbId") Long genderOptionsTbId,
+        @Param("categoryTbId") Long categoryTbId,
         @Param("minAge") Integer minAge,
         @Param("maxAge") Integer maxAge);
 
@@ -190,16 +190,16 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
             "AND gm.lat < :neLat AND gm.lat > :swLat " +
             "AND gm.lng < :neLng AND gm.lng > :swLng " +
             "AND gt.tagTbId = :tagId " +
-            "AND (:genderOptionsUuid IS NULL OR gm.genderOptionsTbId = :genderOptionsUuid) " +
-            "AND (:categoryUuid IS NULL OR gm.categoryTbId = :categoryUuid) " +
+            "AND (:genderOptionsTbId IS NULL OR gm.genderOptionsTbId = :genderOptionsTbId) " +
+            "AND (:categoryTbId IS NULL OR gm.categoryTbId = :categoryTbId) " +
             "AND (:minAge IS NULL OR gm.minAge >= :minAge) " +
             "AND (:maxAge IS NULL OR gm.maxAge <= :maxAge)")
     List<GroupEntity> findGroupsInMapByTag(@Param("currentDatetime") LocalDateTime currentDatetime,
                                       @Param("swLng") Double swLng, @Param("swLat") Double swLat,
                                       @Param("neLng") Double neLng, @Param("neLat") Double neLat,
                                       @Param("tagId") Long tagId,
-                                      @Param("genderOptionsUuid") String genderOptionsUuid,
-                                      @Param("categoryUuid") String categoryUuid,
+                                      @Param("genderOptionsTbId") Long genderOptionsTbId,
+                                      @Param("categoryTbId") Long categoryTbId,
                                       @Param("minAge") Integer minAge,
                                       @Param("maxAge") Integer maxAge);
 
@@ -215,8 +215,8 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
             "AND gm.lat < :neLat AND gm.lat > :swLat " +
             "AND gm.lng < :neLng AND gm.lng > :swLng " +
             "AND (:titleKeyword IS NULL OR gm.title LIKE %:titleKeyword%) " +
-            "AND (:genderOptionsUuid IS NULL OR gm.genderOptionsTbId = :genderOptionsUuid) " +
-            "AND (:categoryUuid IS NULL OR gm.categoryTbId = :categoryUuid) " +
+            "AND (:genderOptionsTbId IS NULL OR gm.genderOptionsTbId = :genderOptionsTbId) " +
+            "AND (:categoryTbId IS NULL OR gm.categoryTbId = :categoryTbId) " +
             "AND (:minAge IS NULL OR gm.minAge >= :minAge) " +
             "AND (:maxAge IS NULL OR gm.maxAge <= :maxAge) " +
             "AND gp.memberUuid IN :friendUuids")
@@ -224,8 +224,8 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
                                              @Param("swLng") Double swLng, @Param("swLat") Double swLat,
                                              @Param("neLng") Double neLng, @Param("neLat") Double neLat,
                                              @Param("titleKeyword") String titleKeyword,
-                                             @Param("genderOptionsUuid") String genderOptionsUuid,
-                                             @Param("categoryUuid") String categoryUuid,
+                                             @Param("genderOptionsTbId") Long genderOptionsTbId,
+                                             @Param("categoryTbId") Long categoryTbId,
                                              @Param("minAge") Integer minAge,
                                              @Param("maxAge") Integer maxAge,
                                              @Param("friendUuids") List<String> friendUuids);
@@ -243,8 +243,8 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
             "AND gm.lat < :neLat AND gm.lat > :swLat " +
             "AND gm.lng < :neLng AND gm.lng > :swLng " +
             "AND gt.tagTbId = :tagId " +
-            "AND (:genderOptionsUuid IS NULL OR gm.genderOptionsTbId = :genderOptionsUuid) " +
-            "AND (:categoryUuid IS NULL OR gm.categoryTbId = :categoryUuid) " +
+            "AND (:genderOptionsTbId IS NULL OR gm.genderOptionsTbId = :genderOptionsTbId) " +
+            "AND (:categoryTbId IS NULL OR gm.categoryTbId = :categoryTbId) " +
             "AND (:minAge IS NULL OR gm.minAge >= :minAge) " +
             "AND (:maxAge IS NULL OR gm.maxAge <= :maxAge) " +
             "AND gp.memberUuid IN :friendUuids")
@@ -252,8 +252,8 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
                                              @Param("swLng") Double swLng, @Param("swLat") Double swLat,
                                              @Param("neLng") Double neLng, @Param("neLat") Double neLat,
                                                   @Param("tagId") Long tagId,
-                                             @Param("genderOptionsUuid") String genderOptionsUuid,
-                                             @Param("categoryUuid") String categoryUuid,
+                                                  @Param("genderOptionsTbId") Long genderOptionsTbId,
+                                                  @Param("categoryTbId") Long categoryTbId,
                                              @Param("minAge") Integer minAge,
                                              @Param("maxAge") Integer maxAge,
                                              @Param("friendUuids") List<String> friendUuids);

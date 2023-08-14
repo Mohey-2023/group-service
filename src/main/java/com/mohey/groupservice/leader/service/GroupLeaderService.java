@@ -9,8 +9,7 @@ import java.util.stream.Collectors;
 import com.mohey.groupservice.entity.applicant.GroupApplicantEntity;
 import com.mohey.groupservice.entity.applicant.GroupApplicantStatusEntity;
 import com.mohey.groupservice.entity.category.TagEntity;
-import com.mohey.groupservice.entity.group.GroupConfirmEntity;
-import com.mohey.groupservice.entity.group.GroupTagEntity;
+import com.mohey.groupservice.entity.group.*;
 import com.mohey.groupservice.entity.participant.GroupParticipantEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantPublicStatusEntity;
 import com.mohey.groupservice.entity.participant.GroupParticipantStatusEntity;
@@ -34,8 +33,6 @@ import com.mohey.groupservice.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.mohey.groupservice.entity.group.GroupEntity;
-import com.mohey.groupservice.entity.group.GroupModifiableEntity;
 import com.mohey.groupservice.leader.dto.leader.CreateGroupDto;
 import com.mohey.groupservice.leader.dto.leader.GroupLeaderDto;
 import com.mohey.groupservice.leader.dto.leader.KickDto;
@@ -58,6 +55,7 @@ public class GroupLeaderService {
 	private final FeignClient feignClient;
 	private final KafkaProducer kafkaProducer;
 	private final ChatFeginClient chatFeginClient;
+	private final GroupRealtimeRepository groupRealtimeRepository;
 
 	@Autowired
 	public GroupLeaderService(GroupDetailRepository groupDetailRepository,
@@ -74,7 +72,8 @@ public class GroupLeaderService {
 		TagRepository tagRepository,
 		FeignClient feignClient,
 		KafkaProducer kafkaProducer,
-		ChatFeginClient chatFeginClient
+		ChatFeginClient chatFeginClient,
+							  GroupRealtimeRepository groupRealtimeRepository
 	) {
 		this.groupDetailRepository = groupDetailRepository;
 		this.groupModifiableRepository = groupModifiableRepository;
@@ -91,6 +90,7 @@ public class GroupLeaderService {
 		this.feignClient = feignClient;
 		this.kafkaProducer = kafkaProducer;
 		this.chatFeginClient = chatFeginClient;
+		this.groupRealtimeRepository = groupRealtimeRepository;
 	}
 
 	public boolean checkLeader(Long groupId, String memberUuid) {
@@ -113,8 +113,8 @@ public class GroupLeaderService {
 
 		GroupModifiableEntity groupModifiableEntity = GroupModifiableEntity.builder()
 			.groupId(groupDetailRepository.findByGroupUuid(groupEntity.getGroupUuid()).getId())
-			.categoryTbId(categoryRepository.findByCategoryUuid(groupDto.getCategoryUuid()).getId())
-			.genderOptionsTbId(genderOptionsRepository.findByGenderUuid(groupDto.getGenderOptionsUuid()).getId())
+			.categoryTbId(categoryRepository.findByCategoryName(groupDto.getCategory()).getId())
+			.genderOptionsTbId(genderOptionsRepository.findByGenderDescription(groupDto.getGenderOptions()).getId())
 			.title(groupDto.getTitle())
 			.groupStartDatetime(groupDto.getGroupStartDatetime())
 			.maxParticipant(groupDto.getMaxParticipant())
@@ -173,7 +173,7 @@ public class GroupLeaderService {
 		chatCommunicationDto.setGroupUuid(groupEntity.getGroupUuid());
 		chatCommunicationDto.setGroupName(groupDto.getTitle());
 		chatCommunicationDto.setMemberUuid(groupDto.getLeaderUuid());
-		chatCommunicationDto.setGroupType(groupDto.getCategoryUuid());
+		chatCommunicationDto.setGroupType(groupDto.getCategory());
 		chatCommunicationDto.setDeviceTokenList(feignClient.getMemberNotificationDetail(groupDto.getLeaderUuid()).getReceiverToken());
 
 		chatFeginClient.create(chatCommunicationDto);
@@ -289,8 +289,8 @@ public class GroupLeaderService {
 
 		GroupModifiableEntity groupModifiableEntity = GroupModifiableEntity.builder()
 			.groupId(groupEntity.getId())
-			.categoryTbId(categoryRepository.findByCategoryUuid(modifyGroupDto.getCategoryUuid()).getId())
-			.genderOptionsTbId(genderOptionsRepository.findByGenderUuid(modifyGroupDto.getGenderOptionsUuid()).getId())
+			.categoryTbId(categoryRepository.findByCategoryName(modifyGroupDto.getCategory()).getId())
+			.genderOptionsTbId(genderOptionsRepository.findByGenderDescription(modifyGroupDto.getGenderOptions()).getId())
 			.title(modifyGroupDto.getTitle())
 			.groupStartDatetime(modifyGroupDto.getGroupStartDatetime())
 			.maxParticipant(modifyGroupDto.getMaxParticipant())
@@ -344,7 +344,7 @@ public class GroupLeaderService {
 		chatCommunicationDto.setGroupUuid(groupEntity.getGroupUuid());
 		chatCommunicationDto.setGroupName(modifyGroupDto.getTitle());
 		chatCommunicationDto.setMemberUuid("");
-		chatCommunicationDto.setGroupType(modifyGroupDto.getCategoryUuid());
+		chatCommunicationDto.setGroupType(modifyGroupDto.getCategory());
 
 		chatFeginClient.create(chatCommunicationDto);
 
@@ -510,6 +510,13 @@ public class GroupLeaderService {
 			List<GroupParticipantEntity> participantList = groupParticipantRepository.findByGroupIdAndGroupParticipantStatusIsNull(
 				groupEntity.getId());
 
+			GroupRealtimeEntity groupRealtime = GroupRealtimeEntity.builder()
+					.id(groupEntity.getId())
+					.createdDatetime(LocalDateTime.now())
+					.build();
+
+			groupRealtimeRepository.save(groupRealtime);
+
 			List<MemberNotificationDetailDto> memberNotificationList = new ArrayList<>();
 
 			participantList.forEach(participant -> {
@@ -563,6 +570,16 @@ public class GroupLeaderService {
 			.build();
 
 		groupParticipantRepository.save(participant);
+
+		GroupParticipantPublicStatusEntity groupParticipantPublicStatusEntity = GroupParticipantPublicStatusEntity.builder()
+				.groupParticipantId(groupParticipantRepository
+						.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(applicant.getGroupId(), applicantAcceptRejectDto.getMemberUuid())
+						.getId())
+				.status(true)
+				.createdDatetime(LocalDateTime.now())
+				.build();
+
+		groupParticipantPublicStatusRepository.save(groupParticipantPublicStatusEntity);
 
 		MemberNotificationResponseDto requestDto = feignClient.getMemberNotificationDetail(participant.getMemberUuid());
 		MemberNotificationDetailDto memberNotificationDetailDto = new MemberNotificationDetailDto();

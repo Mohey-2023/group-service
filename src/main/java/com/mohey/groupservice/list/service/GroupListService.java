@@ -307,7 +307,8 @@ public class GroupListService {
 				List<GroupEntity> mapGroupList = groupDetailRepository.findGroupsInMap(LocalDateTime.now(),
 						mapGroupListRequestDto.getSwLng(), mapGroupListRequestDto.getSwLat(), mapGroupListRequestDto.getNeLng(),
 						mapGroupListRequestDto.getNeLat(), mapGroupListRequestDto.getTitleKeyword(),
-						mapGroupListRequestDto.getGenderOptionsUuid(), mapGroupListRequestDto.getCategoryUuid(),
+						genderOptionsRepository.findByGenderDescription(mapGroupListRequestDto.getGenderOptions()).getId(),
+						categoryRepository.findByCategoryName(mapGroupListRequestDto.getCategory()).getId(),
 						mapGroupListRequestDto.getMinAge(), mapGroupListRequestDto.getMaxAge());
 
 				return mapGroupList.stream()
@@ -348,7 +349,8 @@ public class GroupListService {
 				List<GroupEntity> mapGroupList = groupDetailRepository.findGroupsInMapByTag(LocalDateTime.now(),
 						mapGroupListRequestDto.getSwLng(), mapGroupListRequestDto.getSwLat(), mapGroupListRequestDto.getNeLng(),
 						mapGroupListRequestDto.getNeLat(), tag.getId(),
-						mapGroupListRequestDto.getGenderOptionsUuid(), mapGroupListRequestDto.getCategoryUuid(),
+						genderOptionsRepository.findByGenderDescription(mapGroupListRequestDto.getGenderOptions()).getId(),
+						categoryRepository.findByCategoryName(mapGroupListRequestDto.getCategory()).getId(),
 						mapGroupListRequestDto.getMinAge(), mapGroupListRequestDto.getMaxAge());
 
 				return mapGroupList.stream()
@@ -389,7 +391,8 @@ public class GroupListService {
 				List<GroupEntity> mapGroupList = groupDetailRepository.findFriendsGroupsInMap(LocalDateTime.now(),
 						mapGroupListRequestDto.getSwLng(), mapGroupListRequestDto.getSwLat(), mapGroupListRequestDto.getNeLng(),
 						mapGroupListRequestDto.getNeLat(), mapGroupListRequestDto.getTitleKeyword(),
-						mapGroupListRequestDto.getGenderOptionsUuid(), mapGroupListRequestDto.getCategoryUuid(),
+						genderOptionsRepository.findByGenderDescription(mapGroupListRequestDto.getGenderOptions()).getId(),
+						categoryRepository.findByCategoryName(mapGroupListRequestDto.getCategory()).getId(),
 						mapGroupListRequestDto.getMinAge(), mapGroupListRequestDto.getMaxAge(), friendList);
 
 				return mapGroupList.stream()
@@ -432,7 +435,8 @@ public class GroupListService {
 				List<GroupEntity> mapGroupList = groupDetailRepository.findFriendsGroupsInMapByTag(LocalDateTime.now(),
 						mapGroupListRequestDto.getSwLng(), mapGroupListRequestDto.getSwLat(), mapGroupListRequestDto.getNeLng(),
 						mapGroupListRequestDto.getNeLat(), tag.getId(),
-						mapGroupListRequestDto.getGenderOptionsUuid(), mapGroupListRequestDto.getCategoryUuid(),
+						genderOptionsRepository.findByGenderDescription(mapGroupListRequestDto.getGenderOptions()).getId(),
+						categoryRepository.findByCategoryName(mapGroupListRequestDto.getCategory()).getId(),
 						mapGroupListRequestDto.getMinAge(), mapGroupListRequestDto.getMaxAge(), friendList);
 
 				return mapGroupList.stream()

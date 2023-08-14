@@ -25,9 +25,9 @@ public class GroupDetailController {
         this.groupDetailService = groupDetailService;
     }
 
-    @GetMapping(value = "/{groupUuid}", produces = "application/json;charset=UTF-8")
-    public ResponseEntity<GroupDto> getGroupDetail(@PathVariable String groupUuid) {
-        GroupDto group = groupDetailService.getGroupDetailByGroupId(groupUuid);
+    @GetMapping(value = "/{groupUuid}/{memberUuid}", produces = "application/json;charset=UTF-8")
+    public ResponseEntity<GroupDto> getGroupDetail(@PathVariable String groupUuid, @PathVariable String memberUuid) {
+        GroupDto group = groupDetailService.getGroupDetailByGroupId(groupUuid, memberUuid);
         if (group != null) {
             return new ResponseEntity<>(group, HttpStatus.OK);
         } else {
@@ -35,9 +35,14 @@ public class GroupDetailController {
         }
     }
 
-    @PostMapping(value = "/participants", produces = "application/json;charset=UTF-8")
-    public ResponseEntity<GroupParticipantListDto> getGroupParticipants(@RequestBody GroupParticipantRequestDto groupParticipantRequestDto) {
-        return new ResponseEntity<>(groupDetailService.getGroupParticipantList(groupParticipantRequestDto), HttpStatus.OK);
+    @GetMapping(value = "/invite/{groupUuid}/{memberUuid}", produces = "application/json;charset=UTF-8")
+    public ResponseEntity<List<String>> getInvited(@PathVariable String groupUuid, @PathVariable String memberUuid){
+        return new ResponseEntity<>(groupDetailService.getInvitedHistory(groupUuid, memberUuid), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/participants/{groupUuid}", produces = "application/json;charset=UTF-8")
+    public ResponseEntity<GroupParticipantListDto> getGroupParticipants(@PathVariable String groupUuid) {
+        return new ResponseEntity<>(groupDetailService.getGroupParticipantList(groupUuid), HttpStatus.OK);
     }
 
     @PostMapping("/delete")

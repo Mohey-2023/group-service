@@ -17,7 +17,5 @@ public interface GroupParticipantRepository extends JpaRepository<GroupParticipa
 	@Query("SELECT gp FROM GroupParticipantEntity gp LEFT JOIN GroupParticipantStatusEntity ps ON gp.id = ps.id WHERE gp.groupId = :groupId AND gp.memberUuid = :memberUuid AND (ps.createdDatetime IS NULL)")
 	GroupParticipantEntity findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(@Param("groupId") Long groupId, @Param("memberUuid") String memberUuid);
 
-	@Query("SELECT gp FROM GroupParticipantEntity gp LEFT JOIN GroupParticipantStatusEntity ps ON gp.id = ps.id WHERE gp.memberUuid = :memberUuid AND (ps.createdDatetime IS NULL OR ps.createdDatetime = '')")
-	List<GroupParticipantEntity> findByMemberUuidAndGroupParticipantStatusIsNull(@Param("memberUuid") String memberUuid);
 
 }

@@ -18,9 +18,6 @@ public class CategoryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "category_uuid", length = 36)
-    private String categoryUuid;
-
     @Column(name = "category_name", length = 10)
     private String categoryName;
 
