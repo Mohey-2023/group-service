@@ -322,6 +322,12 @@ public class GroupListService {
 		int age = calculateAge(feignClient.getProfilePicture(mapGroupListRequestDto.getMemberUuid())
 			.getMemberDetailList().getBirthDate());
 
+		Long categoryId = null;
+
+		if(mapGroupListRequestDto.getCategory() != null){
+			categoryId = categoryRepository.findByCategoryName(mapGroupListRequestDto.getCategory()).getId();
+		}
+
 		if (!mapGroupListRequestDto.getIsFriend()) {
 			if(!mapGroupListRequestDto.getTitleKeyword().startsWith("#")) {
 
@@ -331,7 +337,7 @@ public class GroupListService {
 						mapGroupListRequestDto.getSwLng(), mapGroupListRequestDto.getSwLat(), mapGroupListRequestDto.getNeLng(),
 						mapGroupListRequestDto.getNeLat(), mapGroupListRequestDto.getTitleKeyword(),
 						genderOptionsRepository.findByGenderDescription(mapGroupListRequestDto.getGenderOptions()).getId(),
-						categoryRepository.findByCategoryName(mapGroupListRequestDto.getCategory()).getId(),
+					categoryId,
 						mapGroupListRequestDto.getStart(), mapGroupListRequestDto.getEnd(), age);
 
 				return mapGroupList.stream()
@@ -373,7 +379,7 @@ public class GroupListService {
 						mapGroupListRequestDto.getSwLng(), mapGroupListRequestDto.getSwLat(), mapGroupListRequestDto.getNeLng(),
 						mapGroupListRequestDto.getNeLat(), tag.getId(),
 						genderOptionsRepository.findByGenderDescription(mapGroupListRequestDto.getGenderOptions()).getId(),
-						categoryRepository.findByCategoryName(mapGroupListRequestDto.getCategory()).getId(),
+					categoryId,
 					mapGroupListRequestDto.getStart(), mapGroupListRequestDto.getEnd(), age);
 
 				return mapGroupList.stream()
@@ -415,7 +421,7 @@ public class GroupListService {
 						mapGroupListRequestDto.getSwLng(), mapGroupListRequestDto.getSwLat(), mapGroupListRequestDto.getNeLng(),
 						mapGroupListRequestDto.getNeLat(), mapGroupListRequestDto.getTitleKeyword(),
 						genderOptionsRepository.findByGenderDescription(mapGroupListRequestDto.getGenderOptions()).getId(),
-						categoryRepository.findByCategoryName(mapGroupListRequestDto.getCategory()).getId(),
+					categoryId,
 					mapGroupListRequestDto.getStart(), mapGroupListRequestDto.getEnd(), age, friendList);
 
 				return mapGroupList.stream()
@@ -459,7 +465,7 @@ public class GroupListService {
 						mapGroupListRequestDto.getSwLng(), mapGroupListRequestDto.getSwLat(), mapGroupListRequestDto.getNeLng(),
 						mapGroupListRequestDto.getNeLat(), tag.getId(),
 						genderOptionsRepository.findByGenderDescription(mapGroupListRequestDto.getGenderOptions()).getId(),
-						categoryRepository.findByCategoryName(mapGroupListRequestDto.getCategory()).getId(),
+					categoryId,
 					mapGroupListRequestDto.getStart(), mapGroupListRequestDto.getEnd(), age, friendList);
 
 				return mapGroupList.stream()
