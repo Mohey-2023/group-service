@@ -175,8 +175,8 @@ public interface GroupDetailRepository extends JpaRepository<GroupEntity, Long> 
 		"AND (:categoryTbId IS NULL OR gm.categoryTbId = :categoryTbId) " +
 		"AND (:start IS NULL OR gm.groupStartDatetime >= :start) " +
 		"AND (:end IS NULL OR gm.groupStartDatetime <= :end )" +
-		"AND (:minAge IS NULL OR :age >= gm.minAge) " +
-		"AND (:maxAge IS NULL OR :age <= gm.maxAge)")
+		"AND (:age >= gm.minAge) " +
+		"AND (:age <= gm.maxAge)")
 	List<GroupEntity> findGroupsInMap(@Param("currentDatetime") LocalDateTime currentDatetime,
 		@Param("swLng") Double swLng, @Param("swLat") Double swLat,
 		@Param("neLng") Double neLng, @Param("neLat") Double neLat,
