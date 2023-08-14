@@ -19,7 +19,7 @@ public interface FeignClient {
 	@GetMapping("/friendSearch/{memberUuid}")
 	MemberFriendListResponseDto getFriendsList(@PathVariable String memberUuid);
 
-	@GetMapping("/{memberUuid}/getUsername")
+	@GetMapping("/info/{memberUuid}/getUsername")
 	MemberNameResponseDto getMemberName(@PathVariable String memberUuid);
 
 }
