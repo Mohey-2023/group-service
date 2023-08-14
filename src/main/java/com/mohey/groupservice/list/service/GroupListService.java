@@ -2,6 +2,7 @@ package com.mohey.groupservice.list.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -301,15 +302,37 @@ public class GroupListService {
 			.collect(Collectors.toList());
 	}
 
+	public static int calculateAge(LocalDateTime birthDate) {
+		LocalDateTime currentDate = LocalDateTime.now();
+		int age = currentDate.getYear() - birthDate.getYear();
+
+		int month1 = currentDate.getMonthValue();
+		int month2 = birthDate.getMonthValue();
+		int day1 = currentDate.getDayOfMonth();
+		int day2 = birthDate.getDayOfMonth();
+
+		if (month1 < month2 || (month1 == month2 && day1 < day2)) {
+			age--;
+		}
+
+		return age;
+	}
+
 	public List<MapGroupListResponseDto> getMapGroupList(MapGroupListRequestDto mapGroupListRequestDto) {
+		int age = calculateAge(feignClient.getProfilePicture(mapGroupListRequestDto.getMemberUuid())
+			.getMemberDetailList().getBirthDate());
+
 		if (!mapGroupListRequestDto.getIsFriend()) {
 			if(!mapGroupListRequestDto.getTitleKeyword().startsWith("#")) {
+
+
+
 				List<GroupEntity> mapGroupList = groupDetailRepository.findGroupsInMap(LocalDateTime.now(),
 						mapGroupListRequestDto.getSwLng(), mapGroupListRequestDto.getSwLat(), mapGroupListRequestDto.getNeLng(),
 						mapGroupListRequestDto.getNeLat(), mapGroupListRequestDto.getTitleKeyword(),
 						genderOptionsRepository.findByGenderDescription(mapGroupListRequestDto.getGenderOptions()).getId(),
 						categoryRepository.findByCategoryName(mapGroupListRequestDto.getCategory()).getId(),
-						mapGroupListRequestDto.getMinAge(), mapGroupListRequestDto.getMaxAge());
+						mapGroupListRequestDto.getStart(), mapGroupListRequestDto.getEnd(), age);
 
 				return mapGroupList.stream()
 						.map(groupEntity -> {
@@ -351,7 +374,7 @@ public class GroupListService {
 						mapGroupListRequestDto.getNeLat(), tag.getId(),
 						genderOptionsRepository.findByGenderDescription(mapGroupListRequestDto.getGenderOptions()).getId(),
 						categoryRepository.findByCategoryName(mapGroupListRequestDto.getCategory()).getId(),
-						mapGroupListRequestDto.getMinAge(), mapGroupListRequestDto.getMaxAge());
+					mapGroupListRequestDto.getStart(), mapGroupListRequestDto.getEnd(), age);
 
 				return mapGroupList.stream()
 						.map(groupEntity -> {
@@ -393,7 +416,7 @@ public class GroupListService {
 						mapGroupListRequestDto.getNeLat(), mapGroupListRequestDto.getTitleKeyword(),
 						genderOptionsRepository.findByGenderDescription(mapGroupListRequestDto.getGenderOptions()).getId(),
 						categoryRepository.findByCategoryName(mapGroupListRequestDto.getCategory()).getId(),
-						mapGroupListRequestDto.getMinAge(), mapGroupListRequestDto.getMaxAge(), friendList);
+					mapGroupListRequestDto.getStart(), mapGroupListRequestDto.getEnd(), age, friendList);
 
 				return mapGroupList.stream()
 						.map(groupEntity -> {
@@ -437,7 +460,7 @@ public class GroupListService {
 						mapGroupListRequestDto.getNeLat(), tag.getId(),
 						genderOptionsRepository.findByGenderDescription(mapGroupListRequestDto.getGenderOptions()).getId(),
 						categoryRepository.findByCategoryName(mapGroupListRequestDto.getCategory()).getId(),
-						mapGroupListRequestDto.getMinAge(), mapGroupListRequestDto.getMaxAge(), friendList);
+					mapGroupListRequestDto.getStart(), mapGroupListRequestDto.getEnd(), age, friendList);
 
 				return mapGroupList.stream()
 						.map(groupEntity -> {

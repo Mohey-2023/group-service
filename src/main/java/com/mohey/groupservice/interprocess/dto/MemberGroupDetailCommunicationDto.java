@@ -1,5 +1,7 @@
 package com.mohey.groupservice.interprocess.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.*;
 
 @Getter
@@ -10,6 +12,6 @@ import lombok.*;
 public class MemberGroupDetailCommunicationDto {
 	private String memberName;
 	private String memberGender;
-	private String birthDate;
+	private LocalDateTime birthDate;
 	private String profilePicture;
 }

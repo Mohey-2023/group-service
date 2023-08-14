@@ -1,5 +1,7 @@
 package com.mohey.groupservice.list.dto;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,8 +20,8 @@ public class MapGroupListRequestDto {
 	private String titleKeyword;
 	private String genderOptions;
 	private String category;
-	private Integer minAge;
-	private Integer maxAge;
+	private LocalDateTime start;
+	private LocalDateTime end;
 	private Boolean isFriend;
 	private String memberUuid;
 }
