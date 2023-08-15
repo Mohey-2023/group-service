@@ -5,9 +5,11 @@ import java.time.LocalDateTime;
 import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.mohey.groupservice.entity.category.TagEntity;
@@ -507,16 +509,24 @@ public class GroupListService {
 
 		List<String> friendsUuidList = friendListResponse.getFriendList();
 
+		Set<String> addedGroupUuids = new HashSet<>();
+
 		List<FriendListDto> friendGroups = new ArrayList<>();
 
 		for (String friendUuid : friendsUuidList) {
 			groupDetailRepository.findFutureNotConfirmedGroupsForParticipant(
 				friendUuid, LocalDateTime.now()).forEach(groupEntity -> {
 
-				FriendListDto friendListDto = new FriendListDto();
-				friendListDto.setGroupEntity(groupEntity);
-				friendListDto.setFriendUuid(friendUuid);
-				friendGroups.add(friendListDto);
+				String groupUuid = groupEntity.getGroupUuid();
+
+				if (!addedGroupUuids.contains(groupUuid)) {
+					addedGroupUuids.add(groupUuid);
+
+					FriendListDto friendListDto = new FriendListDto();
+					friendListDto.setGroupEntity(groupEntity);
+					friendListDto.setFriendUuid(friendUuid);
+					friendGroups.add(friendListDto);
+				}
 			});
 		}
 
