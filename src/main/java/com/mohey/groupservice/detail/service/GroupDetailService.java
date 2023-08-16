@@ -44,6 +44,7 @@ public class GroupDetailService {
     private final GroupInvitationRepository groupInvitationRepository;
     private final GroupRealtimeRepository groupRealtimeRepository;
     private final GroupConfirmRepository groupConfirmRepository;
+    private final GroupApplicantRepository groupApplicantRepository;
 
 
     @Autowired
@@ -62,7 +63,8 @@ public class GroupDetailService {
                               TagRepository tagRepository,
                               GroupInvitationRepository groupInvitationRepository,
                               GroupRealtimeRepository groupRealtimeRepository,
-                              GroupConfirmRepository groupConfirmRepository) {
+                              GroupConfirmRepository groupConfirmRepository,
+        GroupApplicantRepository groupApplicantRepository) {
         this.groupDetailRepository = groupDetailRepository;
         this.groupModifiableRepository = groupModifiableRepository;
         this.groupTagRepository = groupTagRepository;
@@ -79,6 +81,7 @@ public class GroupDetailService {
         this.groupInvitationRepository = groupInvitationRepository;
         this.groupRealtimeRepository = groupRealtimeRepository;
         this.groupConfirmRepository = groupConfirmRepository;
+        this.groupApplicantRepository = groupApplicantRepository;
     }
 
     public GroupDto getGroupDetailByGroupId(String groupId, String memberUuid) {
@@ -134,6 +137,13 @@ public class GroupDetailService {
             group.setIsLeader(true);
         } else {
             group.setIsLeader(false);
+        }
+
+        if(groupApplicantRepository
+            .findByGroupIdAndMemberUuidApplicantsWithNoStatus(groupEntity.getId(), memberUuid) != null){
+            group.setIsApplicant(true);
+        } else {
+            group.setIsApplicant(false);
         }
 
         if(groupRealtimeRepository.existsById(groupEntity.getId())){
