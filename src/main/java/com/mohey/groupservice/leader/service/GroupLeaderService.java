@@ -625,7 +625,7 @@ public class GroupLeaderService {
 		chatCommunicationDto.setMemberUuid(applicantAcceptRejectDto.getMemberUuid());
 		chatCommunicationDto.setDeviceTokenList(requestDto.getReceiverToken());
 
-		chatFeginClient.create(chatCommunicationDto);
+		chatFeginClient.accept(chatCommunicationDto);
 	}
 
 	public void rejectApplicant(ApplicantAcceptRejectDto applicantAcceptRejectDto) {
