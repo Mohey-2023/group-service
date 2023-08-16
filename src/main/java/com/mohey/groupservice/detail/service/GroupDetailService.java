@@ -263,7 +263,7 @@ public class GroupDetailService {
             ChatCommunicationDto chatCommunicationDto = new ChatCommunicationDto();
             chatCommunicationDto.setGroupUuid(dto.getGroupUuid());
             chatCommunicationDto.setMemberUuid(participant.getMemberUuid());
-            chatFeginClient.create(chatCommunicationDto);
+            chatFeginClient.exit(chatCommunicationDto);
 
             GroupParticipantStatusEntity status = GroupParticipantStatusEntity.builder()
                     .createdDatetime(LocalDateTime.now())

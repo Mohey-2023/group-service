@@ -363,7 +363,7 @@ public class GroupLeaderService {
 		chatCommunicationDto.setMemberUuid("");
 		chatCommunicationDto.setGroupType(modifyGroupDto.getCategory());
 
-		chatFeginClient.create(chatCommunicationDto);
+		chatFeginClient.modify(chatCommunicationDto);
 
 		List<GroupParticipantEntity> participantList = groupParticipantRepository.findByGroupIdAndGroupParticipantStatusIsNull(
 			groupEntity.getId());
@@ -438,7 +438,7 @@ public class GroupLeaderService {
 			chatCommunicationDto.setGroupUuid(groupEntity.getGroupUuid());
 			chatCommunicationDto.setMemberUuid(kickDto.getKickUuid());
 
-			chatFeginClient.create(chatCommunicationDto);
+			chatFeginClient.exit(chatCommunicationDto);
 		}
 	}
 

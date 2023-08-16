@@ -148,6 +148,6 @@ public class GroupParticipantService {
         chatCommunicationDto.setGroupUuid(joinLeaveDto.getGroupUuid());
         chatCommunicationDto.setMemberUuid(joinLeaveDto.getMemberUuid());
 
-        chatFeginClient.create(chatCommunicationDto);
+        chatFeginClient.exit(chatCommunicationDto);
     }
 }
