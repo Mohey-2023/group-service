@@ -2,7 +2,6 @@ package com.mohey.groupservice.list.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -10,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import com.mohey.groupservice.entity.category.TagEntity;
@@ -519,7 +519,8 @@ public class GroupListService {
 
 				String groupUuid = groupEntity.getGroupUuid();
 
-				if (!addedGroupUuids.contains(groupUuid)) {
+				if (!addedGroupUuids.contains(groupUuid) && groupParticipantRepository.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(
+					groupEntity.getId(), memberUuid) != null) {
 					addedGroupUuids.add(groupUuid);
 
 					FriendListDto friendListDto = new FriendListDto();
