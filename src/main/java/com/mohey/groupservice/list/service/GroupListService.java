@@ -520,7 +520,7 @@ public class GroupListService {
 				String groupUuid = groupEntity.getGroupUuid();
 
 				if (!addedGroupUuids.contains(groupUuid) && groupParticipantRepository.findByGroupIdAndMemberUuidAndGroupParticipantStatusIsNull(
-					groupEntity.getId(), memberUuid) != null) {
+					groupEntity.getId(), memberUuid) == null) {
 					addedGroupUuids.add(groupUuid);
 
 					FriendListDto friendListDto = new FriendListDto();
